@@ -1,0 +1,12 @@
+D:\frame\frame\Dashboard.Common\obj\Debug\Dashboard.Common.csprojResolveAssemblyReference.cache
+D:\frame\frame\Dashboard.Common\bin\Debug\Dashboard.Common.dll
+D:\frame\frame\Dashboard.Common\bin\Debug\Dashboard.Common.pdb
+D:\frame\frame\Dashboard.Common\bin\Debug\Dashboard.Domain.dll
+D:\frame\frame\Dashboard.Common\bin\Debug\NPOI.dll
+D:\frame\frame\Dashboard.Common\bin\Debug\NPOI.OOXML.dll
+D:\frame\frame\Dashboard.Common\bin\Debug\NPOI.OpenXml4Net.dll
+D:\frame\frame\Dashboard.Common\bin\Debug\NPOI.OpenXmlFormats.dll
+D:\frame\frame\Dashboard.Common\bin\Debug\ICSharpCode.SharpZipLib.dll
+D:\frame\frame\Dashboard.Common\bin\Debug\Dashboard.Domain.pdb
+D:\frame\frame\Dashboard.Common\obj\Debug\Dashboard.Common.dll
+D:\frame\frame\Dashboard.Common\obj\Debug\Dashboard.Common.pdb

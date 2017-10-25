@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{74E566A7-6C10-46E3-815A-15A5C8D634AE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Dashboard.Core</RootNamespace>
+    <AssemblyName>Dashboard.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EFCodeFirstConventions">
+      <HintPath>..\packages\EFCodeFirstConventions\EFCodeFirstConventions.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4j\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>C:\Windows\assembly\GAC_MSIL\Microsoft.Office.Interop.Excel\14.0.0.0__71e9bce111e9429c\Microsoft.Office.Interop.Excel.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Const\Consts.cs" />
+    <Compile Include="DBTransaction\DBTransactionExtension.cs" />
+    <Compile Include="Enumeration\Enumeration.cs" />
+    <Compile Include="ExceptionLog\ExceptionLog.cs" />
+    <Compile Include="Entities\DataBaseInitializer.cs" />
+    <Compile Include="Entities\Dashboard.Core.cs" />
+    <Compile Include="Entities\DashboardDbContext.cs" />
+    <Compile Include="Localization\FrogEntities\DataBaseInitializer.cs" />
+    <Compile Include="Localization\FrogEntities\FrogDashboard.Core.cs" />
+    <Compile Include="Localization\FrogEntities\FrogDashboardDbContext.cs" />
+    <Compile Include="Localization\LocalizationHandler.cs" />
+    <Compile Include="Log4netHelper\Log4netHelper.cs" />
+    <Compile Include="ModelValidation\Validation.cs" />
+    <Compile Include="ModelValidation\ValidationIssue.cs" />
+    <Compile Include="ModelValidation\ValidationIssueException.cs" />
+    <Compile Include="MVCAttributes\MVCAuthentication.cs" />
+    <Compile Include="MVCAttributes\MVCSysException.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\CDatatableConvert.cs" />
+    <Compile Include="Utility\CUtility.cs" />
+    <Compile Include="Utility\EFObjectConverter.cs" />
+    <Compile Include="Utility\EmailHelper.cs" />
+    <Compile Include="Utility\ExcelUtil.cs" />
+    <Compile Include="Utility\HtmlExtension.cs" />
+    <Compile Include="Utility\ModelState.cs" />
+    <Compile Include="Utility\MyJsonResult.cs" />
+    <Compile Include="Utility\SqlHelper\SpExecution.cs" />
+    <Compile Include="Utility\SqlHelper\SqlHelper.cs" />
+    <Compile Include="Utility\StaticExtension.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dashboard.Domain\Dashboard.Domain.csproj">
+      <Project>{1ca93ebd-bd4e-4f06-b3ec-ca5536ac8d7b}</Project>
+      <Name>Dashboard.Domain</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

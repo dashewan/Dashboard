@@ -1,0 +1,5 @@
+D:\frame\frame\Dashboard.AutoInput\bin\Debug\Dashboard.AutoInput.dll
+D:\frame\frame\Dashboard.AutoInput\bin\Debug\Dashboard.AutoInput.pdb
+D:\frame\frame\Dashboard.AutoInput\obj\Debug\Dashboard.AutoInput.dll
+D:\frame\frame\Dashboard.AutoInput\obj\Debug\Dashboard.AutoInput.pdb
+D:\frame\frame\Dashboard.AutoInput\obj\Debug\Dashboard.AutoInput.csprojResolveAssemblyReference.cache

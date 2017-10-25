@@ -1,0 +1,6 @@
+D:\frame\frame\Dashboard.DaoFactory\bin\Debug\Dashboard.DaoFactory.dll
+D:\frame\frame\Dashboard.DaoFactory\bin\Debug\Dashboard.DaoFactory.pdb
+D:\frame\frame\Dashboard.DaoFactory\bin\Debug\Spring.Core.dll
+D:\frame\frame\Dashboard.DaoFactory\obj\Debug\Dashboard.DaoFactory.dll
+D:\frame\frame\Dashboard.DaoFactory\obj\Debug\Dashboard.DaoFactory.pdb
+D:\frame\frame\Dashboard.DaoFactory\obj\Debug\Dashboard.DaoFactory.csprojResolveAssemblyReference.cache

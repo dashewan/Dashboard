@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5E2964E6-1E52-4C74-BED0-D06A7215CE3F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Dashboard.Interface</RootNamespace>
+    <AssemblyName>Dashboard.Interface</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseService\IBaseService.cs" />
+    <Compile Include="BasicData\IBasAdjustmentTable.cs" />
+    <Compile Include="BasicData\IBasNormalSchedule.cs" />
+    <Compile Include="BasicData\IBasNormalScheduleS.cs" />
+    <Compile Include="BasicData\IBasNormalScheduleVCt.cs" />
+    <Compile Include="BasicData\IBasNormalScheduleVCtDet.cs" />
+    <Compile Include="BasicData\IBasNormalScheduleVTm.cs" />
+    <Compile Include="BasicData\IBasNormalScheduleVTmDet.cs" />
+    <Compile Include="BasicData\IBasPdcSequence.cs" />
+    <Compile Include="BasicData\IBasSpecialDay.cs" />
+    <Compile Include="BasicData\IBasSpecialSchedule.cs" />
+    <Compile Include="BasicData\IBasSpecialScheduleIndex.cs" />
+    <Compile Include="MasterData\SysManagement\ISysDataAuth.cs" />
+    <Compile Include="MasterData\SysManagement\ISysFunction.cs" />
+    <Compile Include="MasterData\SysManagement\ISysModule.cs" />
+    <Compile Include="MasterData\SysManagement\ISysOrganization.cs" />
+    <Compile Include="MasterData\SysManagement\ISysRole.cs" />
+    <Compile Include="MasterData\SysManagement\ISysRoleFunction.cs" />
+    <Compile Include="MasterData\SysManagement\ISysUser.cs" />
+    <Compile Include="MasterData\SysManagement\ISysUserRole.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dashboard.Domain\Dashboard.Domain.csproj">
+      <Project>{1ca93ebd-bd4e-4f06-b3ec-ca5536ac8d7b}</Project>
+      <Name>Dashboard.Domain</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,12 @@
+D:\frame\frame\Dashboard.Core\obj\Debug\Dashboard.Core.csprojResolveAssemblyReference.cache
+D:\frame\frame\Dashboard.Core\bin\Debug\Dashboard.Core.dll
+D:\frame\frame\Dashboard.Core\bin\Debug\Dashboard.Core.pdb
+D:\frame\frame\Dashboard.Core\bin\Debug\Dashboard.Domain.dll
+D:\frame\frame\Dashboard.Core\bin\Debug\EFCodeFirstConventions.dll
+D:\frame\frame\Dashboard.Core\bin\Debug\EntityFramework.dll
+D:\frame\frame\Dashboard.Core\bin\Debug\log4net.dll
+D:\frame\frame\Dashboard.Core\bin\Debug\Dashboard.Domain.pdb
+D:\frame\frame\Dashboard.Core\bin\Debug\EntityFramework.xml
+D:\frame\frame\Dashboard.Core\bin\Debug\zh-Hans\EntityFramework.resources.dll
+D:\frame\frame\Dashboard.Core\obj\Debug\Dashboard.Core.dll
+D:\frame\frame\Dashboard.Core\obj\Debug\Dashboard.Core.pdb

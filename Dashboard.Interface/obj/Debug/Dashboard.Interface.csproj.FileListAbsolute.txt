@@ -1,0 +1,7 @@
+D:\frame\frame\Dashboard.Interface\obj\Debug\Dashboard.Interface.csprojResolveAssemblyReference.cache
+D:\frame\frame\Dashboard.Interface\bin\Debug\Dashboard.Interface.dll
+D:\frame\frame\Dashboard.Interface\bin\Debug\Dashboard.Interface.pdb
+D:\frame\frame\Dashboard.Interface\bin\Debug\Dashboard.Domain.dll
+D:\frame\frame\Dashboard.Interface\bin\Debug\Dashboard.Domain.pdb
+D:\frame\frame\Dashboard.Interface\obj\Debug\Dashboard.Interface.dll
+D:\frame\frame\Dashboard.Interface\obj\Debug\Dashboard.Interface.pdb

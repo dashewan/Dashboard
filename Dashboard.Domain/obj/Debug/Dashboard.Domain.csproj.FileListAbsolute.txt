@@ -1,0 +1,9 @@
+D:\frame\frame\Dashboard.Domain\bin\Debug\Dashboard.Domain.dll
+D:\frame\frame\Dashboard.Domain\bin\Debug\Dashboard.Domain.pdb
+D:\frame\frame\Dashboard.Domain\bin\Debug\EFCodeFirstConventions.dll
+D:\frame\frame\Dashboard.Domain\bin\Debug\EntityFramework.dll
+D:\frame\frame\Dashboard.Domain\bin\Debug\EntityFramework.xml
+D:\frame\frame\Dashboard.Domain\bin\Debug\zh-Hans\EntityFramework.resources.dll
+D:\frame\frame\Dashboard.Domain\obj\Debug\Dashboard.Domain.dll
+D:\frame\frame\Dashboard.Domain\obj\Debug\Dashboard.Domain.pdb
+D:\frame\frame\Dashboard.Domain\obj\Debug\Dashboard.Domain.csprojResolveAssemblyReference.cache

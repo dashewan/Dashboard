@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{99A68626-93AC-41E8-A464-638F0E63D585}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Dashboard.Service</RootNamespace>
+    <AssemblyName>Dashboard.Service</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EFCodeFirstConventions">
+      <HintPath>..\packages\EFCodeFirstConventions\EFCodeFirstConventions.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4j\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\BasicData\CBasAdjustmentTableService.cs" />
+    <Compile Include="Services\BasicData\CBasNormalScheduleService.cs" />
+    <Compile Include="Services\BasicData\CBasNormalScheduleSService.cs" />
+    <Compile Include="Services\BasicData\CBasNormalScheduleVCtDetService.cs" />
+    <Compile Include="Services\BasicData\CBasNormalScheduleVCtService.cs" />
+    <Compile Include="Services\BasicData\CBasNormalScheduleVTmDetService.cs" />
+    <Compile Include="Services\BasicData\CBasNormalScheduleVTmService.cs" />
+    <Compile Include="Services\BasicData\CBasPdcSequenceService.cs" />
+    <Compile Include="Services\BasicData\CBasSpecialDayService.cs" />
+    <Compile Include="Services\BasicData\CBasSpecialScheduleIndexService.cs" />
+    <Compile Include="Services\BasicData\CBasSpecialScheduleService.cs" />
+    <Compile Include="Services\MasterData\CBasCityService.cs" />
+    <Compile Include="Services\MasterData\CBasCodeTypeService.cs" />
+    <Compile Include="Services\MasterData\CBasProvinceService.cs" />
+    <Compile Include="Services\MasterData\CSbCodeDefService.cs" />
+    <Compile Include="Services\MasterData\SysManagement\SysExeceptionService.cs" />
+    <Compile Include="Services\MasterData\SysManagement\SysFunctionService.cs" />
+    <Compile Include="Services\MasterData\SysManagement\SysOrgService.cs" />
+    <Compile Include="Services\MasterData\SysManagement\SysRoleService.cs" />
+    <Compile Include="Services\MasterData\SysManagement\SysUserService.cs" />
+    <Compile Include="Services\MasterData\SysManagement\UserRoleService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dashboard.Authentication\Dashboard.Authentication.csproj">
+      <Project>{0a081410-18dc-4571-a427-7f4f008b3d81}</Project>
+      <Name>Dashboard.Authentication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Dashboard.Common\Dashboard.Common.csproj">
+      <Project>{bd9de022-7895-44ba-9579-d94221be373a}</Project>
+      <Name>Dashboard.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Dashboard.Core\Dashboard.Core.csproj">
+      <Project>{74e566a7-6c10-46e3-815a-15a5c8d634ae}</Project>
+      <Name>Dashboard.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Dashboard.Domain\Dashboard.Domain.csproj">
+      <Project>{1ca93ebd-bd4e-4f06-b3ec-ca5536ac8d7b}</Project>
+      <Name>Dashboard.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Dashboard.Interface\Dashboard.Interface.csproj">
+      <Project>{5e2964e6-1e52-4c74-bed0-d06a7215ce3f}</Project>
+      <Name>Dashboard.Interface</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
