@@ -3,22 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using FrogDashboard.WebUI.Models;
-using FrogDashboard.Domain.SysManagement;
-using FrogDashboard.Core.DBTransaction;
-using FrogDashboard.Core.MVCAttributes;
-using FrogDashboard.Authentication;
-using FrogDashboard.Interface.MasterData.SysManagement;
+using Dashboard.WebUI.Models;
+using Dashboard.Domain.SysManagement;
+using Dashboard.Core.DBTransaction;
+using Dashboard.Core.MVCAttributes;
+using Dashboard.Authentication;
+using Dashboard.Interface.MasterData.SysManagement;
 using System.Reflection;
-using FrogDashboard.Domain.MVCExtension;
-using FrogDashboard.Service.Services.Dashboard;
-using FrogDashboard.Domain.Models.Dashboard;
+using Dashboard.Domain.MVCExtension;
 
 
-namespace FrogDashboard.WebUI.Controllers
+
+namespace Dashboard.WebUI.Controllers
 {
     [CustomHandleError()]
-    [FrogDashboard.Authentication.MvcAttribute.CustomAuthorize()]
+    [Dashboard.Authentication.MvcAttribute.CustomAuthorize()]
     public class HomeController : Controller
     {
 
@@ -32,8 +31,8 @@ namespace FrogDashboard.WebUI.Controllers
             ViewBag.UserRoles = userRoles;
 
             ViewBag.SysRole = Authentication.Authentication.CurrentUserRole;
-            string s = "FrogDashboard.Service.Services.MasterData.SysManagement.SysFunctionService";
-            ISysFunction<SysFunction> service_ = (ISysFunction<SysFunction>)Assembly.Load("FrogDashboard.Service").CreateInstance(s);
+            string s = "Dashboard.Service.Services.MasterData.SysManagement.SysFunctionService";
+            ISysFunction<SysFunction> service_ = (ISysFunction<SysFunction>)Assembly.Load("Dashboard.Service").CreateInstance(s);
             var userRoleId = Authentication.Authentication.CurrentUser.RoleId;
             var str = Request.Browser.Browser;
             if (str == "Safari" && service_.GetUserFunction(userRoleId).Where(c => c.ControllerName == "OrderManagement" && c.ActionName == "TmsForPad").Count() > 0)

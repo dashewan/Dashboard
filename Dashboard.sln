@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.WebUI", "frame\Dashboard.WebUI.csproj", "{E3F15722-1704-4F19-AAD2-7B56C96E1F8D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.WebUI", "Dashboard.WebUI\Dashboard.WebUI.csproj", "{E3F15722-1704-4F19-AAD2-7B56C96E1F8D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Authentication", "Dashboard.Authentication\Dashboard.Authentication.csproj", "{0A081410-18DC-4571-A427-7F4F008B3D81}"
 EndProject

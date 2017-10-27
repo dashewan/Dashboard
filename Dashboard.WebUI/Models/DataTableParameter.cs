@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace FrogDashboard.WebUI.Models
+namespace Dashboard.WebUI.Models
 {
     public class DataTableParameter
     {

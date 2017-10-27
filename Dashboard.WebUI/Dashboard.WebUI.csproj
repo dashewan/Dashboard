@@ -11,8 +11,8 @@
     <ProjectTypeGuids>{E3E379DF-F4C6-4180-9B81-6769533ABE47};{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>frame</RootNamespace>
-    <AssemblyName>frame</AssemblyName>
+    <RootNamespace>Dashboard.WebUI</RootNamespace>
+    <AssemblyName>Dashboard.WebUI</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
@@ -39,6 +39,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EFCodeFirstConventions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EFCodeFirstConventions\EFCodeFirstConventions.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -126,6 +130,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\AccountModels.cs" />
+    <Compile Include="Models\DataTableParameter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -216,10 +222,31 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dashboard.Authentication\Dashboard.Authentication.csproj">
+      <Project>{0a081410-18dc-4571-a427-7f4f008b3d81}</Project>
+      <Name>Dashboard.Authentication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Dashboard.Core\Dashboard.Core.csproj">
+      <Project>{74e566a7-6c10-46e3-815a-15a5c8d634ae}</Project>
+      <Name>Dashboard.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Dashboard.Domain\Dashboard.Domain.csproj">
+      <Project>{1ca93ebd-bd4e-4f06-b3ec-ca5536ac8d7b}</Project>
+      <Name>Dashboard.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Dashboard.Interface\Dashboard.Interface.csproj">
+      <Project>{5e2964e6-1e52-4c74-bed0-d06a7215ce3f}</Project>
+      <Name>Dashboard.Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Dashboard.Service\Dashboard.Service.csproj">
+      <Project>{99a68626-93ac-41e8-a464-638f0e63d585}</Project>
+      <Name>Dashboard.Service</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -8,7 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 
-namespace FrogDashboard.WebUI.Models
+namespace Dashboard.WebUI.Models
 {
 
     #region Models
