@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Localization>
+  <Module name="主页">
+    <item name="ModifyPwd">修改密码</item>
+    <item name="TabAlert">打开的Tab不能超过7个</item>
+    <item name="Home">主页</item>
+    <item name="About">关于</item>
+    <item name="My MVC Application">我的MVC程序！</item>
+    <item name="PageContent">页面正文</item>
+    <item name="OtherContent">其他内容</item>
+    <item name="Log On">登录</item>
+    <item name="Title">标题</item>
+    <item name="language is applied">语言已设定。</item>
+    <item name="Menu">主菜单</item>
+    <item name="MasterData">基础信息</item>
+    <item name="SaveError">保存出错，请联系联系管理员</item>
+    <item name="ChangeRole">切换</item>
+    <item name="EnLang">English</item>
+    <item name="CnLang">中文</item>
+    <item name="Exit">退出</item>
+    <item name="CurrentRole">当前角色</item>
+    <item name="PlsSaveCurrentDate">请保存当前数据!</item>
+    <item name="LeavePage">您确定退出吗?</item>
+    <item name="SystemTimeOut">系统已超时,请重新登录。</item>
+    <item name="HomePage">我的主页</item>
+    <item name="Dashboard1">报表1</item>
+    <item name="Dashboard2">报表2</item>
+    <item name="Dashboard3">报表3</item>
+    <item name="Dashboard4">报表4</item>
+    <item name="Dashboard5">报表5</item>
+    <!--主页面左侧菜单-->
+    <item name="BusinessInfo">业务信息</item>
+    <item name="ChartInfo">图表信息</item>
+    <item name="HomeManagement">首页管理</item>
+    <item name="System">系统管理</item>
+    <!--基础数据-->
+    <item name="BasicData.BasNormalSchedule">正常时效</item>
+    <item name="BasicData.BasSpecialScheduleIndex">特殊时效</item>
+    <item name="BasicData.BasSpecialDay">特殊日</item>
+    <item name="MasterData.DataDictionary">数据字典</item>
+      <!--KPI计算-->
+    <item name="KPICalculation.KPICalculation">KPI计算</item>
+    <item name="ProjectPipeline.ProjectPipeline">项目管理</item>
+    <item name="ProductCR.ProductCR">变更管理</item>
+    <item name="TICKET.TICKETIndex">工作单管理</item>
+    <!--报表管理-->
+    <item name="BasicData.BasPdcSequence">仓库顺序</item>
+	<item name="Reports.AllDataFormReport">运单信息</item>
+    <item name="Reports.CustomerPerformanceReport">客户KPI报表（按货物类型）</item>
+    <item name="Reports.ForwarderPerformanceReport">承运商KPI报表（按运输方式）</item>
+    <item name="Reports.MonthlyKpiByDealerTmReport">经销商KPI（按运输方式）</item>
+    <item name="Reports.MonthlyKpiByDealerCtReport">经销商KPI（按货物类型）</item>
+    <item name="Reports.CRReport">变更管理图表</item>
+    <item name="Reports.TICKETReport">工作单管理图表</item>
+    <item name="Reports.OverallReport">综合图表</item>
+    <item name="Reports.PipelineReport">项目管理图表</item>
+    <!--系统管理-->
+    <item name="MasterData.SysOrganization">组织管理</item>
+    <item name="MasterData.SysFunction">功能管理</item>
+    <item name="MasterData.SysUser">用户管理</item>
+    <item name="MasterData.SysRole">角色管理</item>
+    <!--首页管理-->
+    <item name="Dashboard.DashboardIndex">首页管理</item>
+  </Module>
+</Localization>

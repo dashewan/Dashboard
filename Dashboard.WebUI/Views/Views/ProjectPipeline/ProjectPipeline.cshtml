@@ -1,0 +1,1643 @@
+﻿@using FrogDashboard.Authentication.HtmlExtension;
+@{
+    ViewBag.Title = "<=ProjectPipeline>";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script src="@Url.Content("~/Scripts/jquery.easyui/jquery.easyui.min-1.4.2.js")" type="text/javascript"></script>
+    <link href="@Url.Content("~/Scripts/jquery.easyui/easyui.css")" rel="stylesheet" type="text/css" media="screen" />
+    <link href="@Url.Content("~/Scripts/jquery.easyui/icon.css")" rel="stylesheet" type="text/css" media="screen" />
+    <style type="text/css">
+        .dateControlYM {
+            margin-left: 0px;
+            margin-right: 0px; 
+            padding-top: 3px; 
+            padding-bottom: 3px;
+        }
+        .backgroundClass {
+            background-color: #F0F0F0;
+        }
+        .fontcolor {
+            color:darkgray;
+        }
+        input::-ms-clear { display: none; } 
+    </style>
+    <!-- 控件初始化js -->
+    <script type="text/javascript">
+        //dialog编辑模式(New,Edit)
+        var EditMode = "";
+        $(function () {
+            //Nature控件
+            $('#NatureSelect').combobox({
+                url: '@Url.Action("NatureSelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            });
+
+            $('#DtlNatureSelect').combobox({
+                url: '@Url.Action("NatureSelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: false
+            });
+
+            //Type控件
+            $('#TypeSelect').combobox({
+                url: '@Url.Action("TypeSelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            });
+
+            $('#DtlTypeSelect').combobox({
+                url: '@Url.Action("TypeSelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: false
+            });
+            
+            //District控件
+            $('#DistrictSelect').combobox({
+                url: '@Url.Action("DistrictSelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            });
+
+            $('#DtlDistrictSelect').combobox({
+                url: '@Url.Action("DistrictSelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: false
+            });
+            
+            //Department控件
+            $('#DepartmentSelect').combobox({
+                url: '@Url.Action("DepartmentSelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            });
+
+            $('#DtlDepartmentSelect').combobox({
+                url: '@Url.Action("DepartmentSelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: false
+            });
+            //ITMember控件
+            $('#ITMemberSelect').combobox({
+                url: '@Url.Action("ITMemberSelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            });
+            
+            $('#DtlITMemberSelect').combobox({
+                url: '@Url.Action("ITMemberSelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: false
+            });
+
+            //OverallStatus控件
+            $('#OverallStatusSelect').combobox({
+                url: '@Url.Action("OverallStatusSelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            });
+            
+            $('#DtlOverallStatusSelect').combobox({
+                url: '@Url.Action("OverallStatusSelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false,
+                onChange: function (newValue, oldValue) {
+                    if (EditMode == "Edit") {
+                        sysUser(newValue);
+                        if ('@ViewBag.RoleName' == 'Administrator')
+                            return;
+                        var DtlOverallStatusHidden = $("#DtlOverallStatusHidden").val();
+                        if (newValue != DtlOverallStatusHidden && DtlOverallStatusHidden != "" && oldValue != "") {
+                            if (DtlOverallStatusHidden != 'Open' && DtlOverallStatusHidden != "Closed" && newValue == "Open") {
+                                $(this).combobox('setValue', DtlOverallStatusHidden);
+                                alert("<=CanNotSelectOpen>");
+                            }
+                            if (DtlOverallStatusHidden == "Closed" && newValue != "Closed") {
+                                $(this).combobox('setValue', DtlOverallStatusHidden);
+                                alert("<=CanNotSelect>");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (newValue != "Open" && newValue != "" && newValue != undefined)
+                        {
+                            $(this).combobox('setValue', 'Open');
+                            alert("<=OverallStatusNewOpen>");
+                        }
+                    }
+                }
+            });
+
+            //ESTEffortDay控件
+            $('#ESTEffortDaySelect').combobox({
+                url: '@Url.Action("ESTEffortDaySelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            });
+            
+            $('#DtlESTEffortDaySelect').combobox({
+                url: '@Url.Action("ESTEffortDaySelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: false
+            });
+
+            //ACTEffortDay控件
+            $('#ACTEffortDaySelect').combobox({
+                url: '@Url.Action("ESTEffortDaySelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            });
+            
+            $('#DtlACTEffortDaySelect').combobox({
+                url: '@Url.Action("ESTEffortDaySelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: false
+            });
+
+            $('#DtlInitialEffortDay').combobox({
+                url: '@Url.Action("ESTEffortDaySelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: false
+            });
+            
+            //明细revisedeffort控件
+            $('#DtlrevisedeffortSelect').combobox({
+                url: '@Url.Action("ESTEffortDaySelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: false
+            });
+
+            //TeamSelect控件
+            $('#TeamSelect').combobox({
+                url: '@Url.Action("TeamSelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            });
+
+            //ImplementerSelect控件
+            $('#ImplementerSelect').combobox({
+                url: '@Url.Action("ITMemberSelect","ProjectPipeline")',
+            valueField: 'id',
+            textField: 'text',
+            multiple: false
+            });
+
+            $('#DtlImplementerSelect').combobox({
+                url: '@Url.Action("ITMemberSelect","ProjectPipeline")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            });
+            
+            //主画面的grid
+            $("#tblProjectPipelineInfo").jqGrid({
+                datatype: "json",
+                mtype: 'POST',
+                height: getBrowserWidthHeight().height - 280,
+                colNames: ['<=ProjectID>', '<=RequestDate>', '<=Nature>', '<=Type>', '<=District>', '<=Department>', '<=BusinessFocalPoint>', '<=ITPM>', '<=ProjectName>', '<=OverallStatus>', '<=ShortDescription>', '<=InitialStartDay>', '<=InitialEndDay>', '<=InitialEffortDay>', '<=ESTEffortDay>', '<=ESTStartDate>', '<=ESTEndDate>', '<=ESTBudget>', '<=revisedend>', '<=revisedeffort>', '<=RevisedBudget>', '<=ACTLocalBudget>', '<=ACTEffortDay>', '<=ACTStartDate>', '<=ACTEndDay>', '<=Implementer>', '<=Effortvar>', '<=BudVar>', '<=SchVar>', '<=PCRNumber>'],
+                colModel: [
+                 { name: 'ProjectID', index: 'ProjectID', sortable: false, width: 80 },
+                 { name: 'RequestDate', index: 'RequestDate', sortable: false, width: 100 },
+                 { name: 'Nature', index: 'Nature', sortable: false, width: 60 },
+                 { name: 'Type', index: 'Type', sortable: false, width: 60 },
+                 { name: 'District', index: 'District', sortable: false, width: 60 },
+                 { name: 'Department', index: 'Department', sortable: false, width: 80 },
+                 { name: 'BusinessFocalPoint', index: 'BusinessFocalPoint', sortable: false, width: 120 },
+                 { name: 'ITPM', index: 'ITPM', sortable: false, width: 80 },
+                 { name: 'ProjectName', index: 'ProjectName', sortable: false, width: 250 },
+                 { name: 'OverallStatus', index: 'OverallStatus', sortable: false, width: 150 },
+                 { name: 'ShortDescription', index: 'ShortDescription', sortable: false, width: 600 },
+                 { name: 'InitialStartDay', index: 'InitialStartDay', sortable: false, width: 100, formatter: 'date', formatoptions: { srcformat: 'Y-m', newformat: 'Y-m' } },
+                 { name: 'InitialEndDay', index: 'InitialEndDay', sortable: false, width: 100, formatter: 'date', formatoptions: { srcformat: 'Y-m', newformat: 'Y-m' } },
+                 { name: 'InitialEffortDay', index: 'InitialEffortDay', sortable: false, width: 100 },
+                 { name: 'ESTEffortDay', index: 'ESTEffortDay', sortable: false, width: 100 },
+                 { name: 'ESTStartDate', index: 'ESTStartDate', sortable: false, width: 100, formatter: 'date', formatoptions: { srcformat: 'Y-m', newformat: 'Y-m' } },
+                 { name: 'ESTEndDate', index: 'ESTEndDate', sortable: false, width: 100, formatter: 'date', formatoptions: { srcformat: 'Y-m', newformat: 'Y-m' } },
+                 { name: 'ESTBudget', index: 'ESTBudget', sortable: false, width: 80 },
+                 { name: 'revisedend', index: 'revisedend', sortable: false, width: 100, formatter: 'date', formatoptions: { srcformat: 'Y-m', newformat: 'Y-m' } },
+                 { name: 'revisedeffort', index: 'revisedeffort', sortable: false, width: 100 },
+                 { name: 'RevisedBudget', index: 'RevisedBudget', sortable: false, width: 100 },
+                 { name: 'ACTLocalBudget', index: 'ACTLocalBudget', sortable: false, width: 80 },
+                 { name: 'ACTEffortDay', index: 'ACTEffortDay', sortable: false, width: 100 },
+                 { name: 'ACTStartDate', index: 'ACTStartDate', sortable: false, width: 100, formatter: 'date', formatoptions: { srcformat: 'Y-m', newformat: 'Y-m' } },
+                 { name: 'ACTEndDay', index: 'ACTEndDay', sortable: false, width: 100, formatter: 'date', formatoptions: { srcformat: 'Y-m', newformat: 'Y-m' } },
+                 { name: 'Implementer', index: 'Implementer', sortable: false, width: 80 },
+                 { name: 'Effortvar', index: 'Effortvar', sortable: false, width: 80 },
+                 { name: 'BudVar', index: 'BudVar', sortable: false, width: 80 },
+                 { name: 'SchVar', index: 'SchVar', sortable: false, width: 80 },
+                 { name: 'PCRNumber', index: 'PCRNumber', sortable: false, width: 90 }
+                ],
+                pager: 1,
+                rowNum: 0,
+                sortname: 'ProjectID',
+                sortorder: "asc",
+                rownumbers: true, //显示行号
+                shrinkToFit: false,
+                autowidth: true,
+                viewrecords: true,
+                sortable: false,
+                width: "100%",
+                altRows: true, //隔行变色
+                altclass: 'jqodd', //隔行变色样式
+                pager: $('#divPager'),
+                rowNum: 15,
+                rowList: [15, 20, 50, 100],
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                closeAfterAdd: false,
+                gridComplete: function ()
+                {
+                    var date = new Date();
+                    var year = date.getFullYear();
+                    var month = date.getMonth() + 1;
+                    var strSysDate = year + "-" + Appendzero(month);
+                    var ids = $("#tblProjectPipelineInfo").jqGrid("getDataIDs");
+                    var rowDatas = $("#tblProjectPipelineInfo").jqGrid("getRowData");
+                    for (var i = 0; i < rowDatas.length; i++) {
+                        var rowData = rowDatas[i];
+                        if (rowData.OverallStatus != "Closed") {
+                            if (rowData.ESTEndDate.length >= 6) {
+                                if(strSysDate > rowData.ESTEndDate)
+                                    $("#" + ids[i] + " td").css("background-color", "red");
+                            } else
+                            {
+                                if(rowData.InitialEndDay != "" && strSysDate > rowData.InitialEndDay)
+                                    $("#" + ids[i] + " td").css("background-color", "red");
+                            }
+                        }
+                    }
+                },
+                ondblClickRow: function (row) {
+                    var flg = false;
+                    //判断只有PM和管理员才可以进入修改
+                    //判断PM
+                    var pm = $('#tblProjectPipelineInfo').getCell(row, 'ITPM');
+                    if (pm == '@ViewBag.UserName')
+                        flg = true;
+                    if ('@ViewBag.RoleName' == 'Administrator')
+                        flg = true;
+                    if (flg)
+                        editDetail(row);
+                }
+            });
+
+            $.extend($.fn.datagrid.defaults.editors, {
+                my97: {
+                    init: function (container, options) {
+                        var input = $('<input class="textbox-text Wdate dateControlYM" onclick="showMonth();"/>').appendTo(container);
+                        return input;
+                    },
+                    getValue: function (target) {
+                        return $(target).val();
+                    },
+                    setValue: function (target, value) {
+                        $(target).val(GetDate(value, false));
+                    },
+                    resize: function (target, width) {
+                        var input = $(target);
+                        if ($.boxModel == true) {
+                            input.width(width - (input.outerWidth() - input.width()));
+                        } else {
+                            input.width(width);
+                        }
+                    }
+                }
+            });
+            $('#tblProjectPipelineDtl').datagrid({
+                height: 400,
+                pagination: false,
+                rownumbers: true,
+                columns: [[
+                    { field: 'ID', checkbox: 'true' },
+                    { field: 'ProjectID', hidden: true },
+                    {
+                        field: 'Status', title: '<=Status>', width:200, editor: {
+                            type: 'combobox', options: {
+                                url: '@Url.Action("OverallStatusSelect","ProjectPipeline")',
+                                valueField: 'id',
+                                textField: 'text',
+                                editable: false,
+                                onChange: function (newValue, oldValue) {
+                                    var DtlOverallStatusHidden = $("#DtlOverallStatusHidden").val();
+                                    if (newValue != "" && newValue != undefined) {
+                                        if (EditMode == "Edit") {
+                                            if ('@ViewBag.RoleName' != 'Administrator') {
+                                                if (DtlOverallStatusHidden != 'Open' && DtlOverallStatusHidden != "Closed" && newValue == "Open") {
+                                                    $(this).combobox('setValue', DtlOverallStatusHidden);
+                                                }
+                                                if (DtlOverallStatusHidden == "Closed" && newValue != "Closed") {
+                                                    $(this).combobox('setValue', DtlOverallStatusHidden);
+                                                }
+                                            } 
+                                        }
+                                        else
+                                        {
+                                            if (newValue != "Open" && newValue != "" && newValue != undefined)
+                                            {
+                                                $(this).combobox('setValue', 'Open');
+                                            }
+                                        }
+                                        $("#DtlOverallStatusSelect").combobox('setValue', newValue);
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    { field: 'ReportMonth', title: '<=ReportMonth>', width: 200, formatter: function (value, row, index) { return GetDate(value, false) }, editor: { type: 'my97' } },
+                    { field: 'CurrentStatus', title: '<=CurrentStatus>', width: 1000, editor: { type: 'validatebox' } }
+                ]]
+            });
+
+            //弹出的dialog
+            $("#detail").dialog({
+                title: '<=pipeline>',
+                width: getBrowserWidthHeight().width - 100,
+                height: getBrowserWidthHeight().height - 100,
+                modal: true
+            })
+        });
+    </script>
+    <!-- 方法js -->
+    <script type="text/javascript">
+        //补零
+        function Appendzero(obj) {
+            if (obj < 10) return "0" + obj; else return obj;
+        }
+
+        //检索
+        function search() {
+            var url = '@Url.Action("GetSearchData", "ProjectPipeline")';
+            url += "/?" + "projectId=" + $("#projectId").val();
+            url += "&requestDateFrom=" + $("#requestDateFrom").val();
+            url += "&requestDateTo=" + $("#requestDateTo").val();
+            url += "&NatureSelect=" + $("#NatureSelect").combobox('getValues');
+            url += "&TypeSelect=" + $("#TypeSelect").combobox('getValues');
+            url += "&DistrictSelect=" + $("#DistrictSelect").combobox('getValues');
+            url += "&DepartmentSelect=" + $("#DepartmentSelect").combobox('getValues');
+            url += "&ITMemberSelect=" + $("#ITMemberSelect").combobox('getValues');
+            url += "&ProjectName=" + $("#ProjectName").val();
+            url += "&OverallStatusSelect=" + $("#OverallStatusSelect").combobox('getValues');
+            url += "&ESTEffortDaySelect=" + $("#ESTEffortDaySelect").combobox('getValues');
+            url += "&ACTEffortDaySelect=" + $("#ACTEffortDaySelect").combobox('getValues');
+            url += "&InitialStartDateFrom=" + $("#InitialStartDateFrom").val();
+            url += "&InitialStartDateTo=" + $("#InitialStartDateTo").val();
+            url += "&InitialEndDateFrom=" + $("#InitialEndDateFrom").val();
+            url += "&InitialEndDateTo=" + $("#InitialEndDateTo").val();
+            url += "&RevisedBudgetFrom=" + $("#RevisedBudgetFrom").val();
+            url += "&RevisedBudgetTo=" + $("#RevisedBudgetTo").val();
+            url += "&ACTLocalBudgetFrom=" + $("#ACTLocalBudgetFrom").val();
+            url += "&ACTLocalBudgetTo=" + $("#ACTLocalBudgetTo").val();
+            url += "&ACTStartDateFrom=" + $("#ACTStartDateFrom").val();
+            url += "&ACTStartDateTo=" + $("#ACTStartDateTo").val();
+            url += "&TeamSelect=" + $("#TeamSelect").combobox('getValues');
+            url += "&ImplementerSelect=" + $("#ImplementerSelect").combobox('getValues');
+            $('#tblProjectPipelineInfo').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        }
+
+        //月份控件
+        function showMonth() {
+            WdatePicker({ skin: 'default', dateFmt: 'yyyy-MM' });
+        }
+
+        //日期控件
+        function showDate() {
+            WdatePicker({ skin: 'default', dateFmt: 'yyyy-MM-dd' });
+        }
+
+        //重置按钮
+        function resetValue()
+        {
+            $("#NatureSelect").combobox("clear");
+            $("#TypeSelect").combobox("clear");
+            $("#DistrictSelect").combobox("clear");
+            $("#DepartmentSelect").combobox("clear");
+            $("#ITMemberSelect").combobox("clear");
+            $("#OverallStatusSelect").combobox("clear");
+            $("#ESTEffortDaySelect").combobox("clear");
+            $("#ACTEffortDaySelect").combobox("clear");
+            $("#TeamSelect").combobox("clear");
+            $("#ImplementerSelect").combobox("clear");
+            $("#frmSearch")[0].reset();
+        }
+
+        //系统管理员和new project的时候的状态控制
+        function sysAdminAndNew()
+        {
+            $("#DtlInitialStartDate").removeAttr("disabled");
+            $("#DtlInitialStartDate").removeClass('backgroundClass');
+            $("#DtlInitialEndDate").removeAttr("disabled");
+            $("#DtlInitialEndDate").removeClass('backgroundClass');
+            $("#DtlInitialEffortDay").combobox('enable');
+            $("#DtlESTEffortDaySelect").combobox('enable');
+            $("#DtlESTStartDate").removeAttr("disabled");
+            $("#DtlESTStartDate").removeClass('backgroundClass');
+            $("#DtlESTEndDate").removeAttr("disabled");
+            $("#DtlESTEndDate").removeClass('backgroundClass');
+            $("#DtlESTBudget").numberbox('enable');
+            $("#Dtlrevisedend").removeAttr("disabled");
+            $("#Dtlrevisedend").removeClass('backgroundClass');
+            $("#DtlrevisedeffortSelect").combobox('enable');
+            $("#DtlRevisedBudget").numberbox('enable');
+            $("#DtlACTLocalBudget").numberbox('enable');
+            $("#DtlACTEffortDaySelect").combobox('enable');
+            $("#DtlACTStartDate").removeAttr("disabled");
+            $("#DtlACTStartDate").removeClass('backgroundClass');
+            $("#DtlACTEndDate").removeAttr("disabled");
+            $("#DtlACTEndDate").removeClass('backgroundClass');
+        }
+
+        //普通用户（包括pm）进来的状态
+        function sysUser(obj)
+        {
+            sysAdminAndNew();
+            if ('@ViewBag.RoleName' == 'Administrator')
+                return;
+            $("#DtlInitialStartDate").attr("disabled", "disabled");
+            $("#DtlInitialStartDate").addClass('backgroundClass');
+            $("#DtlInitialEndDate").attr("disabled", "disabled");
+            $("#DtlInitialEndDate").addClass('backgroundClass');
+            $("#DtlInitialEffortDay").combobox('disable');
+            if (obj == "Open") { // 可以修改
+                $("#DtlESTEffortDaySelect").combobox('enable');
+                $("#DtlESTStartDate").removeAttr("disabled");
+                $("#DtlESTStartDate").removeClass('backgroundClass');
+                $("#DtlESTEndDate").removeAttr("disabled");
+                $("#DtlESTEndDate").removeClass('backgroundClass');
+                $("#DtlESTBudget").numberbox('enable');
+            } else {
+                $("#DtlESTEffortDaySelect").combobox('disable');
+                $("#DtlESTStartDate").attr("disabled", "disabled");
+                $("#DtlESTStartDate").addClass('backgroundClass');
+                $("#DtlESTEndDate").attr("disabled", "disabled");
+                $("#DtlESTEndDate").addClass('backgroundClass');
+                $("#DtlESTBudget").numberbox('disable');
+            }
+
+            if (obj == "Open" || obj == "Closed") { // 不可修改
+                $("#Dtlrevisedend").attr("disabled", "disabled");
+                $("#Dtlrevisedend").addClass('backgroundClass');
+                $("#DtlrevisedeffortSelect").combobox('disable');
+                $("#DtlRevisedBudget").numberbox('disable');
+            }
+            else {
+                $("#Dtlrevisedend").removeAttr("disabled");
+                $("#Dtlrevisedend").removeClass('backgroundClass');
+                $("#DtlrevisedeffortSelect").combobox('enable');
+                $("#DtlRevisedBudget").numberbox('enable');
+            }
+
+            if (obj == "Closed") { // 可以修改
+                $("#DtlACTLocalBudget").numberbox('enable');
+                $("#DtlACTEffortDaySelect").combobox('enable');
+                $("#DtlACTStartDate").removeAttr("disabled");
+                $("#DtlACTStartDate").removeClass('backgroundClass');
+                $("#DtlACTEndDate").removeAttr("disabled");
+                $("#DtlACTEndDate").removeClass('backgroundClass');
+            }
+            else {
+                $("#DtlACTLocalBudget").numberbox('disable');
+                $("#DtlACTEffortDaySelect").combobox('disable');
+                $("#DtlACTStartDate").attr("disabled", "disabled");
+                $("#DtlACTStartDate").addClass('backgroundClass');
+                $("#DtlACTEndDate").attr("disabled", "disabled");
+                $("#DtlACTEndDate").addClass('backgroundClass');
+            }
+        }
+
+        //新增按钮（主界面）
+        function addValue()
+        {
+            EditMode = "New";
+            //画面所有权限控制的回复
+            sysAdminAndNew();
+
+            $("#DtlprojectId").textbox("clear");
+            $("#DtlBusinessFocalPoint").textbox("clear");
+            $("#DtlProjectName").textbox("clear");
+            $("#DtlShortDescription").textbox("clear");
+            $("#DtlNatureSelect").combobox("clear");
+            $("#DtlTypeSelect").combobox("clear");
+            $("#DtlDistrictSelect").combobox("clear");
+            $("#DtlDepartmentSelect").combobox("clear");
+            $("#DtlITMemberSelect").combobox("clear");
+            $("#DtlOverallStatusSelect").combobox("clear");
+            $("#DtlInitialEffortDay").combobox("clear");
+            $("#DtlESTEffortDaySelect").combobox("clear");
+            $("#DtlrevisedeffortSelect").combobox("clear");
+            $("#DtlACTEffortDaySelect").combobox("clear");
+            $("#DtlImplementerSelect").combobox("clear");
+            $("#DtlESTBudget").numberbox("clear");
+            $("#DtlRevisedBudget").numberbox("clear");
+            $("#DtlACTLocalBudget").numberbox("clear");
+            $("#DtlEffortvar").textbox("clear");
+            $("#DtlBudVar").textbox("clear");
+            $("#DtlSchVar").numberbox("clear");
+            $("#DtlPCRNumber").textbox("clear");
+            $("#frmDetail")[0].reset();
+           
+            $('#tblProjectPipelineDtl').datagrid('loadData', { total: 0, rows: [] });
+            $("#detail").dialog("open");
+        }
+
+        //新增按钮（dialog画面）
+        function AddDetail()
+        {
+            $("#tblProjectPipelineDtl").datagrid('appendRow', {  ID: "", ProjectID: "" });
+            
+            $('#tblProjectPipelineDtl').datagrid('beginEdit', $("#tblProjectPipelineDtl").datagrid('getRows').length - 1);
+        }
+
+        //删除明细按钮（dialog画面）
+        function DeleteDetail()
+        {
+            var selectRow = $('#tblProjectPipelineDtl').datagrid('getSelections');
+            if (selectRow.length < 1) {
+                alert("<=SelectOneDate>");
+                return;
+            }
+            if (!confirm("<=SureDelete>")) return false;
+            for (var i = selectRow.length - 1; i >= 0; i--) {
+                if (selectRow[i].ProjectID == "" || selectRow[i].ProjectID == undefined) {
+                    var index = $('#tblProjectPipelineDtl').datagrid('getRowIndex', selectRow[i]);
+                    $('#tblProjectPipelineDtl').datagrid('deleteRow', index);
+                }
+            }
+        }
+
+        //明细行check
+        function DetailCheck()
+        {
+            var error = true;
+            var errorMsg = "";
+            var dtlData = $("#DtlOverallStatusSelect").combobox('getData');
+            var dtlSelect = "";
+            $('#tblProjectPipelineDtl').datagrid('acceptChanges');
+            var rows = $('#tblProjectPipelineDtl').datagrid('getRows');
+            for (var i = 0; i < rows.length; i++)
+            {
+                var dtlSelect = rows[i].Status;
+                if (dtlSelect == "") {
+                    errorMsg += "<=LineNo>" + (i + 1) + "<=DtlStatusSelectIsNull>\n"
+                    error = false;
+                }
+                else if (!checkExist(dtlData, dtlSelect, true))
+                {
+                    errorMsg += "<=LineNo>" + (i + 1) + "<=DtlStatusSelectIsExist>\n"
+                    error = false;
+                }
+                var ReportMonth = rows[i].ReportMonth;
+                if (ReportMonth == "")
+                {
+                    errorMsg += "<=LineNo>" + (i + 1) + "<=DtlReportMonthIsNull>\n"
+                    error = false;
+                }
+                //var CurrentStatus = rows[i].CurrentStatus;
+                //if (CurrentStatus == "")
+                //{
+                //    errorMsg += "<=LineNo>" + (i + 1) + "<=DtlCurrentStatusIsNull>\n"
+                //    error = false;
+                //}
+                //else if (getByteLen(CurrentStatus) > 500) {
+                //    errorMsg += "<=LineNo>" + (i + 1) + "<=DtlCurrentStatusLength>\n"
+                //    error = false;
+                //}
+            }
+
+            if (!error) {
+                for (var i = 0; i < rows.length; i++) {
+                    if (rows[i].ProjectID == "" || rows[i].ProjectID == undefined)
+                        $('#tblProjectPipelineDtl').datagrid('beginEdit', i);
+                }
+                alert(errorMsg);
+            }
+            return error;
+        }
+
+        //必须输入check
+        function SaveCheckOne()
+        {
+            var error = true;
+            var errorMsg = "";
+            if ($("#DtlrequestDate").val() == "") { 
+                errorMsg += "<=DtlrequestDateIsNull>\n";
+                error = false;
+            }
+            if ($("#DtlNatureSelect").combobox('getValue') == "") {
+                errorMsg += "<=DtlNatureSelectIsNull>\n"
+                error = false;
+            }
+            if ($("#DtlTypeSelect").combobox('getValue') == "") {
+                errorMsg += "<=DtlTypeSelectIsNull>\n"
+                error = false;
+            }
+            if ($("#DtlDistrictSelect").combobox('getValue') == "") {
+                errorMsg += "<=DtlDistrictSelectIsNull>\n"
+                error = false;
+            }
+            if ($("#DtlDepartmentSelect").combobox('getValue') == "") {
+                errorMsg += "<=DtlDepartmentSelectIsNull>\n"
+                error = false;
+            }
+            if ($("#DtlBusinessFocalPoint").val() == "") {
+                errorMsg += "<=DtlBusinessFocalPointIsNull>\n";
+                error = false;
+            }
+            if ($("#DtlITMemberSelect").combobox('getValue') == "") {
+                errorMsg += "<=DtlITMemberSelectIsNull>\n"
+                error = false;
+            }
+            if ($("#DtlProjectName").val() == "") {
+                errorMsg += "<=DtlProjectNameIsNull>\n";
+                error = false;
+            }
+            if ($("#DtlShortDescription").val() == "") {
+                errorMsg += "<=DtlShortDescriptionIsNull>\n";
+                error = false;
+            }
+            if ($("#DtlOverallStatusSelect").combobox('getValue') == "") {
+                errorMsg += "<=DtlOverallStatusSelectIsNull>\n"
+                error = false;
+            }
+            if ($("#DtlInitialStartDate").val() == "") {
+                errorMsg += "<=DtlInitialStartDateIsNull>\n"
+                error = false;
+            }
+            if ($("#DtlInitialEndDate").val() == "") {
+                errorMsg += "<=DtlInitialEndDateIsNull>\n"
+                error = false;
+            }
+            if ($("#DtlInitialEffortDay").combobox('getValue') == "") {
+                errorMsg += "<=DtlInitialEffortDayIsNull>\n"
+                error = false;
+            }
+            if ($("#DtlESTBudget").val() == "") {
+                errorMsg += "<=DtlESTBudgetIsNull>\n"
+                error = false;
+            }
+            if ($("#DtlImplementerSelect").combobox('getValues') == "") {
+                errorMsg += "<=DtlImplementerSelectIsNull>\n"
+                error = false;
+            }
+            if (!error)
+                alert(errorMsg);
+            return error;
+        }
+
+        //输入内容check
+        function SaveCheckTwo()
+        {
+            var error = true;
+            var errorMsg = "";
+            var dtlData = "";
+            var dtlSelect = "";
+
+            dtlData = $("#DtlNatureSelect").combobox('getData');
+            dtlSelect = $("#DtlNatureSelect").combobox('getValue');
+            if (!checkExist(dtlData, dtlSelect, true))
+            {
+                errorMsg += "<=DtlNatureSelectIsExist>\n"
+                error = false;
+            }
+
+            dtlData = $("#DtlTypeSelect").combobox('getData');
+            dtlSelect = $("#DtlTypeSelect").combobox('getValue');
+            if (!checkExist(dtlData, dtlSelect, true)) {
+                errorMsg += "<=DtlTypeSelectIsExist>\n"
+                error = false;
+            }
+
+            dtlData = $("#DtlDistrictSelect").combobox('getData');
+            dtlSelect = $("#DtlDistrictSelect").combobox('getValue');
+            if (!checkExist(dtlData, dtlSelect, true)) {
+                errorMsg += "<=DtlDistrictSelectIsExist>\n"
+                error = false;
+            }
+
+            dtlData = $("#DtlDepartmentSelect").combobox('getData');
+            dtlSelect = $("#DtlDepartmentSelect").combobox('getValue');
+            if (!checkExist(dtlData, dtlSelect, true)) {
+                errorMsg += "<=DtlDepartmentSelectIsExist>\n"
+                error = false;
+            }
+
+            dtlData = $("#DtlITMemberSelect").combobox('getData');
+            dtlSelect = $("#DtlITMemberSelect").combobox('getValue');
+            if (!checkExist(dtlData, dtlSelect, true)) {
+                errorMsg += "<=DtlITMemberSelectIsExist>\n"
+                error = false;
+            }
+
+            dtlData = $("#DtlOverallStatusSelect").combobox('getData');
+            dtlSelect = $("#DtlOverallStatusSelect").combobox('getValue');
+            if (!checkExist(dtlData, dtlSelect, true)) {
+                errorMsg += "<=DtlOverallStatusSelectIsExist>\n"
+                error = false;
+            }
+
+            dtlData = $("#DtlInitialEffortDay").combobox('getData');
+            dtlSelect = $("#DtlInitialEffortDay").combobox('getValue');
+            if (!checkExist(dtlData, dtlSelect, true)) {
+                errorMsg += "<=DtlInitialEffortDayIsExist>\n"
+                error = false;
+            }
+            
+            if ($("#DtlESTEffortDaySelect").combobox('getValue') != "")
+            {
+                dtlData = $("#DtlESTEffortDaySelect").combobox('getData');
+                dtlSelect = $("#DtlESTEffortDaySelect").combobox('getValue');
+                if (!checkExist(dtlData, dtlSelect, true)) {
+                    errorMsg += "<=DtlESTEffortDaySelectIsExist>\n"
+                    error = false;
+                }
+            }
+
+            if ($("#DtlrevisedeffortSelect").combobox('getValue') != "") {
+                dtlData = $("#DtlrevisedeffortSelect").combobox('getData');
+                dtlSelect = $("#DtlrevisedeffortSelect").combobox('getValue');
+                if (!checkExist(dtlData, dtlSelect, true)) {
+                    errorMsg += "<=DtlrevisedeffortSelectIsExist>\n"
+                    error = false;
+                }
+            }
+
+            if ($("#DtlACTEffortDaySelect").combobox('getValue') != "") {
+                dtlData = $("#DtlACTEffortDaySelect").combobox('getData');
+                dtlSelect = $("#DtlACTEffortDaySelect").combobox('getValue');
+                if (!checkExist(dtlData, dtlSelect, true)) {
+                    errorMsg += "<=DtlACTEffortDaySelectIsExist>\n"
+                    error = false;
+                }
+            }
+
+            dtlData = $("#DtlImplementerSelect").combobox('getData');
+            dtlSelect = $("#DtlImplementerSelect").combobox('getValues');
+            if (!checkExist(dtlData, dtlSelect, false)) {
+                errorMsg += "<=DtlImplementerSelectIsExist>\n"
+                error = false;
+            }
+
+            if (getByteLen($("#DtlBusinessFocalPoint").val()) > 50) {
+                errorMsg += "<=DtlBusinessFocalPointLength>\n"
+                error = false;
+            }
+
+            if (getByteLen($("#DtlProjectName").val()) > 50) {
+                errorMsg += "<=DtlProjectNameLength>\n"
+                error = false;
+            }
+
+            if (getByteLen($("#DtlShortDescription").val()) > 500) {
+                errorMsg += "<=DtlShortDescriptionLength>\n"
+                error = false;
+            }
+
+            if ($("#DtlPCRNumber").val() != "") {
+                if (getByteLen($("#DtlPCRNumber").val()) > 50) {
+                    errorMsg += "<=DtlPCRNumberLength>\n"
+                    error = false;
+                }
+            }
+
+            if (!error)
+                alert(errorMsg);
+            return error;
+        }
+
+        //业务check
+        function SaveCheckThree()
+        {
+            var error = true;
+            var errorMsg = "";
+            //验证输入的PCRNumber在PCR表里是否存在
+            if ($("#DtlPCRNumber").textbox('getValue') != "") {
+                $.ajax({
+                    type: "POST",
+                    async: false,
+                    url: '@Url.Action("PCRNumberExistCheck", "ProjectPipeline")',
+                    data: { PCRNumber: $("#DtlPCRNumber").textbox('getValue') },
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        if (!result.flg) {
+                            errorMsg += "<=DtlPCRNumberExist>\n";
+                            error = false;
+                        }
+                    }
+                });
+            }
+            //初期化验证 保存的时候status下拉框的值是否是open
+            if (EditMode == "New")
+            {
+                if ($("#DtlOverallStatusSelect").combobox('getValue') != "Open")
+                {
+                    errorMsg += "<=OverallStatusNewOpen>\n";
+                    error = false;
+                }
+            }
+
+            if (!error)
+                alert(errorMsg);
+            return error;
+        }
+
+        function SaveCheckFour()
+        {
+            var error = true;
+            var errorMsg = "";
+           
+            //验证输入的PCRNumber在PCR表里是否存在
+            if ($("#DtlOverallStatusSelect").combobox('getValue') == "Closed") {
+                if ($("#DtlInitialEffortDay").combobox('getValue') == "") {
+                    errorMsg += "<=DtlInitialEffortDayIsNull>\n";
+                    error = false;
+                }
+                //if ($("#DtlESTEffortDaySelect").combobox('getValue') == "") {
+                //    errorMsg += "<=DtlESTEffortDaySelectIsNull>\n";
+                //    error = false;
+                //}
+                //if ($("#DtlESTBudget").numberbox('getValue') == "") {
+                //    errorMsg += "<=DtlESTBudgetIsNull>\n";
+                //    error = false;
+                //}
+                if ($("#DtlACTLocalBudget").numberbox('getValue') == "") {
+                    errorMsg += "<=DtlACTLocalBudgetIsNull>\n";
+                    error = false;
+                }
+                //if ($("#DtlESTEndDate").val()=="") {
+                //    errorMsg += "<=DtlESTEndDateIsNull>\n";
+                //    error = false;
+                //}
+                if ($("#DtlACTEndDay").val() == "") {
+                    errorMsg += "<=DtlACTEndDayIsNull>\n";
+                    error = false;
+                }
+                if (!error)
+                    alert(errorMsg);
+                return error
+                
+            }
+            //初期化验证 保存的时候status下拉框的值是否是open
+            //if (EditMode == "New") {
+            //    if ($("#DtlOverallStatusSelect").combobox('getValue') != "Open") {
+            //        errorMsg += "<=OverallStatusNewOpen>\n";
+            //        error = false;
+            //    }
+            //}
+
+            if (!error)
+                alert(errorMsg);
+            return error;
+        }
+
+        //校验下拉框输入内容是否在下拉框中存在
+        function checkExist(dtlData, dtlSelect, flg)
+        {
+            var selectExist = false;
+            if (flg) {
+                for (var i = 0; i < dtlData.length; i++) {
+                    if (dtlSelect == dtlData[i].id) {
+                        selectExist = true;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                for (var j = 0; j < dtlSelect.length; j++) {
+                    selectExist = false;
+                    for (var i = 0; i < dtlData.length; i++) {
+                        if (dtlSelect[j] == dtlData[i].id) {
+                            selectExist = true;
+                            break;
+                        }
+                    }
+                    if (!selectExist)
+                        break;
+                }
+            }
+            return selectExist;
+        }
+
+        //取得字符长度（可以区分全角半角）
+        function getByteLen(val) {
+            var len = 0;
+            for (var i = 0; i < val.length; i++) {
+                if (val[i].match(/[^\x00-\xff]/ig) != null) //全角 
+                    len += 2;
+                else
+                    len += 1;
+            }
+            return len;
+        }
+
+        //双击主画面的明细数据，弹出明细画面编辑
+        function editDetail(row)
+        {
+            var projectId = $('#tblProjectPipelineInfo').getCell(row, 'ProjectID');
+            //load 主数据
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("LoadDetailInfo", "ProjectPipeline")',
+                data: { projectId: projectId },
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    $("#DtlOverallStatusHidden").val(result.OverallStatus);
+                    $("#DtlprojectId").textbox("setValue", result.ProjectID);
+                    $("#DtlrequestDate").val(GetDate(result.RequestDate, true));
+                    $("#DtlNatureSelect").combobox('setValue', result.Nature);
+                    $("#DtlTypeSelect").combobox('setValue', result.Type);
+                    $("#DtlDistrictSelect").combobox('setValue', result.District);
+                    $("#DtlDepartmentSelect").combobox('setValue', result.Department);
+                    $("#DtlBusinessFocalPoint").textbox('setValue', result.BusinessFocalPoint);
+                    $("#DtlITMemberSelect").combobox('setValue', result.ITPM);
+                    $("#DtlProjectName").textbox('setValue', result.ProjectName);
+                    $("#DtlShortDescription").textbox('setValue', result.ShortDescription);
+                    $("#DtlOverallStatusSelect").combobox('setValue', result.OverallStatus);
+                    $("#DtlInitialStartDate").val(GetDate(result.InitialStartDay, false));
+                    $("#DtlInitialEndDate").val(GetDate(result.InitialEndDay, false));
+                    $("#DtlInitialEffortDay").combobox('setValue', result.InitialEffortDay);
+                    $("#DtlESTEffortDaySelect").combobox('setValue', result.ESTEffortDay);
+                    $("#DtlESTStartDate").val(GetDate(result.ESTStartDate, false));
+                    $("#DtlESTEndDate").val(GetDate(result.ESTEndDate, false));
+                    $("#DtlESTBudget").numberbox('setValue', result.ESTBudget);
+                    $("#Dtlrevisedend").val(GetDate(result.revisedend, false));
+                    $("#DtlrevisedeffortSelect").combobox('setValue', result.revisedeffort);
+                    $("#DtlRevisedBudget").numberbox('setValue', result.RevisedBudget);
+                    $("#DtlACTLocalBudget").numberbox('setValue', result.ACTLocalBudget);
+                    $("#DtlACTEffortDaySelect").combobox('setValue', result.ACTEffortDay);
+                    $("#DtlACTStartDate").val(GetDate(result.ACTStartDate, false));
+                    $("#DtlACTEndDay").val(GetDate(result.ACTEndDay, false));
+                    $("#DtlImplementerSelect").combobox('setValues', result.Implementer.split(","));
+                    $("#DtlEffortvar").textbox('setValue', result.Effortvar);
+                    $("#DtlBudVar").textbox('setValue', result.BudVar);
+                    $("#DtlSchVar").numberbox('setValue', result.SchVar);
+                    $("#DtlPCRNumber").textbox('setValue', result.PCRNumber);
+                    if ('@ViewBag.RoleName' != 'Administrator') {
+                        sysUser($("#DtlOverallStatusSelect").combobox('getValue'));
+                        $("#DtlInitialStartDate").attr("disabled", "disabled");
+                        $("#DtlInitialStartDate").addClass('backgroundClass');
+                        $("#DtlInitialEndDate").attr("disabled", "disabled");
+                        $("#DtlInitialEndDate").addClass('backgroundClass');
+                        $("#DtlInitialEffortDay").combobox('disable');
+                    }
+                    else {
+                        sysAdminAndNew();
+                    }
+                }
+            });
+            //加载明细数据
+            $("#tblProjectPipelineDtl").datagrid('load', '/ProjectPipeline/LoadDetailData?projectId=' + projectId);
+
+            EditMode = "Edit";
+            $("#detail").dialog("open");
+        }
+
+        //计算json返回的日期处理
+        function GetDate(dateStr, flg)
+        {
+            if (dateStr == "" || dateStr == null)
+                return "";
+
+            var a = new Date(parseInt(dateStr.replace(/(^.*\()|([+-].*$)/g, '')));
+            var year = a.getFullYear();
+            var month = Appendzero(a.getMonth() + 1);
+            var day = Appendzero(a.getDate());
+            return flg == true ? year + "-" + month + "-" + day : year + "-" + month;
+        }
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            @if(Request["show"]=="1"){
+                //PCR=" + json.pcr + "&ITPM=" + $("#itOwner").combobox("getValue") + "&Department=" + $("#businessDepartment").textbox('getValue') + "&InitialLocalBudget" + $("#estBudget").textbox('getValue') + "&ACTLocalBudget" + $("#actBudget").textbox('getValue') + "&ACTLocalBudget=" + $("#actBudget").textbox('getValue') + "&ACTLocalBudget=" + $("#actBudget").textbox('getValue') + "&ACTLocalBudget=" + $("#actBudget").textbox('getValue') + "&InitialEndDate=" + $("#targetCompletionDate").val() + "&ACTEndDate=" + $("#actualCompletionDate").val() + "&ActualStart=" + $("#actualstartDate").val()
+               
+               <text>
+           
+            EditMode = "New";
+            $("#DtlPCRNumber").textbox("setValue","@(Request["PCR"])");
+            $("#DtlDepartmentSelect").combobox("setValue","@(Request["Department"])");
+            $("#DtlITMemberSelect").combobox("setValue","@(Request["ITPM"])");
+            $("#DtlInitialEndDate").val("@(Request["InitialEndDate"])");
+
+            $("#DtlACTLocalBudget").textbox("setValue","@(int.Parse(Request["InitialLocalBudget"])*int.Parse(ViewBag.Parities))");
+            $("#DtlACTStartDate").val("@(Request["ActualStart"])");
+            $("#DtlACTEndDay").val("@(Request["ACTEndDate"])");
+            $("#detail").dialog("open");
+            </text>
+            }else if(Request["show"]=="2"){
+                     <text>
+            var projectId;
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("LoadDetailInfoByCR", "ProjectPipeline")',
+                data: { cr: "@(Request["PCR"])" },
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if ('@ViewBag.RoleName' != 'Administrator') {
+                        sysUser($("#DtlOverallStatusSelect").combobox('getValue'));
+                        $("#DtlInitialStartDate").attr("disabled", "disabled");
+                        $("#DtlInitialStartDate").addClass('backgroundClass');
+                        $("#DtlInitialEndDate").attr("disabled", "disabled");
+                        $("#DtlInitialEndDate").addClass('backgroundClass');
+                        $("#DtlInitialEffortDay").combobox('disable');
+                    }
+                    else {
+                        sysAdminAndNew();
+                    }
+                    projectId = result.ProjectID;
+                    $("#DtlOverallStatusHidden").val(result.OverallStatus);
+                    $("#DtlprojectId").textbox("setValue", result.ProjectID);
+                    $("#DtlrequestDate").val(GetDate(result.RequestDate, true));
+                    $("#DtlNatureSelect").combobox('setValue', result.Nature);
+                    $("#DtlTypeSelect").combobox('setValue', result.Type);
+                    $("#DtlDistrictSelect").combobox('setValue', result.District);
+                    $("#DtlDepartmentSelect").combobox('setValue', result.Department);
+                    $("#DtlBusinessFocalPoint").textbox('setValue', result.BusinessFocalPoint);
+                    $("#DtlITMemberSelect").combobox('setValue', result.ITPM);
+                    $("#DtlProjectName").textbox('setValue', result.ProjectName);
+                    $("#DtlShortDescription").textbox('setValue', result.ShortDescription);
+                    $("#DtlOverallStatusSelect").combobox('setValue', result.OverallStatus);
+                    $("#DtlInitialStartDate").val(GetDate(result.InitialStartDay, false));
+                    $("#DtlInitialEndDate").val(GetDate(result.InitialEndDay, false));
+                    $("#DtlInitialEffortDay").combobox('setValue', result.InitialEffortDay);
+                    $("#DtlESTEffortDaySelect").combobox('setValue', result.ESTEffortDay);
+                    $("#DtlESTStartDate").val(GetDate(result.ESTStartDate, false));
+                    $("#DtlESTEndDate").val(GetDate(result.ESTEndDate, false));
+                    $("#DtlESTBudget").numberbox('setValue', result.ESTBudget);
+                    $("#Dtlrevisedend").val(GetDate(result.revisedend, false));
+                    $("#DtlrevisedeffortSelect").combobox('setValue', result.revisedeffort);
+                    $("#DtlRevisedBudget").numberbox('setValue', result.RevisedBudget);
+                    $("#DtlACTLocalBudget").numberbox('setValue', result.ACTLocalBudget);
+                    $("#DtlACTEffortDaySelect").combobox('setValue', result.ACTEffortDay);
+                    $("#DtlACTStartDate").val(GetDate(result.ACTStartDate, false));
+                    $("#DtlACTEndDay").val(GetDate(result.ACTEndDay, false));
+                    $("#DtlImplementerSelect").combobox('setValues', result.Implementer.split(","));
+                    $("#DtlEffortvar").textbox('setValue', result.Effortvar);
+                    $("#DtlBudVar").textbox('setValue', result.BudVar);
+                    $("#DtlSchVar").numberbox('setValue', result.SchVar);
+                    $("#DtlPCRNumber").textbox('setValue', result.PCRNumber);
+
+
+                }
+            });
+            //加载明细数据
+            $("#tblProjectPipelineDtl").datagrid('load', '/ProjectPipeline/LoadDetailData?projectId=' + projectId);
+
+            EditMode = "Edit";
+            $("#detail").dialog("open");
+                    </text>
+                }
+            
+
+
+
+            //保存按钮
+            $("#btnSaveDetail").click(function () {
+                $("#btnSaveDetail").attr("disabled", "disabled");
+                if (!SaveCheckOne()) { $("#btnSaveDetail").removeAttr("disabled"); return; }
+                if (!SaveCheckTwo()) { $("#btnSaveDetail").removeAttr("disabled"); return; }
+                if (!SaveCheckThree()) { $("#btnSaveDetail").removeAttr("disabled"); return; }
+                
+                if (!SaveCheckFour()) { $("#btnSaveDetail").removeAttr("disabled"); return; }
+                if (!DetailCheck()) { $("#btnSaveDetail").removeAttr("disabled"); return; }
+
+                $('#tblProjectPipelineDtl').datagrid('acceptChanges');                
+                var rowsItems = $('#tblProjectPipelineDtl').datagrid('getRows');
+                var effect = new Object();
+                effect["Details"] = JSON.stringify(rowsItems);
+                console.log(JSON.stringify(rowsItems));
+                effect["EditMode"] = EditMode;
+                effect["DtlprojectId"] = $("#DtlprojectId").textbox("getValue");
+                effect["DtlrequestDate"] = $("#DtlrequestDate").val();
+                effect["DtlNatureSelect"] = $("#DtlNatureSelect").combobox('getValue');
+                effect["DtlTypeSelect"] = $("#DtlTypeSelect").combobox('getValue');
+                effect["DtlDistrictSelect"] = $("#DtlDistrictSelect").combobox('getValue');
+                effect["DtlDepartmentSelect"] = $("#DtlDepartmentSelect").combobox('getValue');
+                effect["DtlBusinessFocalPoint"] = $("#DtlBusinessFocalPoint").textbox('getValue');
+                effect["DtlITMemberSelect"] = $("#DtlITMemberSelect").combobox('getValue');
+                effect["DtlProjectName"] = $("#DtlProjectName").textbox('getValue');
+                effect["DtlShortDescription"] = $("#DtlShortDescription").textbox('getValue');
+                effect["DtlOverallStatusSelect"] = $("#DtlOverallStatusSelect").combobox('getValue');
+                effect["DtlInitialStartDate"] = $("#DtlInitialStartDate").val();
+                effect["DtlInitialEndDate"] = $("#DtlInitialEndDate").val();
+                effect["DtlInitialEffortDay"] = $("#DtlInitialEffortDay").combobox('getValue');
+                effect["DtlESTEffortDaySelect"] = $("#DtlESTEffortDaySelect").combobox('getValue');
+                effect["DtlESTStartDate"] = $("#DtlESTStartDate").val();
+                effect["DtlESTEndDate"] = $("#DtlESTEndDate").val();
+                effect["DtlESTBudget"] = $("#DtlESTBudget").numberbox('getValue');
+                effect["Dtlrevisedend"] = $("#Dtlrevisedend").val();
+                effect["DtlrevisedeffortSelect"] = $("#DtlrevisedeffortSelect").combobox('getValue');
+                effect["DtlRevisedBudget"] = $("#DtlRevisedBudget").numberbox('getValue');
+                effect["DtlACTLocalBudget"] = $("#DtlACTLocalBudget").numberbox('getValue');
+                effect["DtlACTEffortDaySelect"] = $("#DtlACTEffortDaySelect").combobox('getValue');
+                effect["DtlACTStartDate"] = $("#DtlACTStartDate").val();
+                effect["DtlACTEndDay"] = $("#DtlACTEndDay").val();
+                effect["DtlImplementerSelect"] = JSON.stringify($("#DtlImplementerSelect").combobox('getValues'));
+                effect["DtlPCRNumber"] = $("#DtlPCRNumber").textbox('getValue');
+                $.post('@Url.Action("SaveDialog", "ProjectPipeline")', effect
+                    , function (rsp) {
+                        if (rsp.flg) {
+                            $("#btnSaveDetail").removeAttr("disabled");
+                            $("#detail").dialog("close");
+                            search();
+                        }
+                        else {
+                            $("#btnSaveDetail").removeAttr("disabled");
+                            alert("<=SaveError>");
+                        }
+                    }, 'json');
+            });
+
+            //删除按钮
+            $("#btnDelete").click(function () {
+                var row = $('#tblProjectPipelineInfo').jqGrid('getGridParam', 'selrow');
+                var ProjectID = $('#tblProjectPipelineInfo').getCell(row, 'ProjectID');
+
+                if (ProjectID == "") {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeletePipeline", "ProjectPipeline")',
+                    data: { ProjectID: ProjectID },
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        alert(result.Msg);
+                        if (result.Success)
+                        {
+                            search();
+                        }
+                    }
+                });
+            });
+
+            //取消按钮
+            $("#btnCancelDetail").click(function () {
+                if (!confirm("<=SureCancel>")) return false;
+                $("#detail").dialog("close");
+            })
+        });
+    </script>
+}
+<div class="column_search">
+    <form id="frmSearch" name="frmSearch">
+    <h3 class="column_title">
+        <=Search></h3>
+    <table class="table">
+        <tr>
+            <td class="title">
+                <=ProjectID>
+            </td>
+            <td>
+                <input id="projectId" class="easyui-textbox" tabindex="1" style="width: 140px"/>
+            </td>
+            <td class="title">
+                <=RequestDate>
+            </td>
+            <td>
+                <span class="textbox" style="width: 138px; height: 20px;">
+                    <input id="requestDateFrom" class="textbox-text Wdate dateControlYM" tabindex="2" onclick='showDate()' style=" width: 130px;"/>
+                </span>
+            </td>
+            <td class="title">
+                <=To>
+            </td>
+            <td>
+                <span class="textbox" style="width: 138px; height: 20px;">
+                    <input id="requestDateTo" class="textbox-text Wdate dateControlYM" tabindex="3" onclick='showDate()' style=" width: 130px;" />
+                </span>
+            </td>
+            <td class="title">
+                <=Nature>
+            </td>
+            <td>
+                <input id="NatureSelect" tabindex="4" style="width: 140px"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">
+                <=Type>
+            </td>
+            <td>
+                <input id="TypeSelect" tabindex="5" style="width: 140px"/>
+            </td>
+            <td class="title">
+                <=District>
+            </td>
+            <td>
+                <input id="DistrictSelect" tabindex="6" style="width: 140px"/>
+            </td>
+            <td class="title">
+                <=Department>
+            </td>
+            <td>
+                <input id="DepartmentSelect" tabindex="7" style="width: 140px"/>
+            </td>
+            <td class="title">
+                <=ITPM>
+            </td>
+            <td>
+                <input id="ITMemberSelect" tabindex="8" style="width: 140px"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">
+                <=ProjectName>
+            </td>
+            <td>
+                <input id="ProjectName" class="easyui-textbox" tabindex="9" style="width: 140px"/>
+            </td>
+            <td class="title">
+                <=OverallStatus>
+            </td>
+            <td>
+                <input id="OverallStatusSelect" tabindex="10" style="width: 140px"/>
+            </td>
+            <td class="title">
+                <=ESTEffortDay>
+            </td>
+            <td>
+                <input id="ESTEffortDaySelect" tabindex="11" style="width: 140px"/>
+            </td>
+            <td class="title">
+                <=ACTEffortDay>
+            </td>
+            <td>
+                <input id="ACTEffortDaySelect" tabindex="12" style="width: 140px"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">
+                <=InitialStartDate>
+            </td>
+            <td>
+                <span class="textbox" style="width: 138px; height: 20px;">
+                    <input id="InitialStartDateFrom" class="textbox-text Wdate dateControlYM" tabindex="13" onclick='showMonth()' style=" width: 130px;" />
+                </span>
+            </td>
+            <td class="title">
+                <=To>
+            </td>
+            <td>
+                <span class="textbox" style="width: 138px; height: 20px;">
+                    <input id="InitialStartDateTo" class="textbox-text Wdate dateControlYM" tabindex="14" onclick='showMonth()' style=" width: 130px;" />
+                </span>
+            </td>
+            <td class="title">
+                <=InitialEndDate>
+            </td>
+            <td>
+                <span class="textbox" style="width: 138px; height: 20px;">
+                    <input id="InitialEndDateFrom" class="textbox-text Wdate dateControlYM" tabindex="15" onclick='showMonth()' style=" width: 130px;" />
+                </span>
+            </td>
+            <td class="title">
+                <=To>
+            </td>
+            <td>
+                <span class="textbox" style="width: 138px; height: 20px;">
+                    <input id="InitialEndDateTo" class="textbox-text Wdate dateControlYM" tabindex="16" onclick='showMonth()' style=" width: 130px;" />
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">
+                <=RevisedBudget>
+            </td>
+            <td>
+                <input id="RevisedBudgetFrom" class="easyui-numberbox" tabindex="17" style="width: 140px"/>
+            </td>
+            <td class="title">
+                <=To>
+            </td>
+            <td>
+                <input id="RevisedBudgetTo" class="easyui-numberbox" tabindex="18" style="width: 140px"/>
+            </td>
+            <td class="title">
+                <=ACTLocalBudget>
+            </td>
+            <td>
+                <input id="ACTLocalBudgetFrom" class="easyui-numberbox" tabindex="19" style="width: 140px"/>
+            </td>
+            <td class="title">
+                <=To>
+            </td>
+            <td>
+                <input id="ACTLocalBudgetTo" class="easyui-numberbox" tabindex="20" style="width: 140px"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">
+                <=ACTStartDate>
+            </td>
+            <td>
+                <span class="textbox" style="width: 138px; height: 20px;">
+                    <input id="ACTStartDateFrom" class="textbox-text Wdate dateControlYM" tabindex="21" onclick='showMonth()' style=" width: 130px;" />
+                </span>
+            </td>
+            <td class="title">
+                <=To>
+            </td>
+            <td>
+                <span class="textbox" style="width: 138px; height: 20px;">
+                    <input id="ACTStartDateTo" class="textbox-text Wdate dateControlYM" tabindex="22" onclick='showMonth()' style=" width: 130px;" />
+                </span>
+            </td>
+            <td class="title">
+                <=Team>
+            </td>
+            <td>
+                <input id="TeamSelect" tabindex="23" style="width: 140px"/>
+            </td>
+            <td class="title">
+                <=Implementer>
+            </td>
+            <td>
+                <input id="ImplementerSelect" tabindex="24" style="width: 140px"/>
+            </td>
+        </tr>
+    </table>
+    <div class="btn_bar">
+        <input type="button" class="button" id="btnSearch" value="<=Search>" onclick="search();"/>
+        <input type="button" class="button" id="btnReset" value="<=Reset>" onclick="resetValue();"/>
+        <input type="button" class="button" id="btnNew" value="<=New>" onclick="addValue();"/>
+        @Html.GenerateButton("ProjectPipeline", "DeleteInfo", "btnDelete", "<=Delete>")
+    </div>
+    </form>
+</div>
+<div class="column_grid">
+    <table id="tblProjectPipelineInfo" class="table">
+    </table>
+    <div id="divPager">
+    </div>
+</div>
+<div id="detail" class="column_edit" closed="true">
+    <div class="column_search">
+        <form id="frmDetail" name="frmDetail">
+            <div class="btn_bar">
+                @Html.GenerateButton("ProjectPipeline", "SaveDialog", "btnSaveDetail", "<=Save>")
+                @*<input type="button" id="btnSaveDetail" class="button" value="<=Save>" onclick="SaveDialog();" />*@
+                @Html.GenerateButton("ProjectPipeline", "CancelDialog", "btnCancelDetail", "<=Cancel>")
+@*                <input type="button" id="btnCancelDetail" class="button" value="<=Cancel>" onclick="CancelDialog();"/>*@
+@*                @Html.GenerateButton("ProjectPipeline", "Administrator", "btnAdmin", "<=Admin>")*@
+            </div>
+            <table class="table" style="width:400px;">
+                <tr>
+                    <td class="title">
+                        <=ProjectID>
+                    </td>
+                    <td>
+                        <input id="DtlprojectId" class="easyui-textbox" style="width: 140px" disabled="disabled"/>
+                    </td>
+                    <td class="title">
+                        <=RequestDate>
+                    </td>
+                    <td>
+                        <span class="textbox" style="width: 138px; height: 20px;">
+                            <input id="DtlrequestDate" class="textbox-text Wdate dateControlYM" tabindex="25" onclick='showDate()' style=" width: 130px;" />
+                        </span>
+                    </td>
+                    <td class="title">
+                        <=Nature>
+                    </td>
+                    <td>
+                        <input id="DtlNatureSelect" tabindex="26" style="width: 140px"/>
+                    </td>
+                    <td class="title">
+                        <=Type>
+                    </td>
+                    <td>
+                        <input id="DtlTypeSelect" tabindex="27" style="width: 140px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=District>
+                    </td>
+                    <td>
+                        <input id="DtlDistrictSelect" tabindex="28" style="width: 140px"/>
+                    </td>
+                    <td class="title">
+                        <=Department>
+                    </td>
+                    <td>
+                        <input id="DtlDepartmentSelect" tabindex="29" style="width: 140px"/>
+                    </td>
+                    <td class="title">
+                        <=BusinessFocalPoint>
+                    </td>
+                    <td>
+                        <input id="DtlBusinessFocalPoint" class="easyui-textbox" tabindex="30" style="width: 140px"/>
+                    </td>
+                    <td class="title">
+                        <=ITPM>
+                    </td>
+                    <td>
+                        <input id="DtlITMemberSelect" tabindex="31" style="width: 140px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=ProjectName>
+                    </td>
+                    <td>
+                        <input id="DtlProjectName" class="easyui-textbox" tabindex="32" style="width: 140px"/>
+                    </td>
+                    <td class="title">
+                        <=ShortDescription>
+                    </td>
+                    <td colspan="5">
+                        <input id="DtlShortDescription" class="easyui-textbox" tabindex="33" style="width:650px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=OverallStatus>
+                    </td>
+                    <td>
+                        <input id="DtlOverallStatusSelect" tabindex="34" style="width: 140px"/>
+                        <input id="DtlOverallStatusHidden" hidden="hidden"/>
+                    </td>
+                    <td class="title">
+                        <=InitialStartDate>
+                    </td>
+                    <td>
+                        <span class="textbox" style="width: 138px; height: 20px;">
+                            <input id="DtlInitialStartDate" class="textbox-text Wdate dateControlYM"  tabindex="35" onclick='showMonth()' style=" width: 130px;" />
+                        </span>
+                    </td>
+                    <td class="title">
+                        <=InitialEndDate>
+                    </td>
+                    <td>
+                        <span class="textbox" style="width: 138px; height: 20px;">
+                            <input id="DtlInitialEndDate" class="textbox-text Wdate dateControlYM"   tabindex="36" onclick='showMonth()' style=" width: 130px;" />
+                        </span>
+                    </td>
+                    <td class="title">
+                        <=InitialEffortDay>
+                    </td>
+                    <td>
+                        <input id="DtlInitialEffortDay" tabindex="37" style="width: 140px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=ESTEffortDay>
+                    </td>
+                    <td>
+                        <input id="DtlESTEffortDaySelect" tabindex="38" style="width: 140px"/>
+                    </td>
+                    <td class="title">
+                        <=ESTStartDate>
+                    </td>
+                    <td>
+                        <span class="textbox" style="width: 138px; height: 20px;">
+                            <input id="DtlESTStartDate" class="textbox-text Wdate dateControlYM" tabindex="39" onclick='showMonth()' style=" width: 130px;" />
+                        </span>
+                    </td>
+                    <td class="title">
+                        <=ESTEndDate>
+                    </td>
+                    <td>
+                        <span class="textbox" style="width: 138px; height: 20px;">
+                            <input id="DtlESTEndDate" class="textbox-text Wdate dateControlYM" tabindex="40" onclick='showMonth()' style=" width: 130px;" />
+                        </span>
+                    </td>
+                    <td class="title">
+                        <=ESTBudget>(teur)
+                    </td>
+                    <td>
+                        <input id="DtlESTBudget" class="easyui-numberbox" data-options="min:0,precision:2" tabindex="41" style="width: 140px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=revisedend>
+                    </td>
+                    <td>
+                        <span class="textbox" style="width: 138px; height: 20px;">
+                            <input id="Dtlrevisedend" class="textbox-text Wdate dateControlYM" tabindex="42" onclick='showMonth()' style=" width: 130px;" />
+                        </span>
+                    </td>
+                    <td class="title">
+                        <=revisedeffort>
+                    </td>
+                    <td>
+                        <input id="DtlrevisedeffortSelect" tabindex="43" style="width: 140px"/>
+                    </td>
+                    <td class="title">
+                        <=RevisedBudget>(teur)
+                    </td>
+                    <td>
+                        <input id="DtlRevisedBudget" class="easyui-numberbox" tabindex="44" data-options="min:0,precision:2" style="width: 140px"/>
+                    </td>
+                    <td class="title">
+                        <=ACTLocalBudget>(teur)
+                    </td>
+                    <td>
+                        <input id="DtlACTLocalBudget" class="easyui-numberbox" tabindex="45" data-options="min:0,precision:2" style="width: 140px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=ACTEffortDay>
+                    </td>
+                    <td>
+                        <input id="DtlACTEffortDaySelect" tabindex="46" style="width: 140px"/>
+                    </td>
+                    <td class="title">
+                        <=ACTStartDate>
+                    </td>
+                    <td>
+                        <span class="textbox" style="width: 138px; height: 20px;">
+                            <input id="DtlACTStartDate" class="textbox-text Wdate dateControlYM"   tabindex="47" onclick='showMonth()' style=" width: 130px;" />
+                        </span>
+                    </td>
+                    <td class="title">
+                        <=ACTEndDay>
+                    </td>
+                    <td>
+                        <span class="textbox" style="width: 138px; height: 20px;">
+                            <input id="DtlACTEndDay" class="textbox-text Wdate dateControlYM"  tabindex="48" onclick='showMonth()' style=" width: 130px;" />
+                        </span>
+                    </td>
+                    <td class="title">
+                        <=Implementer>
+                    </td>
+                    <td>
+                        <input id="DtlImplementerSelect" tabindex="49" style="width: 140px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=Effortvar>
+                    </td>
+                    <td>
+                        <input id="DtlEffortvar" class="easyui-textbox" style="width: 140px" disabled="disabled"/>
+                    </td>
+                    <td class="title">
+                        <=BudVar>
+                    </td>
+                    <td>
+                        <input id="DtlBudVar" class="easyui-textbox" style="width: 140px" disabled="disabled"/>
+                    </td>
+                    <td class="title">
+                        <=SchVar>
+                    </td>
+                    <td>
+                        <input id="DtlSchVar" class="easyui-numberbox" style="width: 140px" disabled="disabled"/>
+                    </td>
+                    <td class="title">
+                        <=PCRNumber>
+                    </td>
+                    <td>
+                        <input id="DtlPCRNumber" class="easyui-textbox"  tabindex="50" style="width: 140px"/>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <ul class="tabs">
+        <li><a href="#first"><=Detail></a></li>
+    </ul>
+    <div class="column_edit">
+        <form id="frmSysDataAuth" name="frmSysDataAuth">
+            <div class="btn_bar">
+                <input type="button" id="btnNewDtl" class="button" value="<=New>" onclick="AddDetail();" />
+                <input type="button" id="btnDeleteDtl" class="button" value="<=Delete>" onclick="DeleteDetail();"/>
+            </div>
+        </form>
+        <div class="column_grid">
+            <table id="tblProjectPipelineDtl" class="table">
+            </table>
+            <div id="divDtlPager">
+            </div>
+        </div>
+    </div>
+</div>

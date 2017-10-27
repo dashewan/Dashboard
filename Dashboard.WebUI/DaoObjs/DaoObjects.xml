@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<objects xmlns="http://www.springframework.net"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.net
+		http://www.springframework.net/xsd/spring-objects.xsd">
+
+  <object id="IBaseService" type=" FrogDashboard.Service.Services.MasterData.SysManagement.SysModuleService,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+  
+  <object id="BasSchedule" type="FrogDashboard.Service.Services.BasicData.CBasScheduleService,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+  <object id="BasScheduleS" type="FrogDashboard.Service.Services.BasicData.CBasScheduleSService,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+
+  <object id="BasCity" type=" FrogDashboard.Service.Services.MasterData.CBasCityService,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+  <object id="CBasProvince" type="FrogDashboard.Dao.DBController.MasterData.SysManagement.SbProvinceDBAccess,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+  
+  <object id="CimCust" type=" FrogDashboard.Service.Services.CIM.CCimCustService,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+
+  <object id="BasAdjustmentTable" type="FrogDashboard.Service.Services.BasicData.CBasAdjustmentTableService,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+  <object id="BasNormalSchedule" type="FrogDashboard.Service.Services.BasicData.CBasNormalScheduleService,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+  <object id="BasNormalScheduleS" type="FrogDashboard.Service.Services.BasicData.CBasNormalScheduleSService,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+  <object id="BasNormalScheduleVCt" type="FrogDashboard.Service.Services.BasicData.CBasNormalScheduleVCtService,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+  <object id="BasNormalScheduleVCtDet" type="FrogDashboard.Service.Services.BasicData.CBasNormalScheduleVCtDetService,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+  <object id="BasNormalScheduleVTm" type="FrogDashboard.Service.Services.BasicData.CBasNormalScheduleVTmService,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+  <object id="BasNormalScheduleVTmDet" type="FrogDashboard.Service.Services.BasicData.CBasNormalScheduleVTmDetService,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+  <object id="BasSpecialDay" type="FrogDashboard.Service.Services.BasicData.CBasSpecialDayService,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+  <object id="BasSpecialSchedule" type="FrogDashboard.Service.Services.BasicData.CBasSpecialScheduleService,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+  <object id="BasPdcSequence" type="FrogDashboard.Service.Services.BasicData.CBasPdcSequenceService,FrogDashboard.Service" lazy-init="true" singleton="true"></object>
+
+</objects>

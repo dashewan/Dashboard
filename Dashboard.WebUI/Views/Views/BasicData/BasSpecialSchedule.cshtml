@@ -1,0 +1,631 @@
+﻿@using FrogDashboard.Core.Utility;
+@using FrogDashboard.Authentication.HtmlExtension;
+@model FrogDashboard.Domain.BasicData.CBasSpecialScheduleIndex
+@{
+    ViewBag.Title = "<=BasSpecialScheduleInfo>";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script type="text/javascript">
+        var BasSpecialScheduleIndexId = "@Model.BasSpecialScheduleIndexId";
+
+        var searchData = function () {
+            var url = '@Url.Action("GetBasSpecialSchedule", "BasicData")';
+            url += "/?" + $("#frmSearch").serialize();
+            url += "&BasSpecialScheduleIndexId=" + BasSpecialScheduleIndexId;
+            $('#tblBasSpecialSchedule').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        }
+
+        var clearForm = function () {
+            $("#frmSave").find("input:text").val("");
+            $("#frmSave").find("select").attr("value", "");
+        };
+
+        var editData = function (result) {
+            clearForm();
+            $("#txtDealerCode").focus();
+
+            $("#txtBasSpecialScheduleId").val(result.BasSpecialScheduleId);
+            $("#txtDealerCode").val(result.DealerCode);
+            $("#txtDealerName").val(result.DealerName);
+            $("#txtDealerType").val(result.DealerType);
+            $("#txtDestination").val(result.Destination);
+            $("#txtProvince").val(result.Province);
+            $("#txtFacingPdc").val(result.FacingPdc);
+            $("#selDefinition").attr("value", result.Definition);
+            if (result.CutoffDay != null) {
+                date = new Date(parseInt(result.CutoffDay.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtCutoffDay").val(date.format("yyyy-mm-dd"));
+            }
+            if (result.CutoffTime != null) {
+                date = new Date(parseInt(result.CutoffTime.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtCutoffTime").val(date.format("HH:MM:ss"));
+            }
+            if (result.PickupDay != null) {
+                date = new Date(parseInt(result.PickupDay.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtPickupDay").val(date.format("yyyy-mm-dd"));
+            }
+            if (result.PickupTime != null) {
+                date = new Date(parseInt(result.PickupTime.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtPickupTime").val(date.format("HH:MM:ss"));
+            }
+            $("#txtTransMode").val(result.TransMode);
+
+            if (result.ArrivalDay != null) {
+                date = new Date(parseInt(result.ArrivalDay.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtArrivalDay").val(date.format("yyyy-mm-dd"));
+            }
+            $("#selArrivalTime").attr("value", result.ArrivalTime);
+            if (result.ArrivalTimeStart != null) {
+                date = new Date(parseInt(result.ArrivalTimeStart.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtArrivalTimeStart").val(date.format("HH:MM:ss"));
+            }
+            if (result.ArrivalTimeEnd != null) {
+                date = new Date(parseInt(result.ArrivalTimeEnd.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtArrivalTimeEnd").val(date.format("HH:MM:ss"));
+            }
+        }
+
+        var edit = function (id) {
+            var BasSpecialScheduleId = $('#tblBasSpecialSchedule').getCell(id, 'BasSpecialScheduleId');
+            if (BasSpecialScheduleId == "") return;
+            var str = "BasSpecialScheduleId=" + BasSpecialScheduleId;
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetBasSpecialScheduleById", "BasicData")',
+                data: str,
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.Success) {
+                        $("#dlgBasSpecialSchedule").dialog("open");
+                        editData(result.BasSpecialSchedule);
+                    }
+                }
+            });
+        }
+
+        function PageLock() {
+            $("#divLock").dialog('open');
+        }
+
+        function PageUnLock() {
+            $("#divLock").dialog('close');
+        }
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#txtDealerCodeSearch").focus();
+
+            $("#btnSearch").click(function () {
+                searchData();
+            });
+
+            $("#btnCancel").click(function () {
+                searchData();
+                $("#dlgBasSpecialSchedule").dialog("close");
+            });
+
+            $("#btnAddBasSpecialSchedule").click(function () {
+                clearForm();
+                $("#dlgBasSpecialSchedule").dialog("open");
+            });
+
+            $("#btnAdd").click(function () {
+                clearForm();
+            });
+
+            $("#frmSave").validate({
+                rules: {
+                    Definition: {
+                        required: true
+                    },
+                    DealerName: {
+                        required: true
+                    },
+                    CutoffDay: {
+                        required: true
+                    },
+                    CutoffTime: {
+                        required: true
+                    },
+                    PickupDay: {
+                        required: true
+                    },
+                    PickupTime: {
+                        required: true
+                    },
+                    ArrivalDay: {
+                        required: true
+                    },
+                    ArrivalTime: {
+                        required: true
+                    },
+                    ArrivalTimeStart: {
+                        required: true
+                    },
+                    ArrivalTimeEnd: {
+                        required: true
+                    }
+                },
+                messages: {
+                    Definition: {
+                        required: "<=DefinitionIsRequired>"
+                    },
+                    DealerName: {
+                        required: "<=DealerIsRequired>"
+                    },
+                    CutoffDay: {
+                        required: "<=CutoffDayIsRequired>"
+                    },
+                    CutoffTime: {
+                        required: "<=CutoffTimeIsRequired>"
+                    },
+                    PickupDay: {
+                        required: "<=PickupDayIsRequired>"
+                    },
+                    PickupTime: {
+                        required: "<=PickupTimeIsRequired>"
+                    },
+                    ArrivalDay: {
+                        required: "<=ArrivalDayIsRequired>"
+                    },
+                    ArrivalTime: {
+                        required: "<=ArrivalTimeIsRequired>"
+                    },
+                    ArrivalTimeStart: {
+                        required: "<=ArrivalTimeStartIsRequired>"
+                    },
+                    ArrivalTimeEnd: {
+                        required: "<=ArrivalTimeEndIsRequired>"
+                    }
+                }
+            });
+
+            $("#btnSave").click(function () {
+                if (!$('form[name=frmSave]').valid()) {
+                    CheckFormMessage();
+                    return;
+                }
+                var str = $("#frmSave").serialize();
+                str += "&BasSpecialScheduleIndexId=" + BasSpecialScheduleIndexId;
+                PageLock();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveBasSpecialSchedule", "BasicData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        PageUnLock();
+                        alert(result.Msg);
+                        if (result.Success) {
+                            searchData();
+                            editData(result.BasSpecialSchedule);
+                        }
+                    },
+                    complete: function () {
+                        PageUnLock();
+                    }
+                });
+            });
+        })
+    </script>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            $("#tblBasSpecialSchedule").jqGrid({
+                datatype: "json",
+                mtype: 'POST',
+                height: 320,
+                colNames: ['<=BasSpecialScheduleId>', '<=DealerCode>', '<=DealerName>', '<=DealerType>', '<=Destination>', '<=Province>', '<=FacingPdc>',
+                     '<=Definition>', '<=CutoffDay>', '<=CutoffTime>', '<=PickupDay>', '<=PickupTime>', '<=TransMode>', '<=ArrivalDay>', '<=ArrivalTime>',
+                      '<=ArrivalTimeStart>', '<=ArrivalTimeEnd>'],
+                colModel: [
+				{ name: 'BasSpecialScheduleId', index: 'BasSpecialScheduleId', hidden: true },
+				{ width: 90, name: 'DealerCode', index: 'DealerCode' },
+				{ width: 250, name: 'DealerName', index: 'DealerName' },
+				{ width: 90, name: 'DealerType', index: 'DealerType' },
+				{ width: 90, name: 'Destination', index: 'Destination' },
+				{ width: 90, name: 'Province', index: 'Province' },
+				{ width: 90, name: 'FacingPdc', index: 'FacingPdc' },
+				{ width: 90, name: 'Definition', index: 'Definition' },
+				{ width: 90, name: 'CutoffDay', index: 'CutoffDay' },
+				{ width: 90, name: 'CutoffTime', index: 'CutoffTime' },
+				{ width: 90, name: 'PickupDay', index: 'PickupDay' },
+				{ width: 90, name: 'PickupTime', index: 'PickupTime' },
+				{ width: 90, name: 'TransMode', index: 'TransMode' },
+				{ width: 90, name: 'ArrivalDay', index: 'ArrivalDay' },
+				{ width: 90, name: 'ArrivalTime', index: 'ArrivalTime' },
+				{ width: 120, name: 'ArrivalTimeStart', index: 'ArrivalTimeStart' },
+				{ width: 120, name: 'ArrivalTimeEnd', index: 'ArrivalTimeEnd' }
+                 ],
+                pager: 1,
+                rowNum: 15,
+                sortname: 'DealerCode',
+                sortorder: "asc",
+                rownumbers: true,
+                shrinkToFit: false,
+                autowidth: true,
+                viewrecords: true,
+                sortable: true,
+                width: "100%",
+                pager: $('#divPager'),
+                rowList: [15, 20, 50, 100],
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                ondblClickRow: function (id) {
+                    edit(id);
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#btnSpecialScheduleImport").click(function () {
+                $("#dlgImport").dialog("open");
+                var cloneFile = $("#fileSpecialScheduleImport").clone();
+                $("#fileSpecialScheduleImport").replaceWith(cloneFile);
+                $("#fileSpecialScheduleImport").focus();
+            });
+
+            $("#btnSpecialScheduleTemplate").click(function () {
+                var url = '../../Upload/Spring Festival Schedule Template.xlsx';
+                window.location.href = url;
+            });
+
+            $("#btnImportCancel").click(function () {
+                $("#dlgImport").dialog("close");
+            });
+
+            $("#btnImportOK").click(function () {
+                if ($("#fileSpecialScheduleImport").val() == "") {
+                    alert("<=FirstSelectUpload>");
+                    return;
+                }
+                var url = '@Url.Action("SpecialScheduleImport", "BasicData")';
+                url += "/?BasSpecialScheduleIndexId=" + BasSpecialScheduleIndexId;
+                $('#frmImport').attr('action', url);
+                PageLock();
+                $('#frmImport').ajaxSubmit({
+                    success: function (result) {
+                        PageUnLock();
+                        alert(result);
+                        searchData();
+                        $("#btnImportCancel").click();
+                    },
+                    error: function () {
+                        PageUnLock();
+                    }
+                })
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#dlgBasSpecialSchedule").dialog({
+                height: 230,
+                width: 1030,
+                modal: true,
+                title: "<=BasSpecialScheduleInfo>",
+                autoOpen: false,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+
+            $("#divLock").dialog({
+                autoOpen: false,
+                resizable: false,
+                width: 200,
+                height: 110,
+                modal: true,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+
+            $("#dlgImport").dialog({
+                height: 110,
+                width: 500,
+                modal: true,
+                title: "<=Import>",
+                autoOpen: false,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+        })
+    </script>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            var strDealer = "txtDealerName:CustName"
+            strDealer += ";txtDealerType:CustTypeCode"
+            strDealer += ";txtDestination:CityCode"
+            strDealer += ";txtProvince:ProvinceCode"
+            strDealer += ";txtFacingPdc:RelatedWarehouseCode"
+
+            AutoInput({
+                displayFields: "CustCode;CustName",
+                displayLabels: "<=DealerCode>;<=DealerName>",
+                width: 450,
+                queryFieldName: "CustCode",
+                url: '@Url.Action("GetDealerAutoInputData", "MasterData")',
+                fillControls: strDealer,
+                controlId: "txtDealerCode",
+                imagePath: "../../Content/Images/AutoImage"
+            });
+
+            //导出Schedule
+            $("#btnSpecialScheduleExport").click(function () {
+                //请求数据,生成Excel文件,返回文件的路径
+                PageLock();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("ExportSpecialSchedule", "BasicData")',
+                    data: { SpecialScheduleIndexID: BasSpecialScheduleIndexId},
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        PageUnLock();
+                        if (result.Success) {
+                            window.location.href = result.FileName;
+                        } else {
+                            alert(result.msg);
+                        }
+                    },
+                    error: function () {
+                        PageUnLock();
+                    }
+                });
+            });
+            
+        });
+    </script>
+}
+<div class="column_search">
+    <fieldset>
+        <legend style="font-weight: bold"><=BasSpecialScheduleIndex></legend>
+        <table class='table'>
+            <tr>
+                <td class="title">
+                    <=ScheduleNo>
+                </td>
+                <td>
+                    <input type="text" class="text txtdisable" id="txtScheduleNo" value="@Model.ScheduleNo" disabled="disabled" />
+                </td>
+                <td class="title">
+                    <=EffectiveDate>
+                </td>
+                <td>
+                    <input type="text" class="text txtdisable" id="txtEffectiveDate" value="@Model.EffectiveDate.ToString("yyyy-MM-dd")" disabled="disabled" />
+                </td>
+                <td class="title">
+                    <=ExpirationDate>
+                </td>
+                <td>
+                    <input type="text" class="text txtdisable" id="txtExpirationDate" value="@Model.ExpirationDate.ToString("yyyy-MM-dd")" disabled="disabled" />
+                </td>
+            </tr>
+            <tr>
+                <td class="title">
+                    <=Remark>
+                </td>
+                <td colspan="5">
+                    <input type="text" class="text txtdisable" id="txtRemark" name="Remark" value="@Model.Remark" style="width: 94.5%"
+                        disabled="disabled" />
+                </td>
+            </tr>
+        </table>
+    </fieldset>
+    <fieldset>
+        <form id="frmSearch" name="frmSearch" action="">
+        <table class="table">
+            <tr>
+                <td class="title">
+                    <=DealerCode>
+                </td>
+                <td>
+                    <input type="text" class="text" id="txtDealerCodeSearch" name="DealerCode" />
+                </td>
+                <td class="title">
+                    <=PickupDayFrom>
+                </td>
+                <td>
+                    @Html.DatePicker("PickupDayFrom", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtPickupDayFrom" } }, "")
+                </td>
+                <td class="title">
+                    <=PickupDayTo>
+                </td>
+                <td>
+                    @Html.DatePicker("PickupDayTo", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtPickupDayTo" } }, "")
+                </td>
+            </tr>
+        </table>
+        <div class="btn_bar">
+            <div class="btn_bar">
+                @Html.GenerateButton("BasicData", "GetBasSpecialSchedule", "btnSearch", "<=Search>")
+                <input type="reset" class="button" id="btnReset" value="<=Reset>" />
+                @Html.GenerateButton("BasicData", "AddBasSpecialSchedule", "btnAddBasSpecialSchedule", "<=New>")
+                @Html.GenerateButton("BasicData", "SpecialScheduleImport", "btnSpecialScheduleImport", "<=Import>")
+                <input type="button" class="button" id="btnSpecialScheduleTemplate" value="<=Template>" />
+                @Html.GenerateButton("BasicData", "ExportSpecialSchedule", "btnSpecialScheduleExport", "<=Export>")
+            </div>
+        </div>
+        </form>
+    </fieldset>
+</div>
+<div class="column_grid">
+    <table id="tblBasSpecialSchedule">
+    </table>
+    <div id="divPager">
+    </div>
+</div>
+<div id="dlgBasSpecialSchedule" style="display: none">
+    <div class="column_edit">
+        <div class="btn_bar">
+            @Html.GenerateButton("BasicData", "AddBasSpecialSchedule", "btnAdd", "<=New>")
+            @Html.GenerateButton("BasicData", "SaveBasSpecialSchedule", "btnSave", "<=Save>")
+            <input type="button" class="button" id="btnCancel" value="<=Cancel>" />
+        </div>
+        <fieldset>
+            <legend style="font-weight: bold"><=BasSpecialScheduleInfo></legend>
+            <form id="frmSave" name="frmSave" action="">
+            <table class='table' id="tblSave">
+                <tr>
+                    <td class="title">
+                        <=Definition>*
+                    </td>
+                    <td>
+                        <select id="selDefinition" class="select" name="Definition">
+                            <option value=''></option>
+                            <option value='1st Stk'>1st Stk</option>
+                            <option value='2nd Stk'>2nd Stk</option>
+                        </select>
+                    </td>
+                    <td class="title">
+                        <=DealerCode>*
+                    </td>
+                    <td>
+                        <input type="text" class="text" id="txtBasSpecialScheduleId" name="BasSpecialScheduleId"
+                            style="display: none" />
+                        <input type="text" class="text" id="txtDealerCode" name="DealerCode" />
+                    </td>
+                    <td class="title">
+                        <=DealerName>
+                    </td>
+                    <td colspan="3">
+                        <input type="text" class="text txtdisable" id="txtDealerName" name="DealerName" style="width: 93%"
+                            readonly="readonly" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=DealerType>
+                    </td>
+                    <td>
+                        <input type="text" class="text txtdisable" id="txtDealerType" name="DealerType" readonly="readonly" />
+                    </td>
+                    <td class="title">
+                        <=Destination>
+                    </td>
+                    <td>
+                        <input type="text" class="text txtdisable" id="txtDestination" name="Destination"
+                            readonly="readonly" />
+                    </td>
+                    <td class="title">
+                        <=Province>
+                    </td>
+                    <td>
+                        <input type="text" class="text txtdisable" id="txtProvince" name="Province" readonly="readonly" />
+                    </td>
+                    <td class="title">
+                        <=FacingPdc>
+                    </td>
+                    <td>
+                        <input type="text" class="text txtdisable" id="txtFacingPdc" name="FacingPdc" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=CutoffDay>*
+                    </td>
+                    <td>
+                        @Html.DatePicker("CutoffDay", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtCutoffDay" } }, "")
+                    </td>
+                    <td class="title">
+                        <=CutoffTime>*
+                    </td>
+                    <td>
+                        @Html.DatePicker("CutoffTime", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtCutoffTime" } }, "dateFmt: 'HH:mm:ss'")
+                    </td>
+                    <td class="title">
+                        <=PickupDay>*
+                    </td>
+                    <td>
+                        @Html.DatePicker("PickupDay", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtPickupDay" } }, "")
+                    </td>
+                    <td class="title">
+                        <=PickupTime>*
+                    </td>
+                    <td>
+                        @Html.DatePicker("PickupTime", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtPickupTime" } }, "dateFmt: 'HH:mm:ss'")
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=ArrivalDay>*
+                    </td>
+                    <td>
+                        @Html.DatePicker("ArrivalDay", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtArrivalDay" } }, "")
+                    </td>
+                    <td class="title">
+                        <=ArrivalTime>*
+                    </td>
+                    <td>
+                        <select id="selArrivalTime" class="select" name="ArrivalTime">
+                            <option value=''></option>
+                            <option value='am'>am</option>
+                            <option value='pm'>pm</option>
+                        </select>
+                    </td>
+                    <td class="title">
+                        <=ArrivalTimeStart>*
+                    </td>
+                    <td>
+                        @Html.DatePicker("ArrivalTimeStart", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtArrivalTimeStart" } }, "dateFmt: 'HH:mm:ss'")
+                    </td>
+                    <td class="title">
+                        <=ArrivalTimeEnd>*
+                    </td>
+                    <td>
+                        @Html.DatePicker("ArrivalTimeEnd", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtArrivalTimeEnd" } }, "dateFmt: 'HH:mm:ss'")
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=TransMode>
+                    </td>
+                    <td>
+                        <input type="text" class="text" id="txtTransMode" name="TransMode" maxlength="50" />
+                    </td>
+                </tr>
+            </table>
+            </form>
+        </fieldset>
+    </div>
+</div>
+<div id="divLock" align="center" style="display: none" class="transparent">
+    <=DataProcess><br />
+    <img src="../../Content/Images/Load1.gif" />
+</div>
+<div id="dlgImport" style="display: none">
+    <div class="column_edit">
+        <form id="frmImport" name="frmImport" method="post" enctype="multipart/form-data"
+        action='@Url.Action("SpecialScheduleImport", "BasicData")'>
+        <table>
+            <tr>
+                <td class="title">
+                </td>
+                <td>
+                    <input type="file" name="FileSpecialScheduleImport" size="60" id="fileSpecialScheduleImport" />
+                </td>
+            </tr>
+        </table>
+        <div class="btn_bar" style="float: right">
+            <input type="button" class="button" id="btnImportOK" value="<=OK>" />
+            <input type="button" class="button" id="btnImportCancel" value="<=Cancel>" />
+        </div>
+        </form>
+    </div>
+</div>

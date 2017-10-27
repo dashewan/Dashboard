@@ -1,0 +1,861 @@
+﻿@{
+    ViewBag.Title = "<=PipelineReport>";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script src="@Url.Content("~/Scripts/jquery.easyui/jquery.easyui.min-1.4.2.js")" type="text/javascript"></script>
+    <link href="@Url.Content("~/Scripts/jquery.easyui/easyui.css")" rel="stylesheet" type="text/css" media="screen" />
+    <link href="@Url.Content("~/Scripts/jquery.easyui/icon.css")" rel="stylesheet" type="text/css" media="screen" />
+    <style type="text/css">
+        .dateControlYM {
+            margin-left: 0px;
+            margin-right: 0px; 
+            padding-top: 3px; 
+            padding-bottom: 3px;
+        }
+        input::-ms-clear { display: none; } 
+    </style>
+    <script type="text/javascript">
+        $(function () {
+            $('#Model').combobox({
+                data: [{ id: 'BarChart', text: '<=BarChart>' }
+                    , { id: 'CombinedHistograms', text: '<=CombinedHistograms>' }
+                    , { id: 'PieChart', text: '<=pieChart>' }
+                     ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue != "CombinedHistograms") {
+                        $("#xline2").combotree('disable');
+                        $("#xline2").combotree('clear');
+                    }
+                    else if (newValue == 'CombinedHistograms' && $('#YLine').combobox('getValue') != 'InitialAcutalBudget') {
+                        $("#xline2").combotree('enable');
+                    }
+                }
+            });
+
+            $('#YLine').combobox({
+                data: [
+                    { id: 'ActLocalBudget', text: '<=ActLocalBudget>' }
+                , { id: 'ESTLocalBudget', text: '<=ESTLocalBudget>' }
+                , { id: 'InitialAcutalBudget', text: '<=InitialAcutalBudget>' }
+                , { id: 'Project', text: '<=Project>' }
+                ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue == "InitialAcutalBudget" && $('#Model').combobox('getValue') == "CombinedHistograms") {
+                        $("#xline2").combotree('disable');
+                        $("#xline2").combotree('clear');
+                    }
+                    else if ($('#Model').combobox('getValue') == "CombinedHistograms" && newValue != "InitialAcutalBudget") {
+                        $("#xline2").combotree('enable');
+                    }
+
+                    if ($('#xline').combotree('getValues').length > 0 && $(this).combobox('getValue') != 'Project')
+                    {
+                        var xlineStr = $('#xline').combotree('getValues');
+                        for (var i = 0; i < xlineStr.length; i++) {
+                            if (xlineStr[i].indexOf("Est.Budget Act.Budget") != -1
+                                || xlineStr[i].indexOf("Implementer") != -1
+                                || xlineStr[i].indexOf("Initial.EndDate Act.EndDate") != -1
+                                || xlineStr[i].indexOf("Initial.StartDate Act.StartDate") != -1
+                                || xlineStr[i].indexOf("IT PM") != -1) {
+                                alert("<=pipelineMsg2>");
+                                $('#YLine').combobox('setValue', 'Project');
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($('#xline2').combotree('getValues').length > 0 && $(this).combobox('getValue') != 'Project') {
+                        var xline2Str = $('#xline2').combotree('getValues');
+                        for (var i = 0; i < xline2Str.length; i++) {
+                            if (xline2Str[i].indexOf("Est.Budget Act.Budget") != -1
+                                || xline2Str[i].indexOf("Implementer") != -1
+                                || xline2Str[i].indexOf("Initial.EndDate Act.EndDate") != -1
+                                || xline2Str[i].indexOf("Initial.StartDate Act.StartDate") != -1
+                                || xline2Str[i].indexOf("IT PM") != -1) {
+                                alert("<=pipelineMsg2>");
+                                $('#YLine').combobox('setValue', 'Project');
+                                break;
+                            }
+                        }
+                    }
+                }
+            });
+
+            $('#xline').combotree({
+                url: '@Url.Action("PipelineReportXline", "Reports")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true,
+                panelHeight: 300,
+                animate: true,
+                onChange: function (newValue, oldValue) {
+                    if ($('#YLine').combobox('getValue') != "Project" && $(this).combotree('getValues').length > 0)
+                    {
+                        var xlineStr = $(this).combotree('getValues');
+                        for (var i = 0; i < xlineStr.length; i++)
+                        {
+                            if (xlineStr[i].indexOf("Est.Budget Act.Budget") != -1
+                                || xlineStr[i].indexOf("Implementer") != -1
+                                || xlineStr[i].indexOf("Initial.EndDate Act.EndDate") != -1
+                                || xlineStr[i].indexOf("Initial.StartDate Act.StartDate") != -1
+                                || xlineStr[i].indexOf("IT PM") != -1
+                                || xlineStr[i].indexOf("IT PM") != -1)
+                            {
+                                alert("<=pipelineMsg2>");
+                                $(this).combotree('clear');
+                                break;
+                            }
+                        }
+                    }
+                }
+            });
+
+            $('#xline2').combotree({
+                url: '@Url.Action("PipelineReportXline", "Reports")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true,
+                panelHeight: 300,
+                animate: true,
+                onChange: function (newValue, oldValue) {
+                    if ($('#YLine').combobox('getValue') != "Project" && $(this).combotree('getValues').length > 0) {
+                        var xline2Str = $(this).combotree('getValues');
+                        for (var i = 0; i < xline2Str.length; i++) {
+                            if (xline2Str[i].indexOf("Est.Budget Act.Budget") != -1
+                                || xline2Str[i].indexOf("Implementer") != -1
+                                || xline2Str[i].indexOf("Initial.EndDate Act.EndDate") != -1
+                                || xline2Str[i].indexOf("Initial.StartDate Act.StartDate") != -1
+                                || xline2Str[i].indexOf("IT PM") != -1
+                                || xline2Str[i].indexOf("IT PM") != -1) {
+                                alert("<=pipelineMsg2>");
+                                $(this).combotree('clear');
+                                break;
+                            }
+                        }
+                    }
+                }
+            });
+
+            $("#xline2").combotree('disable');
+
+            ////////弹出的设定框
+            $('#SaveRequestDateScales').combobox({
+                data: [{ id: 'dd', text: '<=dd>' }
+                    , { id: 'wk', text: '<=wk>' }
+                    , { id: 'mm', text: '<=mm>' }
+                    , { id: 'qq', text: '<=qq>' }
+                    , { id: 'yy', text: '<=yy>' }
+                ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false
+            });
+            $("#SaveRequestDateScales").combobox('disable');
+            $("#SaveRequestDate").numberbox('disable');
+
+            $('#SaveInitialStartDateScales').combobox({
+                data: [{ id: 'mm', text: '<=mm>' }
+                    , { id: 'qq', text: '<=qq>' }
+                    , { id: 'yy', text: '<=yy>' }
+                ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false
+            });
+            $("#SaveInitialStartDateScales").combobox('disable');
+            $("#SaveInitialStartDate").numberbox('disable');
+
+            $('#SaveInitialEndDateScales').combobox({
+                data: [{ id: 'mm', text: '<=mm>' }
+                    , { id: 'qq', text: '<=qq>' }
+                    , { id: 'yy', text: '<=yy>' }
+                ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false
+            });
+            $("#SaveInitialEndDateScales").combobox('disable');
+            $("#SaveInitialEndDate").numberbox('disable');
+
+            $('#SaveActStartDateScales').combobox({
+                data: [{ id: 'mm', text: '<=mm>' }
+                    , { id: 'qq', text: '<=qq>' }
+                    , { id: 'yy', text: '<=yy>' }
+                ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false
+            });
+            $("#SaveActStartDateScales").combobox('disable');
+            $("#SaveActStartDate").numberbox('disable');
+
+            $('#SaveActEndDateScales').combobox({
+                data: [{ id: 'mm', text: '<=mm>' }
+                    , { id: 'qq', text: '<=qq>' }
+                    , { id: 'yy', text: '<=yy>' }
+                ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false
+            });
+            $("#SaveActEndDateScales").combobox('disable');
+            $("#SaveActEndDate").numberbox('disable');
+
+            $('#SaveRequestDateType').combobox({
+                data: [{ id: 'default', text: '<=default>' }
+                    , { id: 'near', text: '<=near>' }],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue == "near") {
+                        $("#SaveRequestDateScales").combobox('enable');
+                        $("#SaveRequestDate").numberbox('enable');
+                    } else {
+                        $("#SaveRequestDateScales").combobox("clear");
+                        $("#SaveRequestDateScales").combobox('disable');
+                        $("#SaveRequestDate").numberbox('clear');
+                        $("#SaveRequestDate").numberbox('disable');
+                    }
+                }
+            });
+            $('#SaveRequestDateType').combobox('setValue', 'default');
+
+            $('#SaveInitialStartDateType').combobox({
+                data: [{ id: 'default', text: '<=default>' }
+                    , { id: 'near', text: '<=near>' }],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue == "near") {
+                        $("#SaveInitialStartDateScales").combobox('enable');
+                        $("#SaveInitialStartDate").numberbox('enable');
+                    } else {
+                        $("#SaveInitialStartDateScales").combobox("clear");
+                        $("#SaveInitialStartDateScales").combobox('disable');
+                        $("#SaveInitialStartDate").numberbox('clear');
+                        $("#SaveInitialStartDate").numberbox('disable');
+                    }
+                }
+            });
+            $('#SaveInitialStartDateType').combobox('setValue', 'default');
+
+            $('#SaveInitialEndDateType').combobox({
+                data: [{ id: 'default', text: '<=default>' }
+                    , { id: 'near', text: '<=near>' }],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue == "near") {
+                        $("#SaveInitialEndDateScales").combobox('enable');
+                        $("#SaveInitialEndDate").numberbox('enable');
+                    } else {
+                        $("#SaveInitialEndDateScales").combobox("clear");
+                        $("#SaveInitialEndDateScales").combobox('disable');
+                        $("#SaveInitialEndDate").numberbox('clear');
+                        $("#SaveInitialEndDate").numberbox('disable');
+                    }
+                }
+            });
+            $('#SaveInitialEndDateType').combobox('setValue', 'default');
+            
+            $('#SaveActStartDateType').combobox({
+                data: [{ id: 'default', text: '<=default>' }
+                    , { id: 'near', text: '<=near>' }],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue == "near") {
+                        $("#SaveActStartDateScales").combobox('enable');
+                        $("#SaveActStartDate").numberbox('enable');
+                    } else {
+                        $("#SaveActStartDateScales").combobox("clear");
+                        $("#SaveActStartDateScales").combobox('disable');
+                        $("#SaveActStartDate").numberbox('clear');
+                        $("#SaveActStartDate").numberbox('disable');
+                    }
+                }
+            });
+            $('#SaveActStartDateType').combobox('setValue', 'default');
+            
+            $('#SaveActEndDateType').combobox({
+                data: [{ id: 'default', text: '<=default>' }
+                    , { id: 'near', text: '<=near>' }],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue == "near") {
+                        $("#SaveActEndDateScales").combobox('enable');
+                        $("#SaveActEndDate").numberbox('enable');
+                    } else {
+                        $("#SaveActEndDateScales").combobox("clear");
+                        $("#SaveActEndDateScales").combobox('disable');
+                        $("#SaveActEndDate").numberbox('clear');
+                        $("#SaveActEndDate").numberbox('disable');
+                    }
+                }
+            });
+            $('#SaveActEndDateType').combobox('setValue', 'default');
+           
+            
+            //弹出的dialog
+            $("#saveSetting").dialog({
+                title: 'Setting',
+                width: 450,
+                height: 270,
+                modal: true
+            })
+
+            var iframeHeight = getBrowserWidthHeight().height;
+            $("#formDiv").css({ "height": iframeHeight - 180 + "px" });
+        });
+    </script>
+    <script type="text/javascript">
+        //日期控件
+        function showDate() {
+            WdatePicker({ skin: 'default', dateFmt: 'yyyy-MM-dd' });
+        }
+        //月份控件
+        function showMonth() {
+            WdatePicker({ skin: 'default', dateFmt: 'yyyy-MM' });
+        }
+        function SelectCheck(value, msg) {
+            var error = true;
+            if (value == "") {
+                error = false;
+                alert(msg)
+            }
+            return error;
+        }
+        //检索之前的验证
+        function XCheck(allvalue, treevalue, msg) {
+            var error = true;
+            var newValue = allvalue;
+            //取得当前combotree的tree对象
+            var tree = treevalue;
+            //取得tree对象的所有父节点
+            var root = tree.tree("getRoots");
+            //获取不确定的父节点
+            var indeterminate = tree.tree('getChecked', 'indeterminate');
+            var size = 0;
+            for (var i = 0; i < newValue.length; i++) {
+                var node1 = newValue[i];
+                for (var j = 0; j < root.length; j++) {
+                    if (node1 == root[j].id) {
+                        size++;
+                    }
+                }
+            }
+            for (var i = 0; i < indeterminate.length; i++) {
+                var node2 = indeterminate[i].id;
+                for (var j = 0; j < root.length; j++) {
+                    if (node2 == root[j].id) {
+                        size++;
+                    }
+                }
+            }
+            if (size > 1) {
+                error = false;
+                alert(msg + "<=XlineNotSelectDouble>")
+            }
+
+            return error;
+        }
+
+        //所有的check
+        function doCheck()
+        {
+            //if (!SelectCheck($("#requestDateFrom").val(), "RequestDate From<=NotNull>")) return false;
+            //if (!SelectCheck($("#requestDateTo").val(), "RequestDate To<=NotNull>")) return false;
+            if (!SelectCheck($("#Model").combotree("getValue"), "<=NotNull> Model")) return false;
+            if (!SelectCheck($("#YLine").combotree("getValue"), "Y<=XlineNotNull>")) return false;
+            if (!SelectCheck($("#xline").combotree("getValues"), "X<=XlineNotNull>")) return false;
+            if ($("#Model").combotree("getValue") == 'CombinedHistograms' && $('#YLine').combobox('getValue') != 'InitialAcutalBudget') {
+                if (!SelectCheck($("#xline2").combotree("getValues"), "X2<=XlineNotNull>")) return false;
+            }
+            //X轴验证
+            if (!XCheck($("#xline").combotree("getValues"), $("#xline").combotree("tree"), 'X')) return false;
+            //X2轴验证
+            if ($('#YLine').combobox('getValue') == 'InitialAcutalBudget' && $("#Model").combotree("getValue") != 'CombinedHistograms') {
+                alert("<=pipelineMsg1>");
+                return false;
+            }
+            if (!XCheck($("#xline2").combotree("getValues"), $("#xline2").combotree("tree"), 'X2')) return false;
+            return true;
+        }
+
+        function GetParam()
+        {
+            var str = $("#frmSearch").serialize();
+            str += "&requestDateFrom=" + $("#requestDateFrom").val();
+            str += "&requestDateTo=" + $("#requestDateTo").val();
+            str += "&InitialStartDateFrom=" + $("#InitialStartDateFrom").val();
+            str += "&InitialStartDateTo=" + $("#InitialStartDateTo").val();
+            str += "&InitialEndDateFrom=" + $("#InitialEndDateFrom").val();
+            str += "&InitialEndDateTo=" + $("#InitialEndDateTo").val();
+            str += "&ACTStartDateFrom=" + $("#ACTStartDateFrom").val();
+            str += "&ACTStartDateTo=" + $("#ACTStartDateTo").val();
+            str += "&ACTEndDateFrom=" + $("#ACTEndDateFrom").val();
+            str += "&ACTEndDateTo=" + $("#ACTEndDateTo").val();
+            str += "&Model=" + $("#Model").combobox("getValue");
+            str += "&YLine=" + $("#YLine").combobox("getValue");
+            str += "&xline=" + $("#xline").combotree("getValues");
+            str += "&xline2=" + $("#xline2").combotree("getValues");
+            return str;
+        }
+
+        //检索
+        function search()
+        {
+            if (!doCheck()) return;
+
+            var str = GetParam();
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetPipelineReportParam", "Reports")',
+                data: str,
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    document.getElementById("formDiv").innerHTML = '<iframe id="ifeReport" name="ifeReport" frameborder="0" scrolling="yes" border="0" style="width: 100%;height: 100%;" src=""></iframe>';
+
+                    var formHtml = '<FORM id=\"OBReportSerer\" action=\"' + result.url + result.reportName
+                    + "&rc:toolbar=true\" method=\"post\" >";
+                    formHtml += '<INPUT type=\"hidden\" name=\"requestDateFrom\" value=\"' + result.requestDateFrom + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"requestDateTo\" value=\"' + result.requestDateTo + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"InitialStartDateFrom\" value=\"' + result.InitialStartDateFrom + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"InitialStartDateTo\" value=\"' + result.InitialStartDateTo + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"InitialEndDateFrom\" value=\"' + result.InitialEndDateFrom + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"InitialEndDateTo\" value=\"' + result.InitialEndDateTo + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"ACTStartDateFrom\" value=\"' + result.ACTStartDateFrom + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"ACTStartDateTo\" value=\"' + result.ACTStartDateTo + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"ACTEndDateFrom\" value=\"' + result.ACTEndDateFrom + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"ACTEndDateTo\" value=\"' + result.ACTEndDateTo + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"Model\" value=\"' + result.Model + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"YLine\" value=\"' + result.YLine + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"xline\" value=\"' + result.xline + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"xlineTitle\" value=\"' + result.xlineTitle + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"xline2\" value=\"' + result.xline2 + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"xlineTitle2\" value=\"' + result.xlineTitle2 + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"rc:Parameters\" value=\"False\"/> ';
+                    formHtml += '</FORM>';
+                    setTimeout(function () {
+                        document.getElementById("ifeReport").contentWindow.document.body.innerHTML = formHtml;
+                        document.getElementById("ifeReport").contentWindow.document.getElementById("OBReportSerer").submit();
+                    }, 0);
+                },
+                error: function () {
+                }
+            });
+        };
+
+        function ResetVal()
+        {
+            $("#requestDateFrom").val("");
+            $("#requestDateTo").val("");
+            $("#InitialStartDateFrom").val("");
+            $("#InitialStartDateTo").val("");
+            $("#InitialEndDateFrom").val("");
+            $("#InitialEndDateTo").val("");
+            $("#ACTStartDateFrom").val("");
+            $("#ACTStartDateTo").val("");
+            $("#ACTEndDateFrom").val("");
+            $("#ACTEndDateTo").val("");
+            $("#Model").combobox("clear");
+            $("#YLine").combobox("clear");
+            $("#xline").combotree("clear");
+            $("#xline2").combotree("clear");
+        }
+
+        function SaveSetting() 
+        {
+            ResetSave();
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("PipelineSaveSettingCheck", "Reports")',
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.flg) {
+                        if (!doCheck()) return;
+                        $("#saveSetting").dialog("open");
+                    } else {
+                        alert("<=pipelineMsg5>");
+                    }
+                }
+            });
+
+        }
+
+        function ResetSave()
+        {
+            $("#SaveName").textbox("setValue", "");
+            $("#SaveDesc").textbox("setValue", "");
+            $("#SaveRequestDateType").combobox('setValue', 'default');
+            $("#SaveInitialStartDateType").combobox('setValue', 'default');
+            $("#SaveInitialEndDateType").combobox('setValue', 'default');
+            $("#SaveActStartDateType").combobox('setValue', 'default');
+            $("#SaveActEndDateType").combobox('setValue', 'default');
+        }
+
+        function Save()
+        {
+            var errorMsg = "";
+            if ($("#SaveName").val() == "")
+            {
+                errorMsg += "<=NotNull> Name\n";
+            }
+            if ($("#SaveName").val() != "")
+            {
+                if (getByteLen($("#SaveName").val()) > 500)
+                {
+                    errorMsg += "<=pipelineMsg3>Name<=pipelineMsg6>\n";
+                }
+            }
+            if ($("#SaveDesc").val() == "") {
+                errorMsg += "<=NotNull> Desc\n";
+            }
+            if ($("#SaveDesc").val() != "") {
+                if (getByteLen($("#SaveDesc").val()) > 500) {
+                    errorMsg += "<=pipelineMsg3>Desc<=pipelineMsg6>\n";
+                }
+            }
+            if ($("#SaveRequestDateType").combobox('getValue') == 'near') {
+                if ($("#SaveRequestDate").val() == "" || $("#SaveRequestDateScales").combobox('getValue') == "") {
+                    errorMsg += "Request Date<=pipelineMsg4>\n";
+                }
+            }
+            if ($("#SaveInitialStartDateType").combobox('getValue') == 'near') {
+                if ($("#SaveInitialStartDate").val() == "" || $("#SaveInitialStartDateScales").combobox('getValue') == "") {
+                    errorMsg += "Initial Start Date<=pipelineMsg4>\n";
+                }
+            }
+            if ($("#SaveInitialEndDateType").combobox('getValue') == 'near') {
+                if ($("#SaveInitialEndDate").val() == "" || $("#SaveInitialEndDateScales").combobox('getValue') == "") {
+                    errorMsg += "Initial End Date<=pipelineMsg4>\n";
+                }
+            }
+            if ($("#SaveActStartDateType").combobox('getValue') == 'near') {
+                if ($("#SaveActStartDate").val() == "" || $("#SaveActStartDateScales").combobox('getValue') == "") {
+                    errorMsg += "Act Start Date<=pipelineMsg4>\n";
+                }
+            }
+            if ($("#SaveActEndDateType").combobox('getValue') == 'near') {
+                if ($("#SaveActEndDate").val() == "" || $("#SaveActEndDateScales").combobox('getValue') == "") {
+                    errorMsg += "Act End Date<=pipelineMsg4>\n";
+                }
+            }
+            if (errorMsg != "")
+            {
+                alert(errorMsg);
+                return;
+            }
+
+            var str = GetParam();
+            str += "&SaveName=" + $("#SaveName").val();
+            str += "&SaveDesc=" + $("#SaveDesc").val();
+            str += "&SaveRequestDateType=" + $("#SaveRequestDateType").combobox('getValue');
+            str += "&SaveRequestDate=" + $("#SaveRequestDate").val();
+            str += "&SaveRequestDateScales=" + $("#SaveRequestDateScales").combobox('getValue');
+            str += "&SaveInitialStartDateType=" + $("#SaveInitialStartDateType").combobox('getValue');
+            str += "&SaveInitialStartDate=" + $("#SaveInitialStartDate").val();
+            str += "&SaveInitialStartDateScales=" + $("#SaveInitialStartDateScales").combobox('getValue');
+            str += "&SaveInitialEndDateType=" + $("#SaveInitialEndDateType").combobox('getValue');
+            str += "&SaveInitialEndDate=" + $("#SaveInitialEndDate").val();
+            str += "&SaveInitialEndDateScales=" + $("#SaveInitialEndDateScales").combobox('getValue');
+            str += "&SaveActStartDateType=" + $("#SaveActStartDateType").combobox('getValue');
+            str += "&SaveActStartDate=" + $("#SaveActStartDate").val();
+            str += "&SaveActStartDateScales=" + $("#SaveActStartDateScales").combobox('getValue');
+            str += "&SaveActEndDateType=" + $("#SaveActEndDateType").combobox('getValue');
+            str += "&SaveActEndDate=" + $("#SaveActEndDate").val();
+            str += "&SaveActEndDateScales=" + $("#SaveActEndDateScales").combobox('getValue');
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("PipelineSaveSettingCheck", "Reports")',
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.flg) {
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("PipelineSaveSetting", "Reports")',
+                            data: str,
+                            dataType: 'json',
+                            cache: false,
+                            success: function (result) {
+                                if (result.flg) {
+                                    $("#saveSetting").dialog("close");
+                                } else {
+                                    alert("<=SaveError>");
+                                }
+                            }
+                        });
+                    } else {
+                        alert("<=pipelineMsg5>");
+                    }
+                }
+            });
+
+        }
+
+        //取得字符长度（可以区分全角半角）
+        function getByteLen(val) {
+            var len = 0;
+            for (var i = 0; i < val.length; i++) {
+                if (val[i].match(/[^\x00-\xff]/ig) != null) //全角 
+                    len += 2;
+                else
+                    len += 1;
+            }
+            return len;
+        }
+    </script>
+}
+
+<div class="column_search">
+    <form id="frmSearch" name="frmSearch">
+    <h3 class="column_title">
+        <=Search></h3>
+        <table class="table">
+            <tr>
+                <td class="title">
+                    Request Date
+                </td>
+                <td>
+                    <span class="textbox" style="width: 138px; height: 20px;">
+                        <input id="requestDateFrom" class="textbox-text Wdate dateControlYM" tabindex="1" onclick='showDate()' style=" width: 130px;"/>
+                    </span>
+                </td>
+                <td class="title">
+                    To
+                </td>
+                <td>
+                    <span class="textbox" style="width: 138px; height: 20px;">
+                        <input id="requestDateTo" class="textbox-text Wdate dateControlYM" tabindex="2" onclick='showDate()' style=" width: 130px;" />
+                    </span>
+                </td>
+                <td class="title">
+                    Initial Start Date
+                </td>
+                <td>
+                    <span class="textbox" style="width: 138px; height: 20px;">
+                        <input id="InitialStartDateFrom" class="textbox-text Wdate dateControlYM" tabindex="3" onclick='showMonth()' style=" width: 130px;" />
+                    </span>
+                </td>
+                <td class="title">
+                    To
+                </td>
+                <td>
+                    <span class="textbox" style="width: 138px; height: 20px;">
+                        <input id="InitialStartDateTo" class="textbox-text Wdate dateControlYM" tabindex="4" onclick='showMonth()' style=" width: 130px;" />
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="title">
+                    Initial End Date
+                </td>
+                <td>
+                    <span class="textbox" style="width: 138px; height: 20px;">
+                        <input id="InitialEndDateFrom" class="textbox-text Wdate dateControlYM" tabindex="5" onclick='showMonth()' style=" width: 130px;" />
+                    </span>
+                </td>
+                <td class="title">
+                    To
+                </td>
+                <td>
+                    <span class="textbox" style="width: 138px; height: 20px;">
+                        <input id="InitialEndDateTo" class="textbox-text Wdate dateControlYM" tabindex="6" onclick='showMonth()' style=" width: 130px;" />
+                    </span>
+                </td>
+                <td class="title">
+                    ACT Start Date
+                </td>
+                <td>
+                    <span class="textbox" style="width: 138px; height: 20px;">
+                        <input id="ACTStartDateFrom" class="textbox-text Wdate dateControlYM" tabindex="7" onclick='showMonth()' style=" width: 130px;" />
+                    </span>
+                </td>
+                <td class="title">
+                    To
+                </td>
+                <td>
+                    <span class="textbox" style="width: 138px; height: 20px;">
+                        <input id="ACTStartDateTo" class="textbox-text Wdate dateControlYM" tabindex="8" onclick='showMonth()' style=" width: 130px;" />
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="title">
+                    ACT End Date
+                </td>
+                <td>
+                    <span class="textbox" style="width: 138px; height: 20px;">
+                        <input id="ACTEndDateFrom" class="textbox-text Wdate dateControlYM" tabindex="7" onclick='showMonth()' style=" width: 130px;" />
+                    </span>
+                </td>
+                <td class="title">
+                    To
+                </td>
+                <td>
+                    <span class="textbox" style="width: 138px; height: 20px;">
+                        <input id="ACTEndDateTo" class="textbox-text Wdate dateControlYM" tabindex="8" onclick='showMonth()' style=" width: 130px;" />
+                    </span>
+                </td>
+                <td class="title">
+                    Mode
+                </td>
+                <td>
+                    <input class="easyui-combobox" id="Model" style="width:140px;" editable="false"/>
+                </td>
+                <td class="title">
+                    Y
+                </td>
+                <td>
+                    <input class="easyui-combobox" id="YLine" style="width:140px;" editable="false"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="title">
+                    X
+                </td>
+                <td colspan="3">
+                    <input id="xline" class="easyui-combotree" style="width:400px;" />
+                </td>
+                <td class="title">
+                    X2
+                </td>
+                <td colspan="3">
+                    <input id="xline2" class="easyui-combotree" style="width:400px;" />
+                </td>
+            </tr>
+        </table>
+        <div class="btn_bar">
+            <input type="button" class="button" id="btnSearch" value="<=Search>" onclick="search();"/>
+            <input type="button" class="button" id="btnReset" value="<=Reset>" onclick="ResetVal();"/>
+            <input type="button" class="button" id="btnSaveSetting" value="<=SaveSetting>" onclick="SaveSetting();"/>
+        </div>
+    </form>
+</div>
+<div id="formDiv">
+</div>
+<div id="saveSetting" class="column_edit" closed="true">
+    <div class="column_search">
+        <form id="frmDetail" name="frmDetail">
+            <table class="table">
+                <tr>
+                    <td class="title">
+                        Name
+                    </td>
+                    <td colspan="3">
+                        <input id="SaveName" class="easyui-textbox" style="width: 300px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        Desc
+                    </td>
+                    <td colspan="3">
+                        <input id="SaveDesc" class="easyui-textbox" style="width: 300px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        Request Date
+                    </td>
+                    <td>
+                        <input id="SaveRequestDateType" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveRequestDate" class="easyui-numberbox" data-options="min:0,precision:0" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveRequestDateScales" style="width: 80px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        Initial Start Date
+                    </td>
+                    <td>
+                        <input id="SaveInitialStartDateType" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveInitialStartDate" class="easyui-numberbox" data-options="min:0,precision:0" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveInitialStartDateScales" style="width: 80px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        Initial End Date
+                    </td>
+                    <td>
+                        <input id="SaveInitialEndDateType" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveInitialEndDate" class="easyui-numberbox" data-options="min:0,precision:0" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveInitialEndDateScales" style="width: 80px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        Act Start Date
+                    </td>
+                    <td>
+                        <input id="SaveActStartDateType" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveActStartDate" class="easyui-numberbox" data-options="min:0,precision:0" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveActStartDateScales" style="width: 80px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        Act End Date
+                    </td>
+                    <td>
+                        <input id="SaveActEndDateType" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveActEndDate" class="easyui-numberbox" data-options="min:0,precision:0" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveActEndDateScales" style="width: 80px"/>
+                    </td>
+                </tr>
+            </table>
+            <div class="btn_bar">
+                <input type="button" class="button" id="btnSave" value="<=Save>" onclick="Save();"/>
+                <input type="button" class="button" id="btnResetSave" value="<=Reset>" onclick="ResetSave();"/>
+            </div>
+        </form>
+    </div>
+</div>

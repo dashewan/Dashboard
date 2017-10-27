@@ -1,0 +1,459 @@
+﻿@using FrogDashboard.Core.Utility;
+@using FrogDashboard.Authentication.HtmlExtension;
+@{
+    ViewBag.Title = "AllDataFormReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script type="text/javascript">
+        var adjustmentType = "";
+    </script>
+    @Html.Partial("ReportPartial")
+    <script type="text/javascript">
+        var leftData = eval(@MvcHtmlString.Create(ViewBag.AllDataFormConfig));
+        var rightData = eval(@MvcHtmlString.Create(ViewBag.UserAllDataFormConfig));
+
+        //获取jqGrid选中行
+        function getSelectIds(grid) {
+            var selectedIds = grid.jqGrid("getGridParam", "selarrrow");
+            //选中行号排序
+            selectedIds = selectedIds.sort(
+                function (a, b) {
+                    return a - b;
+                }
+               );
+            return selectedIds;
+        }
+
+        //刷新表格数据
+        function refreshGridData() {
+            //            $('#tblLeft').setGridParam({ datatype: 'local', data: leftData }).trigger("reloadGrid");
+            //            $('#tblRight').setGridParam({ datatype: 'local', data: rightData }).trigger("reloadGrid");
+            $("#tblLeft").jqGrid('setData', leftData);
+            $("#tblLeft").trigger("reloadGrid");
+            $("#tblRight").jqGrid('setData', rightData);
+            $("#tblRight").trigger("reloadGrid");
+
+        }
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#btnLeft").click(function () {
+                var selectedIds = getSelectIds($("#tblRight"));
+                if (selectedIds.length == 0) {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+                //将右边选中的行放到左边
+                for (var vIndex = 0; vIndex < selectedIds.length; vIndex++) {
+                    var v = selectedIds[vIndex];
+                    var newData = rightData[v - 1];
+                    leftData.push(newData);
+                }
+                //移除右边选中的行
+                for (var vIndex = selectedIds.length - 1; vIndex >= 0; vIndex--) {
+                    var v = selectedIds[vIndex];
+                    rightData.splice(v - 1, 1);
+                }
+                //左边数据根据序号排序
+                leftData = leftData.sort(
+                function (a, b) {
+                    return (a.SerialNo - b.SerialNo);
+                });
+                refreshGridData();
+            });
+
+            $("#btnRight").click(function () {
+                var selectedIds = getSelectIds($("#tblLeft"));
+                if (selectedIds.length == 0) {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+                //将左边选中的行放到右边
+                for (var vIndex = 0; vIndex < selectedIds.length; vIndex++) {
+                    var v = selectedIds[vIndex];
+                    var newData = leftData[v - 1];
+                    rightData.push(newData);
+                }
+                //移除左边选中的行
+                for (var vIndex = selectedIds.length - 1; vIndex >= 0; vIndex--) {
+                    var v = selectedIds[vIndex];
+                    leftData.splice(v - 1, 1);
+                }
+                //左边数据根据序号排序
+                leftData = leftData.sort(
+                function (a, b) {
+                    return (a.SerialNo - b.SerialNo);
+                });
+                refreshGridData();
+            });
+            var RrightSel = null;
+            var arrSel = new Array();
+            $("#btnUp").click(function () {
+                //清空记录的选中项
+                arrSel.splice(0, arrSel.length);
+
+                RrightSel = getSelectIds($("#tblRight"));
+
+                if (RrightSel.length == 0) {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+                for (var vIndex = 0; vIndex < RrightSel.length; vIndex++) {
+                    var v = RrightSel[vIndex];
+                    if (v - 2 < 0) continue; //第一行跳过
+
+                    //移动保持逻辑
+                    var selID = $("#tblRight").getCell(v, 'FieldName');
+                    arrSel.push(selID);
+
+                    var temp = rightData[v - 2];
+                    rightData[v - 2] = rightData[v - 1];
+                    rightData[v - 1] = temp;
+                }
+                $('#tblRight').setGridParam({ datatype: 'local', data: rightData }).trigger("reloadGrid");
+
+                //设置移动前的行选中
+                for (var vIndex = 0; vIndex < arrSel.length; vIndex++) {
+                    //查找出移动前的选中行
+                    var idn = $("#tblRight tr:contains('" + arrSel[vIndex] + "')").index();
+                    $("#tblRight").jqGrid("setSelection", idn);
+                }
+            });
+
+            $("#btnDown").click(function () {
+                //清空记录的选中项
+                arrSel.splice(0, arrSel.length);
+
+                RrightSel = getSelectIds($("#tblRight"));
+                if (RrightSel.length == 0) {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+                for (var vIndex = RrightSel.length - 1; vIndex >= 0; vIndex--) {
+                    var v = RrightSel[vIndex];
+                    if (v == rightData.length) continue; //最后一行跳过
+
+                    //移动保持逻辑
+                    var selID = $("#tblRight").getCell(v, 'FieldName');
+                    arrSel.push(selID);
+
+                    var temp = rightData[v];
+                    rightData[v] = rightData[v - 1];
+                    rightData[v - 1] = temp;
+                }
+                $('#tblRight').setGridParam({ datatype: 'local', data: rightData }).trigger("reloadGrid");
+
+                //设置移动前的行选中
+                for (var vIndex = 0; vIndex < arrSel.length; vIndex++) {
+                    //查找出移动前的选中行
+                    var idn = $("#tblRight tr:contains('" + arrSel[vIndex] + "')").index();
+                    $("#tblRight").jqGrid("setSelection", idn);
+                }
+            });
+        })
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#frmSearch").validate({
+                rules: {
+                    TimePeriod: {
+                        required: true
+                    },
+                    FromDate: {
+                        required: true
+                    },
+                    ToDate: {
+                        required: true
+                    }
+                },
+                messages: {
+                    TimePeriod: {
+                        required: "<=TimePeriodIsRequired>"
+                    },
+                    FromDate: {
+                        required: "<=FromDateIsRequired>"
+                    },
+                    ToDate: {
+                        required: "<=ToDateIsRequired>"
+                    }
+                }
+            });
+
+            $("#btnSave").click(function () {
+                var fieldNames = "";
+                for (var vIndex = 0; vIndex < rightData.length; vIndex++) {
+                    var fieldName = rightData[vIndex].FieldName;
+                    fieldNames = fieldNames + fieldName + "|";
+                }
+                var str = "ConfigInfo=" + fieldNames;
+                PageLock();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveAllDataFormConfig", "Reports")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        PageUnLock();
+                        alert(result.msg);
+                        if (result.Success) {
+                            leftData = result.leftData;
+                            rightData = result.rightData;
+                            refreshGridData();
+                        }
+                    },
+                    error: function () {
+                        PageUnLock();
+                    }
+                });
+            });
+
+            $("#btnAllDataFormExport").click(function () {
+
+                if (!$('form[name=frmSearch]').valid()) {
+                    CheckFormMessage();
+                    return;
+                }
+
+                var startDate = $("#txtFromDate").val();
+                var endDate = $("#txtToDate").val();
+                if (!validDate(startDate, endDate)) {
+                    return;
+                }
+                if (!confirm("<=ExportConfirm>"))
+                    return false;
+                var fieldNames = "";
+                for (var vIndex = 0; vIndex < rightData.length; vIndex++) {
+                    var fieldName = rightData[vIndex].FieldName;
+                    fieldNames = fieldNames + fieldName + "|";
+                }
+                var str = $("#frmSearch").serialize();
+                str += "&ConfigInfo=" + fieldNames;
+                PageLock();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("AllDataFormExport", "Reports")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        PageUnLock();
+                        if (result.Success) {
+                            //修改为纯导出,不重新加载列表顺序
+                            //leftData = result.leftData;
+                            //rightData = result.rightData;
+                            var url = '@Url.Action("AllDataFormDownload", "Reports")'
+                            url += "/?" + "FileName=" + result.FileName;
+                            //window.location.href = url;
+                            var iframe = document.createElement("iframe");
+                            document.body.appendChild(iframe);
+                            iframe.src = url;
+                            iframe.style.display = "none"; 
+
+                            //refreshGridData();
+                        } else {
+                            alert(result.msg);
+                        }
+                    },
+                    error: function () {
+                        PageUnLock();
+                    }
+                });
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#tblLeft").jqGrid({
+                datatype: "local",
+                height: 310,
+                colNames: ['<=FieldName>', '<=DisplayName>', '<=SerialNo>'],
+                colModel: [
+                 { name: 'FieldName', index: 'FieldName', hidden: true, sortable: false },
+                 { name: 'DisplayName', index: 'DisplayName', width: 220, sortable: false },
+                 { name: 'SerialNo', index: 'SerialNo', hidden: true, width: 50, sortable: false }
+                 ],
+                rownumbers: true,
+                multiselect: true,
+                sortable: false,
+                rowNum: 300,
+                sortorder: "asc",
+                width: 310,
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images'
+            });
+
+            $("#tblRight").jqGrid({
+                datatype: "local",
+                height: 310,
+                colNames: ['<=FieldName>', '<=DisplayName>', '<=SerialNo>'],
+                colModel: [
+                 { name: 'FieldName', index: 'FieldName', hidden: true, sortable: false },
+                 { name: 'DisplayName', index: 'DisplayName', width: 220, sortable: false },
+                 { name: 'SerialNo', index: 'SerialNo', hidden: true, width: 50, sortable: false }
+                 ],
+                rownumbers: true,
+                multiselect: true,
+                sortable: false,
+                rowNum: 300,
+                sortorder: "asc",
+                width: 310,
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images'
+            });
+
+            $.extend($.fn.jqGrid, {
+                setData: function (data) {
+                    this[0].p.data = data;
+                    return true;
+                }
+            });
+
+            refreshGridData();
+        }) 
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#divLock").dialog({
+                autoOpen: false,
+                resizable: false,
+                width: 200,
+                height: 110,
+                modal: true,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+        })
+    </script>
+}
+<div class="column_search">
+    <form id="frmSearch" name="frmSearch" action="">
+    <h3 class="column_title">
+        <=Search></h3>
+    <table class="table">
+        <tr>
+            <td class="title">
+                <=TimePeriod>*
+            </td>
+            <td>
+                <select id='selTimePeriod' class="select" name="TimePeriod">
+                    <option value='TN Print Time'>TN Print Time</option>
+                    <option value='Supervisor Confirm Time'>Supervisor Confirm Time</option>
+                    <option value='Receiving Time'>Receiving Time</option>
+                </select>
+            </td>
+            <td class="title">
+                <=FromDate>*
+            </td>
+            <td>
+                @Html.DatePicker("FromDate", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtFromDate" } }, "dateFmt: 'yyyy-MM-dd'")
+            </td>
+            <td class="title">
+                <=ToDate>*
+            </td>
+            <td>
+                @Html.DatePicker("ToDate", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtToDate" } }, "dateFmt: 'yyyy-MM-dd'")
+            </td>
+            <td class="title">
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">
+                <=Shipper>
+            </td>
+            <td>
+                <input type="text" class="text" id="txtShipper" name="PDC" readonly="readonly" />
+            </td>
+            <td class="title">
+                <=Forwarder>
+            </td>
+            <td>
+                <input type="text" class="text" id="txtForwarder" name="Forwarder" readonly="readonly" />
+            </td>
+            <td class="title">
+                <=DealerType>
+            </td>
+            <td>
+                <input type="text" class="text" id="txtDealerType" name="DealerType" value="PC" readonly="readonly" />
+            </td>
+        </tr>
+        <tr>
+            <td class="title">
+                <=Consignee>
+            </td>
+            <td>
+                <input type="text" class="text" id="txtConsignee" name="Consignee" readonly="readonly" />
+            </td>
+            <td class="title">
+                <=TransportMode>
+            </td>
+            <td>
+                <input type="text" class="text" id="txtTransportMode" name="TransportMode" readonly="readonly" />
+            </td>
+            <td class="title">
+                <=TransportType>
+            </td>
+            <td>
+                <input type="text" class="text" id="txtTransportType" name="TransportType" readonly="readonly" />
+            </td>
+        </tr>
+    </table>
+    <div class="column_edit">
+        <div class="btn_bar">
+            <input type="button" class="button" id="btnSave" value="<=Save>" />
+            @Html.GenerateButton("Reports", "AllDataFormExport", "btnAllDataFormExport", "<=AllDataFormExport>")
+            <input type="reset" class="button" id="btnReset" value="<=Reset>" />
+        </div>
+    </div>
+    </form>
+</div>
+<div>
+    <table>
+        <tr>
+            <td style="width: 300">
+                <fieldset>
+                    <legend style="font-weight: bold">Unused List</legend>
+                    <div class="column_grid">
+                        <table id="tblLeft">
+                        </table>
+                    </div>
+                </fieldset>
+            </td>
+            <td style="width: 40">
+                <div class="column_edit" style="vertical-align: middle; width: 40;">
+                    <div class="btn_bar" style="width: 40;">
+                        <input type="button" class="button" id="btnRight" value=">>" />
+                        <p>
+                        </p>
+                        <input type="button" class="button" id="btnLeft" value="<<" />
+                    </div>
+                </div>
+            </td>
+            <td style="width: 300">
+                <fieldset>
+                    <legend style="font-weight: bold">Used List</legend>
+                    <div class="column_grid">
+                        <table id="tblRight">
+                        </table>
+                    </div>
+                </fieldset>
+            </td>
+            <td style="width: 40">
+                <div class="column_edit" style="vertical-align: middle; width: 40;">
+                    <div class="btn_bar" style="width: 40;">
+                        <input type="button" class="button" id="btnUp" value="↑" />
+                        <p>
+                        </p>
+                        <input type="button" class="button" id="btnDown" value="↓" />
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>

@@ -1,0 +1,76 @@
+﻿@{
+    ViewBag.Title = "<=DashboardIndex>";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script src="@Url.Content("~/Scripts/jquery.easyui/jquery.easyui.min-1.4.2.js")" type="text/javascript"></script>
+    <link href="@Url.Content("~/Scripts/jquery.easyui/easyui.css")" rel="stylesheet" type="text/css" media="screen" />
+    <link href="@Url.Content("~/Scripts/jquery.easyui/icon.css")" rel="stylesheet" type="text/css" media="screen" />
+    <script type="text/javascript">
+        $(function () {
+            $('#tblDashboard').datagrid({
+                url: '@Url.Action("GetDashboardData", "Dashboard")',
+                height: 300,
+                pagination: false,
+                rownumbers: true,
+                columns: [[
+                    { field: 'Guid', checkbox: 'true' },
+                    { field: 'ReportName', title: 'ReportName', width: 200 },
+                    { field: 'ReportSpecName', title: 'DashboardName', width: 200 },
+                    { field: 'ReportType', title: 'DashboardType', width: 200 },
+                    { field: 'ReportSpec', title: 'DashboardDescription', width: 300 }
+                ]]
+            });
+        });
+
+        //删除明细行数据
+        function DeleteDetail()
+        {
+            var selectRow = $('#tblDashboard').datagrid('getSelections');
+            if (selectRow.length < 1) {
+                alert("<=SelectOneData>");
+                return;
+            }
+            if (!confirm("<=SureDelete>")) return false;
+            var vIDs = "";
+            $.each(selectRow, function (k, row) {
+                vIDs = vIDs + "," + row.Guid;
+            });
+
+            vIDs = vIDs == "" ? vIDs : vIDs.substring(1, vIDs.length);
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteDashboard", "Dashboard")',
+                data: { vIDs: vIDs },
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.flg)
+                        $('#tblDashboard').datagrid('reload');
+                }
+            });
+        }
+
+        function refreshDetail()
+        {
+            $('#tblDashboard').datagrid('reload');
+        }
+    </script>
+}
+<div id="detail" class="column_edit">
+    <div class="column_edit">
+        <form id="frmSysDataAuth" name="frmSysDataAuth">
+            <div class="btn_bar">
+                <input type="button" id="btnDeleteDtl" class="button" value="<=Delete>" onclick="DeleteDetail();"/>
+                <input type="button" id="btnrefreshDtl" class="button" value="<=refresh>" onclick="refreshDetail();"/>
+            </div>
+        </form>
+        <div class="column_grid">
+            <table id="tblDashboard" class="table">
+            </table>
+            <div id="divDtlPager">
+            </div>
+        </div>
+    </div>
+</div>

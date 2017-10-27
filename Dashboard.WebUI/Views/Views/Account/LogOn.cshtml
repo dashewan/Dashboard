@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title><=UserLogin></title>
+    <script src="@Url.Content("~/Scripts/jquery-1.6.4.min.js")" type="text/javascript"></script>
+    <link href="@Url.Content("~/Content/CSS/login.css")" rel="stylesheet" type="text/css" />
+    <script type="text/javascript">
+        if (typeof parent.redirectToLogin == "function")
+            parent.redirectToLogin();
+        else if (typeof parent.parent.redirectToLogin == "function")
+            parent.parent.redirectToLogin();
+         
+
+        $(function () {
+            $("#txtUserName").focus();
+
+            $("#btnLogin").click(function () {
+                if ($("#txtUserName").val() == "") {
+                    alert("<=NameNotNull>");
+                    return;
+                } else if ($("#txtPassword").val() == "") {
+                    alert("<=PassWordNotNull>");
+                    return;
+                }
+
+                var str = "UserName=" + $("#txtUserName").val() + "&Password=" + $("#txtPassword").val();
+                str += "&Lang=" + $("#selLang").val();
+//                var strKeyCode = typeof $("#txtKeyCode").val() == "undefined" ? "" : $("#txtKeyCode").val();
+//                str += "&KeyCode=" + strKeyCode;
+                //alert(str);
+                $.ajax({
+                    type: "POST",
+                    url: '@{ <text>@Url.Action("UserLogOn", "Account")</text>}',
+                    cache: false,
+                    data: str,
+                    async: false,
+                    error: function () {
+                        alert("<=Applicationerror>");
+                    },
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result.success)
+                            window.location.href = '@{ <text>@Url.Action("Index", "Home")</text>}';
+                        else {
+                            if (result.msg != "expired")
+                                alert(result.msg);
+                            else
+                                window.location.href = '@{ <text>@Url.Action("ForceModifyPassword", "Account")</text>}';
+                        }
+                    }
+                });
+            });
+
+            $("#btnReset").click(function () {
+                $("#txtUserName").val("");
+                $("#txtPassword").val("");
+                $("#txtUserName").focus();
+            });
+
+            var Lang = "@ViewBag.Lang";
+            if (Lang == "SimplifiedChinese") {
+                $("#selLang").val("1");
+            }
+            else {
+                $("#selLang").val("0");
+            }
+            $("#txtUserName,#txtPassword").keydown(function (e) {
+                if (e.keyCode == 13) {
+                    $("#btnLogin").click();
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="login_bar">
+        <div class="top">
+        </div>
+        <div class="content">
+            <form>
+            <ul class="login_lst">
+                <li>
+                    <label>
+                        <=UserName>:</label><input class="text" id="txtUserName" type="text" value="" /></li>
+                <li>
+                    <label>
+                        <=Pwd>:</label><input type="password" class="text" id="txtPassword" value="" /></li>
+                @*@if (Convert.ToBoolean(ViewBag.IsExteriorUser))
+                {
+                    <li>
+                        <label>
+                            <=KeyCode>:</label><input type="text" class="text" id="txtKeyCode" value="" /></li>
+                }*@
+                <li>
+                    <label>
+                        <=language></label><select class="select" id="selLang">
+                            <option value="1"><=China></option>
+                            <option value="0"><=English></option>
+                        </select></li>
+                <li class="btn_bar">
+                    <input type="button" id="btnLogin" class="button" value="<=Login>" />
+                    <input type="button" id="btnReset" class="button" value="<=Reset>" />
+                </li>
+            </ul>
+            </form>
+        </div>
+    </div>
+    <div id="footer" class="login_footer">
+        Copyright &copy; 2015 DHL International GmbH.
+        All Rights reserved.</div>
+</body>
+</html>

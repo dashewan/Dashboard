@@ -1,0 +1,484 @@
+﻿@using FrogDashboard.Domain.SysManagement;
+@using FrogDashboard.Core.Utility;
+@using FrogDashboard.Authentication.HtmlExtension;
+@{
+    ViewBag.Title = "<=DataDictionary>";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script type="text/javascript" language="javascript">
+        //不可见，保存，取消，编辑
+        var btnStautsType = function () {
+            $("#btnSave").attr("disabled", "disabled");
+            $("#btnCancel").attr("disabled", "disabled");
+            $("#tblSave").css("display", "none")
+        }
+        //可见，保存，取消，编辑
+        var btnVisibleType = (function () {
+            $("#btnSave").removeAttr("disabled");
+            $("#btnCancel").removeAttr("disabled");
+            $("#tblSave").css("display", "")
+        });
+    </script>
+    <script type="text/javascript" language="javascript">
+        var _SbCodeTypeId = "";
+        var _sbcodetypeid = "";
+        $(function () {
+            $("#txtCodeTypes").focus();
+            btnStautsType();
+            $("#tblDictionary").jqGrid({
+                datatype: "json",
+                mtype: 'GET',
+                height: 180,
+                colNames: ['BasCodeTypeId', '<=CodeType>', '<=CodeName>', '<=CodeGrade>', '<=CodeDesc>', '创建人', '创建时间', '创建人所属组织', '编码宽度'],
+                colModel: [
+                 { name: 'BasCodeTypeId', index: 'BasCodeTypeId', hidden: true },
+                 { name: 'CodeType', index: 'CodeType' },
+                 { name: 'CodeName', index: 'CodeName' },
+                 { name: 'CodeGrade', index: 'CodeGrade', hidden: true },
+                 { name: 'CodeDesc', index: 'CodeDesc' },
+                 { name: 'CreatedUser', index: 'CreatedUser', hidden: true },
+                 { name: 'CreateTime', index: 'CreateTime', hidden: true },
+                 { name: 'CreateOffice', index: 'CreateOffice', hidden: true },
+                 { name: 'CodeWidth', index: 'CodeWidth', hidden: true }
+                 ],
+                pager: 1,
+                rowNum: 0,
+                sortname: 'CodeType',
+                sortorder: "asc",
+                viewrecords: true,
+                rownumbers: true,
+                sortable: true,
+                width: "100%",
+                altRows: true, //隔行变色
+                altclass: 'jqodd', //隔行变色样式
+                pager: $('#divPager'),
+                rowNum: 15,
+                rowList: [15, 20, 50, 200],
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                //caption: ' ',
+                closeAfterAdd: false,
+                onSelectRow: function (id) {
+                    _sbcodetypeid = $('#tblDictionary').getCell(id, 'BasCodeTypeId');
+                    $("#txtCodeType").val($('#tblDictionary').getCell(id, 'CodeType'));
+                    $("#txtCodeName").val($('#tblDictionary').getCell(id, 'CodeName'));
+                    $("#txtCodeGrade").val($('#tblDictionary').getCell(id, 'CodeGrade'));
+                    $("#txtCodeDesc").val($('#tblDictionary').getCell(id, 'CodeDesc'));
+                    $("#txtCreatedUser").val($('#tblDictionary').getCell(id, 'CreatedUser'));
+                    $("#CreatedTime").val($('#tblDictionary').getCell(id, 'CreateTime'));
+                    $("#txtCreatedOffice").val($('#tblDictionary').getCell(id, 'CreateOffice'));
+                    $("#txtCodeWidth").val($('#tblDictionary').getCell(id, 'CodeWidth'));
+                    if (_sbcodetypeid != null) {
+                        var url = '@Url.Action("GetCodeDefData", "MasterData")';
+                        url += "/?BasCodeTypeId=" + _sbcodetypeid;
+                        $('#tblDictionaryDef').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+                        $("#txtCodeType").attr({ "disabled": "disabled" });
+                    }
+                    _SbCodeDefId = "";
+                    $("#txtCodeValue").val("");
+                    $("#txtDisplayValue").val("");
+                    $("#txtDisplayValueEn").val("");
+                    btnVisibleType();
+                    btnStauts();
+                }
+
+            });
+
+            $("#btnSearch").click(function () {
+                btnStautsType();
+                var url = '@Url.Action("GetDictionaryData", "MasterData")';
+                url += "/?" + $("#frmSearch").serialize();
+                $('#tblDictionary').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+            });
+
+            $("#frmModule").validate({
+                rules: {
+                    CodeType: {
+                        required: true
+                    },
+                    CodeName: {
+                        required: true
+                    }
+                },
+                messages: {
+                    CodeType: {
+                        required: "<=CodeTypeNotNull>"
+                    },
+                    CodeName: {
+                        required: "<=CodeNameNotNull>"
+                    }
+                }
+            });
+
+            $("#btnNew").click(function () {
+                _sbcodetypeid = "";
+                $("#txtCodeType").val("");
+                $("#txtCodeName").val("");
+                $("#txtCodeGrade").val("");
+                $("#txtCodeDesc").val("");
+                $("#txtCreatedUser").val("");
+                $("#CreatedTime").val("");
+                $("#txtCreatedOffice").val("");
+                $("#txtCodeWidth").val("");
+                $("#txtCodeType").removeAttr("disabled");
+                btnVisibleType();
+            });
+
+            //取消
+            $("#btnCancel").click(function () {
+                btnStautsType();
+            });
+
+            $("#btnReset").click(function () {
+                _sbcodetypeid = "";
+                $("#txtCodeTypes").val("");
+                $("#txtCodeNames").val("");
+
+            });
+
+
+            $("#btnDelete").click(function () {
+                var selRowNumber = $("#tblDictionary").getGridParam('selrow');
+                if (selRowNumber == null) {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+                if (!confirm("<=SelectOneDate>")) return false;
+                var selRowNumber = $("#tblDictionary").getGridParam('selrow');
+                var id = $("#tblDictionary tr:eq(" + (selRowNumber - 1) + ") td:eq(1)").text();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteSbCodeType", "MasterData")',
+                    data: { BasCodeTypeId: id },
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        if (result.Success)
+                            $("#tblDictionary").delRowData(selRowNumber);
+                        alert(result.Msg);
+                    }
+                })
+            });
+
+            $("#btnSave").click(function () {
+                var str = $("#frmModule").serialize();
+                str += "&BasCodeTypeId=" + _sbcodetypeid;
+                if (!$('form[name=frmModule]').valid()) {
+                    CheckFormMessage("frmModule");
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveSbCodeType", "MasterData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        alert(result.Msg);
+                        if (result.Success) {
+                            _sbcodetypeid = result.Id;
+                            $("#tblDictionary").setGridParam({
+                                url: '@Url.Action("GetDictionaryData", "MasterData")'
+                            }).trigger("reloadGrid");
+                            $("#txtCodeType").attr({ "disabled": "disabled" });
+                        }
+                    }
+                })
+            });
+        })
+    </script>
+    <script type="text/javascript" language="javascript">
+        //不可见，保存，取消，编辑
+        var btnStauts = function () {
+            $("#btnSaveDef").attr("disabled", "disabled");
+            $("#btnCancelDef").attr("disabled", "disabled");
+            $("#tblSaveDef").css("display", "none")
+        }
+        //可见，保存，取消，编辑
+        var btnVisible = (function () {
+            $("#btnSaveDef").removeAttr("disabled");
+            $("#btnCancelDef").removeAttr("disabled");
+            $("#tblSaveDef").css("display", "")
+        });
+    </script>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            var _SbCodeDefId = "";
+            btnStauts();
+            $("#tblDictionaryDef").jqGrid({
+                datatype: "json",
+                mtype: 'GET',
+                height: 262,
+                colNames: ['BasCodeDefId', 'BasCodeTypeId', '<=CodeTypeDateil>', '<=DisplayValue>', '<=DisplayValueEn>', '<=IsActive>', '创建人ID', '创建人编码', '创建人名称', '创建办事处ID', '创建办事处编码', '创建办事处名称', '创建时间'],
+                colModel: [
+                 { name: 'BasCodeDefId', index: 'BasCodeDefId', hidden: true },
+                 { name: 'BasCodeTypeId', index: 'BasCodeTypeId', hidden: true },
+                 { name: 'CodeValue', index: 'CodeValue'},
+                 { name: 'DisplayValue', index: 'DisplayValue' },
+                 { name: 'DisplayValueEn', index: 'DisplayValueEn' },
+                 { name: 'Active', index: 'Active' },
+                 { name: 'CreatedUserId', index: 'CreatedUserId', hidden: true },
+                 { name: 'CreatedUserCode', index: 'CreatedUserCode', hidden: true },
+                 { name: 'CreatedUserName', index: 'CreatedUserName', hidden: true },
+                 { name: 'CreatedOfficeId', index: 'CreatedOfficeId', hidden: true },
+                 { name: 'CreatedOfficeCode', index: 'CreatedOfficeCode', hidden: true },
+                 { name: 'CreatedOfficeName', index: 'CreatedOfficeName', hidden: true },
+                 { name: 'CreatedDate', index: 'CreatedDate', hidden: true }
+                 ],
+                pager: 1,
+                rowNum: 0,
+                sortname: 'CodeValue',
+                sortorder: "asc",
+                viewrecords: true,
+                rownumbers: true,
+                sortable: true,
+                //width: "450px",
+                altRows: true, //隔行变色
+                altclass: 'jqodd', //隔行变色样式
+                pager: $('#divPagerDef'),
+                rowNum: 15,
+                rowList: [15, 20, 50, 200],
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                //caption: ' ',
+                closeAfterAdd: false,
+                onSelectRow: function (id) {
+                    _SbCodeDefId = $('#tblDictionaryDef').getCell(id, 'BasCodeDefId');
+                    $("#txtCodeValue").val($('#tblDictionaryDef').getCell(id, 'CodeValue'));
+                    $("#txtDisplayValue").val($('#tblDictionaryDef').getCell(id, 'DisplayValue'));
+                    $("#txtDisplayValueEn").val($('#tblDictionaryDef').getCell(id, 'DisplayValueEn'));
+                    $("#Active").attr("checked", $('#tblDictionaryDef').getCell(id, 'Active') == "<=Yes>");
+                    $("#txtCodeValue").attr({ "disabled": "disabled" });
+                    btnVisible();
+                }
+            });
+
+            $("#frmModulesDef").validate({
+                rules: {
+                    CodeValue: {
+                        required: true
+                    },
+                    DisplayValue: {
+                        required: true
+                    }
+                },
+                messages: {
+                    CodeValue: {
+                        required: "<=CodeTypeDetailNotNull>"
+                    },
+                    DisplayValue: {
+                        required: "<=CodeNameDetailNotNull>"
+                    }
+                }
+            });
+
+            $("#btnAdd").click(function () {
+                if (_sbcodetypeid == null) {
+                    alert("<=SelectOneDate>");
+                }
+                else {
+                    _SbCodeDefId = "";
+                    $("#txtCodeValue").val("");
+                    $("#txtDisplayValue").val("");
+                    $("#txtDisplayValueEn").val("");
+                    $("#Active").attr("checked", true);
+                    $("#txtCodeValue").removeAttr("disabled");
+                    btnVisible();
+                }
+            });
+
+            //取消
+            $("#btnCancelDef").click(function () {
+                btnStauts();
+            });
+            $("#btnSaveDef").click(function () {
+                if (_sbcodetypeid == "") {
+                    alert("<=SelectOneTypeDate>");
+                    return;
+                }
+                var str = $("#frmModulesDef").serialize();
+                str += "&BasCodeDefId=" + _SbCodeDefId;
+                str += "&BasCodeTypeId=" + _sbcodetypeid;
+                str += "&Active=" + $("#Active").attr("checked");
+                if (!$('form[name=frmModulesDef]').valid()) {
+                    CheckFormMessage("frmModulesDef");
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveSbCodeDef", "MasterData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        alert(result.Msg);
+                        if (result.Success) {
+                            btnVisible();
+                            _SbCodeDefId = result.Id;
+                            var url = '@Url.Action("GetCodeDefData", "MasterData")';
+                            url += "/?BasCodeTypeId=" + _sbcodetypeid;
+                            $('#tblDictionaryDef').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+                            $("#txtCodeValue").attr({ "disabled": "disabled" });
+                        }
+                    }
+                })
+            });
+        })
+    </script>
+}
+<table class='table'>
+    <tr>
+        <td>
+            <div class="column_search">
+                <form id="frmSearch" name="frmSearch">
+                <h3 class="column_title">
+                    <=Search>
+                </h3>
+                <table class="table">
+                    <tr>
+                        <td class="title">
+                            <=CodeType>
+                        </td>
+                        <td>
+                            <input type="text" id="txtCodeTypes" class="text" name="CodeType" />
+                        </td>
+                        <td class="title">
+                            <=CodeName>
+                        </td>
+                        <td>
+                            <input type="text" id="txtCodeNames" class="text" name="CodeName" />
+                        </td>
+                        <td class="title">
+                        </td>
+                        <td>
+                        </td>
+                    </tr>
+                </table>
+                <div class="btn_bar">
+                    <input id="btnSearch"  class="button" type="button" value="<=Search>" />
+                   @* @Html.GenerateButton("MasterData", "GetDictionaryData", "btnSearch", "<=Search>")*@
+                    <input id="btnReset" class="button" type="button" value="<=Reset>" />
+                </div>
+                </form>
+            </div>
+            <div class="column_grid">
+                <table id="tblDictionary">
+                </table>
+                <div id="divPager">
+                </div>
+                <div class="btn_bar">
+                    <input id="btnNew" type="button" class="button"  value="<=New>" />
+                   @* @Html.GenerateButton("MasterData", "NewDictionary", "btnNew", "<=New>")*@
+                    <input id="btnSave" type="button"  class="button" value="<=Save>" />
+                @*    @Html.GenerateButton("MasterData", "SaveSbCodeType", "btnSave", "<=Save>")*@
+                    <input id="btnCancel" type="button" class="button" value="<=Cancel>" />
+                </div>
+            </div>
+        </td>
+        <td>
+            <div class="column_search">
+            </div>
+            <div class="column_grid">
+                <table id="tblDictionaryDef">
+                </table>
+                <div id="divPagerDef">
+                </div>
+            </div>
+            <table>
+                <tr>
+                    <td class="title">
+                        <div class="btn_bar">
+                            <input id="btnAdd" type="button" class="button" value="<=New>" />
+                         @*   @Html.GenerateButton("MasterData", "NewDiteail", "btnAdd", "<=New>")*@
+                            <input id="btnSaveDef" type="button" class="button" value="<=Save>" />
+                          @*  @Html.GenerateButton("MasterData", "SaveSbCodeDef", "btnSaveDef", "<=Save>")*@
+                            <input id="btnCancelDef" type="button" class="button" value="<=Cancel>" />
+                        </div>
+                    </td>
+                    <td>
+                     @*   <input id="btnDeleteDef" type="button" value="删除" />*@
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td style="width: 550px">
+            <div class="column_edit">
+                <h3 class="column_title">
+                    <=Edit>
+                </h3>
+            </div>
+        </td>
+        <td style="width: 450px">
+            <div class="column_edit">
+                <h3 class="column_title">
+                    <=Edit>
+                </h3>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <form id="frmModule" name="frmModule">
+            <table class='table' style="display: none" id="tblSave">
+                <tr>
+                    <td class="title">
+                        <=CodeType>*
+                    </td>
+                    <td>
+                        <input type="text" id="txtCodeType" class="text" name="CodeType" />
+                    </td>
+                    <td class="title">
+                        <=CodeName>*
+                    </td>
+                    <td>
+                        <input type="text" id="txtCodeName" class="text" name="CodeName" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=CodeDesc>
+                    </td>
+                    <td colspan="3">
+                        <textarea class="textarea" cols="" rows="" id="txtCodeDesc" name="CodeDesc" style="width: 388px"></textarea>
+                    </td>
+                </tr>
+            </table>
+            </form>
+        </td>
+        <td>
+            <form id="frmModulesDef" name="frmModulesDef">
+            <table class='table' style="display: none" id="tblSaveDef">
+                <tr>
+                    <td class="title">
+                        <=CodeTypeDateil>*
+                    </td>
+                    <td>
+                        <input type="text" id="txtCodeValue" class="text" name="CodeValue" />
+                    </td>
+                    <td class="title">
+                        <=DisplayValue>*
+                    </td>
+                    <td>
+                        <input type="text" id="txtDisplayValue" class="text" name="DisplayValue" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=DisplayValueEn>
+                    </td>
+                    <td>
+                        <input type="text" id="txtDisplayValueEn" class="text" name="DisplayValueEn" />
+                    </td>
+                    <td class="title">
+                        <=Active>:
+                    </td>
+                    <td>
+                        <input type="checkbox" id="Active" class="checkbox" />
+                    </td>
+                </tr>
+            </table>
+            </form>
+        </td>
+    </tr>
+</table>

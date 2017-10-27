@@ -1,0 +1,260 @@
+﻿@using FrogDashboard.Core.Utility;
+@using FrogDashboard.Authentication.HtmlExtension;
+@{
+    ViewBag.Title = "<=BasSpecialDayInfo>";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script type="text/javascript">
+
+        var searchData = function () {
+            var url = '@Url.Action("GetBasSpecialDay", "BasicData")';
+            url += "/?" + $("#frmSearch").serialize();
+            $('#tblBasSpecialDay').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        }
+
+        var clearForm = function () {
+            $("#frmSave").find("input:text").val("");
+            $("#frmSave").find(":checkbox").attr("checked", false);
+        };
+
+        var editData = function (result) {
+            $("#tblSave").css("display", "");
+            $("#btnSave").removeAttr("disabled");
+
+            clearForm();
+            $("#txtBasSpecialDayId").val(result.BasSpecialDayId);
+            var date = new Date(parseInt(result.SpecialDay.replace(/\/Date\((-?\d+)\)\//, '$1')));
+            $("#txtSpecialDay").val(date.format("yyyy-mm-dd"));
+            $("#cbActive").attr("checked", result.Active);
+            $("#txtRemark").val(result.Remark);
+        }
+
+        var edit = function (id) {
+            var BasSpecialDayId = $('#tblBasSpecialDay').getCell(id, 'BasSpecialDayId');
+            if (BasSpecialDayId == "") return;
+            var str = "BasSpecialDayId=" + BasSpecialDayId;
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetBasSpecialDayById", "BasicData")',
+                data: str,
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.Success) {
+                        editData(result.BasSpecialDay);
+                    }
+                }
+            });
+        }
+
+        function PageLock() {
+            $("#divLock").dialog('open');
+        }
+
+        function PageUnLock() {
+            $("#divLock").dialog('close');
+        }
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#btnSave").attr("disabled", "disabled");
+
+            $("#btnSearch").click(function () {
+                clearForm();
+                searchData();
+                $("#tblSave").css("display", "none");
+                $("#btnSave").attr("disabled", "disabled");
+            });
+
+            $("#btnAdd").click(function () {
+                clearForm();
+                $("#tblSave").css("display", "");
+                $("#btnSave").removeAttr("disabled");
+                $("#cbActive").attr("checked", true);
+            });
+
+            $("#frmSave").validate({
+                rules: {
+                    SpecialDay: {
+                        required: true
+                    }
+                },
+                messages: {
+                    SpecialDay: {
+                        required: "<=SpecialDayIsRequired>"
+                    }
+                }
+            });
+
+            $("#btnSave").click(function () {
+                if (!$('form[name=frmSave]').valid()) {
+                    CheckFormMessage();
+                    return;
+                }
+                var str = $("#frmSave").serialize();
+                str += "&Active=" + $("#cbActive").attr("checked");
+                PageLock();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveBasSpecialDay", "BasicData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        PageUnLock();
+                        alert(result.Msg);
+                        if (result.Success) {
+                            searchData();
+                            editData(result.BasSpecialDay);
+                        }
+                    },
+                    complete: function () {
+                        PageUnLock();
+                    }
+                });
+            });
+        })
+    </script>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            $("#tblBasSpecialDay").jqGrid({
+                datatype: "json",
+                mtype: 'POST',
+                height: 220,
+                colNames: ['', '<=SpecialDay>', '<=Active>', '<=CreatedUser>', '<=CreatedDate>', '<=Remark>'],
+                colModel: [
+				{ name: 'BasSpecialDayId', index: 'BasSpecialDayId', hidden: true },
+				{ width: 120, name: 'SpecialDay', index: 'SpecialDay' },
+                { width: 60, name: 'Active', index: 'Active' },
+				{ width: 120, name: 'CreatedUserCode', index: 'CreatedUserCode' },
+				{ width: 120, name: 'CreatedDate', index: 'CreatedDate' },
+                { width: 300, name: 'Remark', index: 'Remark' }
+                 ],
+                pager: 1,
+                rowNum: 15,
+                sortname: 'SpecialDay',
+                sortorder: "asc",
+                rownumbers: true,
+                shrinkToFit: false,
+                autowidth: true,
+                viewrecords: true,
+                sortable: true,
+                width: "100%",
+                pager: $('#divPager'),
+                rowList: [15, 20, 50, 100],
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                ondblClickRow: function (id) {
+                    edit(id);
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#divLock").dialog({
+                autoOpen: false,
+                resizable: false,
+                width: 200,
+                height: 110,
+                modal: true,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+        })
+    </script>
+}
+<div class="column_search">
+    <form id="frmSearch" name="frmSearch">
+    <h3 class="column_title">
+        <=Search></h3>
+    <table class="table">
+        <tr>
+            <td class="title">
+                <=SpecialDayFrom>
+            </td>
+            <td>
+                @Html.DatePicker("SpecialDayFrom", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtSpecialDayFrom" } }, "")
+                <input style="display: none" />
+            </td>
+            <td class="title">
+                <=SpecialDayTo>
+            </td>
+            <td>
+                @Html.DatePicker("SpecialDayTo", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtSpecialDayTo" } }, "")
+            </td>
+            <td class="title">
+            </td>
+            <td>
+            </td>
+            <td class="title">
+            </td>
+            <td>
+            </td>
+        </tr>
+    </table>
+    <div class="btn_bar">
+        @Html.GenerateButton("BasicData", "GetBasSpecialDay", "btnSearch", "<=Search>")
+        <input type="reset" class="button" id="btnReset" value="<=Reset>" />
+    </div>
+    </form>
+</div>
+<div class="column_grid">
+    <table id="tblBasSpecialDay">
+    </table>
+    <div id="divPager">
+    </div>
+</div>
+<div class="column_edit" id="divSave">
+    <form id="frmSave" name="frmSave" action="">
+    <div class="btn_bar">
+        @Html.GenerateButton("BasicData", "AddBasSpecialDay", "btnAdd", "<=New>")
+        @Html.GenerateButton("BasicData", "SaveBasSpecialDay", "btnSave", "<=Save>")
+    </div>
+    <h3 class="column_title">
+        <=Edit></h3>
+    <table class='table' style="display: none" id="tblSave">
+        <tr>
+            <td class="title">
+                <=SpecialDay>*
+            </td>
+            <td>
+                <input type="text" class="text" id="txtBasSpecialDayId" name="BasSpecialDayId" style="display: none" />
+                @Html.DatePicker("SpecialDay", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtSpecialDay" } }, "")
+            </td>
+            <td class="title">
+                <=Active>
+            </td>
+            <td>
+                <input class="checkbox" type="checkbox" id="cbActive" />
+            </td>
+            <td class="title">
+            </td>
+            <td>
+            </td>
+            <td class="title">
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">
+                <=Remark>
+            </td>
+            <td colspan="5">
+                <input type="text" class="text" id="txtRemark" name="Remark" style="width: 94.5%"
+                    maxlength="200" />
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>
+<div id="divLock" align="center" style="display: none" class="transparent">
+    <=DataProcess><br />
+    <img src="../../Content/Images/Load1.gif" />
+</div>

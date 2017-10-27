@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Localization>
+  <Module name="Pubic">
+    <item name="Search">Query</item>
+    <item name="Save">Save</item>
+    <item name="Delete">Delete</item>
+    <item name="New">New</item>
+    <item name="Edit">Edit</item>
+    <item name="View">View</item>
+    <item name="Reset">Reset</item>
+    <item name="SaveSuccess">Success Save</item>
+    <item name="SaveError">Save Failure,pls contact system adminstrator</item>
+    <item name="DeleteSuccess">Success Delete</item>
+    <item name="DeleteFail">Delete Failure</item>
+    <item name="SelectOneDate">Please Select a data first</item>
+    <item name="Remark">Remark</item>
+    <item name="Active">Active</item>
+    <item name="IsDisabled">IsDisabled</item>
+    <item name="SureDelete">Sure to Delete</item>
+    <item name="Cancel">Cancel</item>
+    <item name="CreatedUser">Creator</item>
+    <item name="CreatedDate">Created Date</item>
+    <item name="DataProcess">Data Processing</item>
+    <item name="OK">OK</item>
+    <item name="FirstSave">Save First</item>
+    <item name="StartTimeGreaterThanEndTime">End Time must be greater than Start Time</item>
+    <item name="EndTimeGreaterThanStartTime">Time span cannot be greater than 6 months</item>
+    <item name="Template">Template</item>
+    <item name="CalculationSuccess">Calculation Success</item>
+    <item name="CalculationError">Calculation Failure</item>
+    <item name="CalculationConfirm">Sure to calculate?</item>
+  </Module>
+  <Module name="KPICalculation">
+    <item name="KPICalculation">KPI Calculation</item>
+    <item name="Calculation">KPI Calculation</item>
+    <item name="TimePeriod">Time Period</item>
+    <item name="FromDate">From</item>
+    <item name="ToDate">To</item>
+    <item name="TimePeriodIsRequired">Time Period is required</item>
+    <item name="FromDateIsRequired">Start Time is required</item>
+    <item name="ToDateIsRequired">End Time is required</item>
+    <item name="FromDateGreaterThanToDate">End Time must be greater than Start Time</item>
+    <item name="CalProcessWorking"> is calculating, please try again later</item>
+  </Module>
+</Localization>

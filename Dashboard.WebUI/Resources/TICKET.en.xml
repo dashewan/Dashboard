@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Localization>
+  <Module name="Pubic">
+    <item name="Search">Query</item>
+    <item name="Save">Save</item>
+    <item name="Delete">Delete</item>
+    <item name="New">New</item>
+    <item name="Edit">Edit</item>
+    <item name="View">View</item>
+    <item name="Reset">Reset</item>
+    <item name="SaveSuccess">Save Successful</item>
+    <item name="DeleteSuccess">Delete Successful</item>
+    <item name="SaveError">Save Failed,please contact system adminstrator </item>
+    <item name="DeleteFail">Delete Failed</item>
+    <item name="SelectOneDate">Please Select a data first</item>
+    <item name="Remark">Remark</item>
+    <item name="Active">Active</item>
+    <item name="IsDisabled">IsDisabled</item>
+    <item name="SureDelete">Sure to Delete?</item>
+    <item name="Cancel">Cancel</item>
+    <item name="CodeType">Code Type</item>
+    <item name="CodeName">Code Name</item>
+    <item name="CodeDesc">Code Desc</item>
+
+    <item name="CodeTypeDateil">Code Type Dateil</item>
+    <item name="DisplayValue">Display Value</item>
+    <item name="DisplayValueEn">Display ValueEn</item>
+    <item name="SelectOneTypeDate">Select One Type Date</item>
+
+    <item name="Import">Import</item>
+    <item name="importError">Import Failed</item>
+    
+    <item name="Imports">Import Successful</item>
+    <item name="Row">line of records</item>
+    <item name="FirstSelectImport">Please choose the file</item>
+    <item name="FileMustXls">Please choose the Excel file</item>
+  </Module>
+  <Module name="Home">
+    <item name="PageContent">Page Content</item>
+    <item name="OtherContent">Others</item>
+    <item name="Log On">Log In</item>
+    <item name="Title">Title</item>
+    <item name="language is applied">Language has been set.</item>
+    <item name="Menu">Menu</item>
+    <item name="MasterData">Master Data</item>
+    <item name="Close">Close</item>
+    <item name="Select">Select</item>
+    <item name="OK">OK</item>
+    <item name="CreatedTime">Created Date</item>
+
+    <!--ticket列表-->
+    <item name="TRT">TRT</item>
+    <item name="CountryCode">Country Code</item>
+    <item name="Service">Service</item>
+    <item name="ActualStart">Actual Start</item>
+    <item name="ActualFinish">Actual Finish</item>
+    <item name="PRIORITY">Priority</item>
+    <item name="Reason">Reason</item>
+    <item name="TOPerson">TO Person</item>
+
+    <item name="FunctionNameNotNull">Function name can't be null!</item>
+    <item name="ActionNameNotNull">Event name can't be null!</item>
+    <item name="ControllerNameNotNull">Controller name can't be null!</item>
+    <item name="FunctionTypeNotNull">Function type can't be null!</item>
+    <item name="GroupTypeNotNull">Group type can't be null!</item>
+    <item name="SortidNotNull">No. can't be null!</item>
+    <item name="FunctionNameRepeat">Action,Controller and Area repeat!</item>
+    <item name="To">To</item>
+  </Module>
+  
+</Localization>

@@ -1,0 +1,410 @@
+﻿@using FrogDashboard.Core.Utility;
+@using FrogDashboard.Authentication.HtmlExtension;
+@{
+    ViewBag.Title = "<=BasSpecialScheduleIndex>";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script type="text/javascript">
+
+        var searchData = function () {
+            var url = '@Url.Action("GetBasSpecialScheduleIndex", "BasicData")';
+            url += "/?" + $("#frmSearch").serialize();
+            $('#tblBasSpecialScheduleIndex').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        }
+
+        var clearForm = function () {
+            $("#frmSave").find("input:text").val("");
+            $("#txtNormalScheduleSFileName").val("");
+            $("#txtNormalScheduleVCtFileName").val("");
+            $("#txtNormalScheduleVTmFileName").val("");
+        };
+
+        var editData = function (result) {
+            clearForm();
+            $("#txtBasSpecialScheduleIndexId").val(result.BasSpecialScheduleIndexId);
+            $("#txtScheduleNo").val(result.ScheduleNo);
+            if (result.EffectiveDate != null) {
+                date = new Date(parseInt(result.EffectiveDate.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtEffectiveDate").val(date.format("yyyy-mm-dd"));
+            }
+            if (result.ExpirationDate != null) {
+                date = new Date(parseInt(result.ExpirationDate.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtExpirationDate").val(date.format("yyyy-mm-dd"));
+            }
+            $("#txtRemark").val(result.Remark);
+        }
+
+        var edit = function (id) {
+            var BasSpecialScheduleIndexId = $('#tblBasSpecialScheduleIndex').getCell(id, 'BasSpecialScheduleId');
+            if (BasSpecialScheduleIndexId == "") return;
+            var str = "BasSpecialScheduleIndexId=" + BasSpecialScheduleIndexId;
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetBasSpecialScheduleIndexById", "BasicData")',
+                data: str,
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.Success) {
+                        $("#dlgBasSpecialScheduleIndex").dialog("open");
+                        editData(result.BasSpecialScheduleIndex);
+                    }
+                }
+            });
+        }
+
+        var validDate = function (OpenDateFrom, OpenDateTo) {
+            var vFlag = true;
+            if (OpenDateFrom != null && OpenDateFrom != "" && OpenDateFrom != "undefined") {
+                if (OpenDateTo != null && OpenDateTo != "" && OpenDateTo != "undefined") {
+                    if (OpenDateFrom > OpenDateTo) {
+                        alert("<=EffectiveDateGreaterThanExpirationDate>");
+                        vFlag = false;
+                    }
+                }
+            }
+            return vFlag;
+        };
+
+        function PageLock() {
+            $("#divLock").dialog('open');
+        }
+
+        function PageUnLock() {
+            $("#divLock").dialog('close');
+        }
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#txtScheduleNoSearch").focus();
+
+            $("#btnSearch").click(function () {
+                searchData();
+            });
+
+            $("#btnCancel").click(function () {
+                searchData();
+                $("#dlgBasSpecialScheduleIndex").dialog("close");
+            });
+            //新增
+            $("#btnBasSpecialScheduleIndex").click(function () {
+                clearForm();
+                $("#dlgBasSpecialScheduleIndex").dialog("open");
+            });
+
+            $("#btnAdd").click(function () {
+                clearForm();
+            });
+
+            $("#frmSave").validate({
+                rules: {
+                    ScheduleNo: {
+                        required: true
+                    },
+                    EffectiveDate: {
+                        required: true
+                    },
+                    ExpirationDate: {
+                        required: true
+                    }
+                },
+                messages: {
+                    ScheduleNo: {
+                        required: "<=ScheduleNoIsRequired>"
+                    },
+                    EffectiveDate: {
+                        required: "<=EffectiveDateIsRequired>"
+                    },
+                    ExpirationDate: {
+                        required: "<=ExpirationDateIsRequired>"
+                    }
+                }
+            });
+
+            $("#btnSave").click(function () {
+                if (!$('form[name=frmSave]').valid()) {
+                    CheckFormMessage();
+                    $("#txtScheduleNo").focus();
+                    return;
+                }
+                var startDate = $("#txtEffectiveDate").val();
+                var endDate = $("#txtExpirationDate").val();
+                if (!validDate(startDate, endDate)) {
+                    return;
+                }
+                var str = $("#frmSave").serialize();
+                PageLock();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveBasSpecialScheduleIndex", "BasicData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        PageUnLock();
+                        alert(result.Msg);
+                        if (result.Success) {
+                            searchData();
+                            editData(result.BasSpecialScheduleIndex);
+                        }
+                    },
+                    complete: function () {
+                        PageUnLock();
+                    }
+                });
+            });
+        })
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#btnBasSpecialSchedule").click(function () {
+                var id = $('#tblBasSpecialScheduleIndex').jqGrid('getGridParam', 'selrow');
+                var BasSpecialScheduleIndexId = $('#tblBasSpecialScheduleIndex').getCell(id, 'BasSpecialScheduleId');
+                if (BasSpecialScheduleIndexId == "") {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+
+                var url = '@Url.Action("BasSpecialSchedule", "BasicData")';
+                url += "/?BasSpecialScheduleIndexId=" + BasSpecialScheduleIndexId;
+                window.parent.navTab.openTab("SpecialSchedule", url, { title: "<=SpecialSchedule>",
+                    fresh: false, data: {}, external: true
+                });
+            });
+        });
+    </script>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            $("#tblBasSpecialScheduleIndex").jqGrid({
+                datatype: "json",
+                mtype: 'POST',
+                height: 320,
+                colNames: ['', '<=ScheduleNo>', '<=EffectiveDate>', '<=ExpirationDate>', '<=Remark>', '<=CreatedUser>', '<=CreatedDate>'],
+                colModel: [
+				{ name: 'BasSpecialScheduleId', index: 'BasSpecialScheduleId', hidden: true },
+				{ width: 120, name: 'ScheduleNo', index: 'ScheduleNo' },
+				{ width: 120, name: 'EffectiveDate', index: 'EffectiveDate' },
+				{ width: 120, name: 'ExpirationDate', index: 'ExpirationDate' },
+				{ width: 300, name: 'Remark', index: 'Remark' },
+				{ width: 120, name: 'CreatedUserCode', index: 'CreatedUserCode' },
+				{ width: 120, name: 'CreatedDate', index: 'CreatedDate' }
+                 ],
+                pager: 1,
+                rowNum: 15,
+                sortname: 'ScheduleNo',
+                sortorder: "asc",
+                rownumbers: true,
+                shrinkToFit: false,
+                autowidth: true,
+                viewrecords: true,
+                sortable: true,
+                width: "100%",
+                pager: $('#divPager'),
+                rowList: [15, 20, 50, 100],
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                ondblClickRow: function (id) {
+                    edit(id);
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#dlgBasSpecialScheduleIndex").dialog({
+                height: 230,
+                width: 1030,
+                modal: true,
+                title: "<=BasSpecialScheduleIndexInfo>",
+                autoOpen: false,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+
+            $("#divLock").dialog({
+                autoOpen: false,
+                resizable: false,
+                width: 200,
+                height: 110,
+                modal: true,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+        })
+    </script>
+}
+<div class="column_search">
+    <form id="frmSearch" name="frmSearch" action="">
+    <h3 class="column_title">
+        <=Search></h3>
+    <table class="table">
+        <tr>
+            <td class="title">
+                <=ScheduleNo>
+            </td>
+            <td>
+                <input type="text" class="text" style="display: none" />
+                <input type="text" class="text" id="txtScheduleNoSearch" name="ScheduleNo" />
+            </td>
+            <td class="title">
+            </td>
+            <td>
+            </td>
+            <td class="title">
+            </td>
+            <td>
+            </td>
+            <td class="title">
+            </td>
+            <td>
+            </td>
+        </tr>
+    </table>
+    <div class="btn_bar">
+        <div class="btn_bar">
+            @Html.GenerateButton("BasicData", "GetBasSpecialScheduleIndex", "btnSearch", "<=Search>")
+            <input type="reset" class="button" id="btnReset" value="<=Reset>" />
+            @Html.GenerateButton("BasicData", "AddBasSpecialScheduleIndex", "btnBasSpecialScheduleIndex", "<=New>")
+            @Html.GenerateButton("BasicData", "BasSpecialScheduleImport", "btnBasSpecialSchedule", "<=SpecialSchedule>")
+        </div>
+    </div>
+    </form>
+</div>
+<div class="column_grid">
+    <table id="tblBasSpecialScheduleIndex">
+    </table>
+    <div id="divPager">
+    </div>
+</div>
+<div id="dlgBasSpecialScheduleIndex" style="display: none">
+    <div class="column_edit">
+        <fieldset>
+            <legend style="font-weight: bold"><=BasSpecialScheduleIndex></legend>
+            <div class="btn_bar">
+                @Html.GenerateButton("BasicData", "AddBasSpecialScheduleIndex", "btnAdd", "<=New>")
+                @Html.GenerateButton("BasicData", "SaveBasSpecialScheduleIndex", "btnSave", "<=Save>")
+                <input type="button" class="button" id="btnCancel" value="<=Cancel>" />
+            </div>
+            <form id="frmSave" name="frmSave" action="">
+            <table class='table' id="tblSave">
+                <tr>
+                    <td class="title">
+                        <=ScheduleNo>*
+                    </td>
+                    <td>
+                        <input type="text" class="text" id="txtBasSpecialScheduleIndexId" name="BasSpecialScheduleIndexId"
+                            style="display: none" />
+                        <input type="text" class="text" id="txtScheduleNo" name="ScheduleNo" maxlength="50" />
+                    </td>
+                    <td class="title">
+                        <=EffectiveDate>*
+                    </td>
+                    <td>
+                        @Html.DatePicker("EffectiveDate", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtEffectiveDate" } }, "")
+                    </td>
+                    <td class="title">
+                        <=ExpirationDate>*
+                    </td>
+                    <td>
+                        @Html.DatePicker("ExpirationDate", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtExpirationDate" } }, "")
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=Remark>
+                    </td>
+                    <td colspan="5">
+                        <input type="text" class="text" id="txtRemark" name="Remark" style="width: 94.5%"
+                            maxlength="200" />
+                    </td>
+                </tr>
+            </table>
+            </form>
+        </fieldset>
+        <fieldset style="display: none">
+            <legend style="font-weight: bold"></legend>
+            <form id="frmUploadSourceFiles" name="frmUploadSourceFiles">
+            <table class='table'>
+                <tr>
+                    <td>
+                        <input type="button" class="button" id="btnNormalScheduleS" value="<=NormalScheduleS>"
+                            style="width: 200px" />
+                    </td>
+                    <td>
+                        <input type="text" class="text txtdisable" id="txtNormalScheduleSFileName" name="NormalScheduleSFileName"
+                            style="width: 400px" disabled="disabled" />
+                    </td>
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="button" class="button" id="btnNormalScheduleVCt" value="<=NormalScheduleVCt>"
+                            style="width: 200px" />
+                    </td>
+                    <td>
+                        <input type="text" class="text txtdisable" id="txtNormalScheduleVCtFileName" name="NormalScheduleVCtFileName"
+                            style="width: 400px" disabled="disabled" />
+                    </td>
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="button" class="button" id="btnNormalScheduleVTm" value="<=NormalScheduleVTm>"
+                            style="width: 200px" />
+                    </td>
+                    <td>
+                        <input type="text" class="text txtdisable" id="txtNormalScheduleVTmFileName" name="NormalScheduleVTmFileName"
+                            style="width: 400px" disabled="disabled" />
+                    </td>
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+            </table>
+            </form>
+        </fieldset>
+    </div>
+</div>
+<div id="divLock" align="center" style="display: none" class="transparent">
+    <=DataProcess><br />
+    <img src="../../Content/Images/Load1.gif" />
+</div>
+<div id="dlgImport" style="display: none">
+    <div class="column_edit">
+        <form id="frmImport" name="frmImport" method="post" enctype="multipart/form-data"
+        action='@Url.Action("NormalScheduleImport", "BasicData")'>
+        <table>
+            <tr>
+                <td class="title">
+                </td>
+                <td>
+                    <div id="txtFileType">
+                    </div>
+                    <input type="file" name="FileNormalScheduleImport" size="60" id="fileNormalScheduleImport" />
+                </td>
+            </tr>
+        </table>
+        <div class="btn_bar" style="float: right">
+            <input type="button" class="button" id="btnImportOK" value="<=OK>" />
+            <input type="button" class="button" id="btnImportCancel" value="<=Cancel>" />
+        </div>
+        </form>
+    </div>
+</div>

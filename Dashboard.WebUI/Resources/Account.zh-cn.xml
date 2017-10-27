@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Localization>
+  <Module name="Account">
+    <item name="NameNotNull">Log in fail:User name can't be null!</item>
+    <item name="PassWordNotNull">Log in fail:Password can't be null!</item>
+    <item name="Applicationerror">Application is wrong,pls contact the administrator!</item>
+    <item name="Loginerror">Log in fail:User name or password is wrong!</item>
+    <item name="KeyCodeError">验证码错误</item>
+    <item name="UserName">User Name</item>
+    <item name="Pwd">Password</item>
+    <item name="KeyCode">Key Code</item>
+    <item name="language">Language</item>
+    <item name="China">Chinese</item>
+    <item name="English">English</item>
+    <item name="Login">Log in</item>
+    <item name="Reset">Reset</item>
+    <item name="LoginSuccess">Log in success!</item>
+    <item name="PwdorNameError">User name or password is wrong!</item>
+    <item name="UserExpireError">User name is expire!</item>
+    <item name="UserLogin">DHL User Login</item>
+    <!--密码强制修改-->
+    <item name="UserNames">用户名</item>
+    <item name="ModifyPwd">密码修改</item>
+    <item name="OldPwd">原密码</item>
+    <item name="NewPwd">新密码</item>
+    <item name="ConfirmPwd">确认密码</item>
+    <item name="Modify">修 改</item>
+    <item name="Tooltip">您的密码已经过期，请重新修改密码</item>
+    <item name="OldPwdNotMatched">旧密码不匹配</item>
+    <item name="NewPwdNotMatched">两次密码输入不匹配</item>
+    <item name="ModifyNameNotNull">用户名不能为空！</item>
+    <item name="OldPwdNotNull">旧密码不能为空！</item>
+    <item name="NewPwdNotNull">新密码不能为空！</item>
+    <item name="ConfirmPwdNotNull">确认密码不能为空！</item>
+    <item name="PasswordError">新密码必须包含大写字母、小写字母、数字、特殊字符且密码长度大于等于8</item>
+    <item name="ForbidMatchOldPwd">修改后的密码不能和原密码相同</item>
+    <item name="ModifySuccess">密码修改成功</item>
+  </Module>
+</Localization>

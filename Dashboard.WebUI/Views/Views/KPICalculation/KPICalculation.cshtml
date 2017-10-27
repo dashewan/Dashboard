@@ -1,0 +1,152 @@
+﻿@using FrogDashboard.Core.Utility;
+@using FrogDashboard.Authentication.HtmlExtension;
+@{
+    ViewBag.Title = "AllDataFormReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script type="text/javascript">
+        function PageLock() {
+            $("#divLock").dialog('open');
+        }
+
+        function PageUnLock() {
+            $("#divLock").dialog('close');
+        }
+
+        var validDate = function (OpenDateFrom, OpenDateTo) {
+            var vFlag = true;
+            if (OpenDateFrom && OpenDateTo) {
+                if (OpenDateFrom > OpenDateTo) {
+                    alert("<=FromDateGreaterThanToDate>");
+                    vFlag = false;
+                }
+            }
+            return vFlag;
+        };
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#frmSearch").validate({
+                rules: {
+                    TimePeriod: {
+                        required: true
+                    },
+                    FromDate: {
+                        required: true
+                    },
+                    ToDate: {
+                        required: true
+                    }
+                },
+                messages: {
+                    TimePeriod: {
+                        required: "<=TimePeriodIsRequired>"
+                    },
+                    FromDate: {
+                        required: "<=FromDateIsRequired>"
+                    },
+                    ToDate: {
+                        required: "<=ToDateIsRequired>"
+                    }
+                }
+            });
+
+            $("#btnCalculation").click(function () {
+
+                if (!$('form[name=frmSearch]').valid()) {
+                    CheckFormMessage();
+                    return;
+                }
+
+                var startDate = $("#txtFromDate").val();
+                var endDate = $("#txtToDate").val();
+                if (!validDate(startDate, endDate)) {
+                    return;
+                }
+                if (!confirm("<=CalculationConfirm>"))
+                    return false;
+                var str = $("#frmSearch").serialize();
+                PageLock();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Calculation", "KPICalculation")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        PageUnLock();
+                        alert(result.msg);
+                    },
+                    error: function () {
+                        PageUnLock();
+                    }
+                });
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#divLock").dialog({
+                autoOpen: false,
+                resizable: false,
+                width: 200,
+                height: 110,
+                modal: true,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+        })
+    </script>
+}
+<div class="column_search">
+    <form id="frmSearch" name="frmSearch" action="">
+    <h3 class="column_title">
+        <=Search></h3>
+    <table class="table">
+        <tr>
+            <td class="title">
+                <=TimePeriod>*
+            </td>
+            <td>
+                <select id='selTimePeriod' class="select" name="TimePeriod">
+                    <option value='TN Print Time'>TN Print Time</option>
+                    <option value='Supervisor Confirm Time'>Supervisor Confirm Time</option>
+                    <option value='Receiving Time'>Receiving Time</option>
+                </select>
+            </td>
+            <td class="title">
+                <=FromDate>*
+            </td>
+            <td>
+                @Html.DatePicker("FromDate", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtFromDate" } }, "dateFmt: 'yyyy-MM-dd'")
+            </td>
+            <td class="title">
+                <=ToDate>*
+            </td>
+            <td>
+                @Html.DatePicker("ToDate", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtToDate" } }, "dateFmt: 'yyyy-MM-dd'")
+            </td>
+            <td class="title">
+            </td>
+            <td>
+            </td>
+        </tr>
+    </table>
+    <div class="column_edit">
+        <div class="btn_bar">
+            @Html.GenerateButton("KPICalculation", "Calculation", "btnCalculation", "<=Calculation>")
+            <input type="reset" class="button" id="btnReset" value="<=Reset>" />
+        </div>
+    </div>
+    </form>
+</div>
+<div id="divLock" align="center" style="display: none" class="transparent">
+    <=DataProcess><br />
+    <img src="../../Content/Images/Load1.gif" />
+</div>

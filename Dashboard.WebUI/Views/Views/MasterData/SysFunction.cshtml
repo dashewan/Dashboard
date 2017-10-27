@@ -1,0 +1,434 @@
+﻿@using FrogDashboard.Domain.SysManagement;
+@using FrogDashboard.Core.Utility;
+@using FrogDashboard.Authentication.HtmlExtension;
+@{
+    ViewBag.Title = "<=FunctionManage>";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            var _SysFunctionId = "";
+            $("#txtFunctionNameSearch").focus();
+            $("#tblFunction").jqGrid({
+                datatype: "json",
+                mtype: 'POST',
+                height: 320,
+                colNames: ['SysFunctionId', '<=FunctionName>', '<=ActionName>', '<=ControllerName>', '<=AreaName>', '<=FunctionType>', '<=FunctionTypeName>', '<=GroupType>', '<=GroupTypeName>', '<=IsActive>', '<=Sortid>', '<=Remark>', '<=ParentId>'],
+                colModel: [
+                 { name: 'SysFunctionId', index: 'SysFunctionId', hidden: true },
+                 { name: 'FunctionName', index: 'FunctionName' },
+                 { name: 'ActionName', index: 'ActionName' },
+                 { name: 'ControllerName', index: 'ControllerName' },
+                 { name: 'AreaName', index: 'AreaName' },
+                 { name: 'FunctionType', index: 'FunctionType', hidden: true },
+                 { name: 'FunctionTypeName', index: 'FunctionTypeName', sortable: false, width: 60 },
+                 { name: 'GroupType', index: 'GroupType', hidden: true },
+                 { name: 'GroupTypeName', index: 'GroupTypeName', sortable: false, width: 100 },
+                 { name: 'Active', index: 'Active', width: 60 },
+                 { name: 'Sortid', index: 'Sortid', width: 60 },
+                 { name: 'Remarks', index: 'Remarks' },
+                 { name: 'ParentId', index: 'ParentId', hidden: true },
+                 ],
+                pager: 1,
+                rowNum: 0,
+                sortname: 'FunctionName',
+                sortorder: "desc",
+                rownumbers: true, //显示行号
+                //列宽
+                shrinkToFit: false,
+                autowidth: true,
+                viewrecords: true,
+                sortable: true,
+                width: "100%",
+                altRows: true, //隔行变色
+                altclass: 'jqodd', //隔行变色样式
+                pager: $('#divPager'),
+                rowNum: 15,
+                rowList: [15, 20, 50, 100],
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                //caption: ' ',
+                closeAfterAdd: false,
+                onSelectRow: function (id) {
+                    _SysFunctionId = $('#tblFunction').getCell(id, 'SysFunctionId');
+                },
+                ondblClickRow: function (id) {
+                    editFunction(id);
+                    initParent();
+                }
+            });
+
+            $("#frmFunction").validate({
+                rules: {
+                    FunctionName: {
+                        required: true
+                    },
+                    ActionName: {
+                        required: true
+                    },
+                    ControllerName: {
+                        required: true
+                    },
+                    FunctionType: {
+                        required: true
+                    },
+                    GroupType: {
+                        required: true
+                    },
+                    Sortid: {
+                        required: true
+                    }
+                },
+                messages: {
+                    FunctionName: {
+                        required: "<=FunctionNameNotNull>"
+                    },
+                    ActionName: {
+                        required: "<=ActionNameNotNull>"
+                    },
+                    ControllerName: {
+                        required: "<=ControllerNameNotNull>"
+                    },
+                    FunctionType: {
+                        required: "<=FunctionTypeNotNull>"
+                    },
+                    GroupType: {
+                        required: "<=GroupTypeNotNull>"
+                    },
+                    Sortid: {
+                        required: "<=SortidNotNull>"
+                    }
+                }
+            });
+
+            $("#btnSearch").click(function () {
+                var url = '@Url.Action("GetSysFunctionData", "MasterData")';
+                url += "/?" + $("#frmSearch").serialize();
+                $('#tblFunction').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+            });
+
+            $("#btnReset").click(function () {
+                $("#txtFunctionNameSearch").val("");
+                $("#txtControllerNameSearch").val("");
+                $("#selFunctionTypeSearch").attr("value", "");
+                $("#selGroupTypeSearch").attr("value", "");
+            });
+
+            $("#btnNew").click(function () {
+                $("#dialog-Function").dialog("open");
+                _SysFunctionId = "";
+                $("#txtFunctionName").val("");
+                $("#txtActionName").val("");
+                $("#txtControllerName").val("");
+                $("#txtAreaName").val("");
+                $("#selFunctionType").attr("value", "");
+                $("#cbActive").attr("checked", false);
+                $("#txtSortid").val("");
+                $("#txtRemarks").val("");
+                $("#selParentId").html("");
+                $("#selGroupType").attr("value", "");
+            });
+
+            $("#btnDelete").click(function () {
+                var id = $('#tblFunction').jqGrid('getGridParam', 'selrow');
+                _SysFunctionId = $('#tblFunction').getCell(id, 'SysFunctionId');
+
+                if (_SysFunctionId == "") {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+                if (!confirm("<=SureDelete>")) return false;
+
+                var str = "SysFunctionId=" + _SysFunctionId;
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteSysFunction", "MasterData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        alert(result.Msg);
+                        if (result.Success) {
+                            $("#tblFunction").setGridParam({
+                                url: '@Url.Action("GetSysFunctionData", "MasterData")' + "/?" + $("#frmSearch").serialize()
+                            }).trigger("reloadGrid");
+                            initParent();
+                        }
+                    }
+                })
+            });
+
+            $("#btnSave").click(function () {
+                if (!$('form[name=frmFunction]').valid()) {
+                    CheckFormMessage();
+                    return;
+                }
+                if ($("#selFunctionType").val() == "0" && ($("#selParentId").val() == null || $("#selParentId").val() == "")) {
+                    alert("<=ParentNotNull>")
+                    return;
+                }
+
+                var str = $("#frmFunction").serialize();
+                str += "&SysFunctionId=" + _SysFunctionId;
+                str += "&Active=" + $("#cbActive").attr("checked");
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveSysFunction", "MasterData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        alert(result.Msg);
+                        if (result.Success) {
+                            $("#tblFunction").setGridParam({
+                                url: '@Url.Action("GetSysFunctionData", "MasterData")' + "/?" + $("#frmSearch").serialize()
+                            }).trigger("reloadGrid");
+                            //initParent();
+                        }
+                    }
+                })
+            });
+
+            $("#btnClose").click(function () {
+                $("#dialog-Function").dialog("close");
+            });
+
+            $("#selFunctionType").change(function () {
+                if ($("#selFunctionType").val() == "0" && $("#selGroupType").val() != "") {
+                    initParent();
+                }
+            });
+
+            $("#selGroupType").change(function () {
+                if ($("#selFunctionType").val() == "0" && $("#selGroupType").val() != "") {
+                    initParent();
+                }
+            });
+
+            var editFunction = function (id) {
+                $("#dialog-Function").dialog("open");
+                _SysFunctionId = $('#tblFunction').getCell(id, 'SysFunctionId');
+                $("#txtFunctionName").focus();
+
+                $("#txtFunctionName").val($('#tblFunction').getCell(id, 'FunctionName'));
+                $("#txtActionName").val($('#tblFunction').getCell(id, 'ActionName'));
+                $("#txtControllerName").val($('#tblFunction').getCell(id, 'ControllerName'));
+                $("#txtAreaName").val($('#tblFunction').getCell(id, 'AreaName'));
+                $("#selFunctionType").attr("value", $('#tblFunction').getCell(id, 'FunctionType'));
+                $("#selParentId").attr("value", $('#tblFunction').getCell(id, 'ParentId'));
+                $("#selGroupType").attr("value", $('#tblFunction').getCell(id, 'GroupType'));
+                $("#txtSortid").val($('#tblFunction').getCell(id, 'Sortid'));
+                $("#cbActive").attr("checked", $('#tblFunction').getCell(id, 'Active') == "<=Yes>");
+                $("#txtRemarks").val($('#tblFunction').getCell(id, 'Remarks'));
+            }
+
+            var initParent = function () {
+                if ($("#selFunctionType").val() != "0") return;
+                var id = $('#tblFunction').jqGrid('getGridParam', 'selrow');
+                var _ParentId = $('#tblFunction').getCell(id, 'ParentId');
+                var str = "groupType=" + $("#selGroupType").val();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetParentByGroupType", "MasterData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        $("#selParentId").html("");
+                        var strOption = "<option value=''></option>";
+                        $.each(result.Obj, function (i, v) {
+                            if (v.SysFunctionId == _ParentId)
+                                strOption += "<option value='" + v.SysFunctionId + "' selected>" + v.FunctionName + "</option>";
+                            else
+                                strOption += "<option value='" + v.SysFunctionId + "'>" + v.FunctionName + "</option>";
+                        });
+                        $("#selParentId").html(strOption);
+                        if (_ParentId == "") $("#selParentId").attr("value", "");
+                    }
+                })
+            }
+        })
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#dialog-Function").dialog({
+                height: 320,
+                width: 680,
+                modal: true,
+                title: "<=FunctionEditor>",
+                autoOpen: false,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+        })
+    </script>
+}
+<div class="column_search">
+    <form id="frmSearch" name="frmSearch">
+    <h3 class="column_title">
+        <=Search></h3>
+    <table class="table">
+        <tr>
+            <td class="title">
+                <=FunctionName>
+            </td>
+            <td>
+                <input type="text" id="txtFunctionNameSearch" class="text" name="FunctionName" tabindex="1"
+                    style="width: 120px" />&nbsp;
+            </td>
+            <td class="title">
+                <=ControllerName>
+            </td>
+            <td>
+                <input type="text" id="txtControllerNameSearch" class="text" name="ControllerName"
+                    tabindex="2" style="width: 120px" />&nbsp;
+            </td>
+            <td class="title">
+                <=FunctionType>
+            </td>
+            <td>
+                <select id='selFunctionTypeSearch' class="select" name="FunctionType" tabindex="3"
+                    style="width: 80px">
+                    <option value=""></option>
+                    @foreach (KeyValuePair<int, string> funcType in (Dictionary<int, string>)ViewBag.FunctionItem)
+                    {          
+                        <option value ='@funcType.Key' ><=@funcType.Value></option>
+                    }
+                </select>&nbsp;
+            </td>
+            <td class="title">
+                <=GroupType>
+            </td>
+            <td>
+                <select id='selGroupTypeSearch' class="select" name="GroupType" tabindex="4" style="width: 120px">
+                    <option value=""></option>
+                    @foreach (KeyValuePair<int, string> gpType in (Dictionary<int, string>)ViewBag.GroupItem)
+                    {          
+                        <option value ='@gpType.Key' ><=@gpType.Value></option>
+                    }
+                </select>
+            </td>
+        </tr>
+    </table>
+    <div class="btn_bar">
+       @* @Html.GenerateButton("MasterData", "GetSysFunctionData", "btnSearch", "<=Search>")*@
+        <input type="button" class="button" id="btnSearch" value="<=Search>" tabindex="5" />
+        <input type="button" class="button" id="btnReset" value="<=Reset>" tabindex="6" />
+        @*@Html.GenerateButton("MasterData", "NewFunctionData", "btnNew", "<=New>")*@
+        <input type="button" class="button" id="btnNew" value="<=New>" tabindex="7" />
+        <input type="button" class="button" id="btnDelete" value="<=Delete>" tabindex="8" />
+    </div>
+    </form>
+</div>
+<div class="column_grid">
+    <table id="tblFunction" class="table">
+    </table>
+    <div id="divPager">
+    </div>
+</div>
+<div id="dialog-Function" class="column_edit">
+    <form id="frmFunction" name="frmFunction">
+    <div class="btn_bar">
+      @*  @Html.GenerateButton("MasterData", "SaveFunctionData", "btnSave", "<=Save>")*@
+        <input type="button" class="button" id="btnSave" value="<=Save>" tabindex="20" />
+        <input type="button" class="button" id="btnClose" value="<=Close>" tabindex="21" />
+    </div>
+    <table class='table'>
+        <tr>
+            <td colspan="6">
+                <hr />
+            </td>
+        </tr>
+        <tr>
+            <td class="title">
+                <=FunctionName>*
+            </td>
+            <td>
+                <input type="text" id="txtFunctionName" class="text" name="FunctionName" maxlength="200"
+                    tabindex="10" />
+            </td>
+            <td class="title">
+                <=ActionName>*
+            </td>
+            <td>
+                <input type="text" id="txtActionName" class="text" name="ActionName" maxlength="50"
+                    tabindex="11" />
+            </td>
+            <td class="title">
+                <=ControllerName>*
+            </td>
+            <td>
+                <input type="text" id="txtControllerName" class="text" name="ControllerName" maxlength="50"
+                    tabindex="12" />
+            </td>
+        </tr>
+        <tr>
+            <td class="title">
+                <=AreaName>
+            </td>
+            <td>
+                <input type="text" id="txtAreaName" class="text" name="AreaName" maxlength="50" tabindex="13" />
+            </td>
+            <td class="title">
+                <=FunctionType>*
+            </td>
+            <td>
+                <select id='selFunctionType' class="select" name="FunctionType" tabindex="14">
+                    <option value=''></option>
+                    @foreach (KeyValuePair<int, string> funcType in (Dictionary<int, string>)ViewBag.FunctionItem)
+                    {          
+                        <option value ='@funcType.Key' ><=@funcType.Value></option>
+                    }
+                </select>
+            </td>
+            <td class="title">
+                <=GroupType>*
+            </td>
+            <td>
+                <select id='selGroupType' class="select" name="GroupType" tabindex="15">
+                    <option value=''></option>
+                    @foreach (KeyValuePair<int, string> gpType in (Dictionary<int, string>)ViewBag.GroupItem)
+                    {          
+                        <option value ='@gpType.Key' ><=@gpType.Value></option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">
+                <=ParentId>
+            </td>
+            <td>
+                <select id='selParentId' class="select" name="ParentId" tabindex="16">
+                </select>
+            </td>
+            <td class="title">
+                <=Sortid>*
+            </td>
+            <td>
+                <input type="text" id="txtSortid" class="text" name="Sortid" tabindex="17" />
+            </td>
+            <td class="title">
+                <=Active>
+            </td>
+            <td>
+                <input type="checkbox" id="cbActive" class="checkbox" tabindex="18" />
+            </td>
+        </tr>
+        <tr>
+            <td class="title">
+                <=Remark>
+            </td>
+            <td colspan="5">
+                <input type="text" id="#txtRemarks" class="text" name="Remarks" style="width: 100%"
+                    maxlength="500" tabindex="19" />
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>

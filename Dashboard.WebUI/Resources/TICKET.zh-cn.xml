@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Localization>
+  <Module name="Pubic">
+    <item name="Search">查询</item>
+    <item name="Save">保存</item>
+    <item name="Delete">删除</item>
+    <item name="New">新增</item>
+    <item name="Edit">编辑</item>
+    <item name="View">查看</item>
+    <item name="Reset">重置</item>
+    <item name="SaveSuccess">保存成功</item>
+    <item name="SaveError">保存出错，请联系管理员</item>
+    <item name="DeleteSuccess">删除成功</item>
+    <item name="DeleteFail">删除失败</item>
+    <item name="SelectOneDate">请选定一条数据</item>
+    <item name="Remark">备注</item>
+    <item name="Active">有效</item>
+    <item name="IsDisabled">是否可用</item>
+    <item name="SureDelete">确定要删除么?</item>
+    <item name="Cancel">取消</item>
+    <item name="CodeType">类型编码</item>
+    <item name="CodeName">类型名称</item>
+    <item name="CodeDesc">类型描述</item>
+
+    <item name="CodeTypeDateil">类型明细编码</item>
+    <item name="DisplayValue">内容编码（中文）</item>
+    <item name="DisplayValueEn">内容编码（英文）</item>
+    <item name="SelectOneTypeDate">类型明细编号</item>
+
+    <item name="Import">导入</item>
+    <item name="importError">导入失败</item>
+    <item name="Imports">导入成功</item>
+    <item name="Row">行记录</item>
+    <item name="FirstSelectImport">请选择文件</item>
+    <item name="FileMustXls">请选择Excel文件</item>
+  </Module>
+  <Module name="主页">
+    <item name="PageContent">页面正文</item>
+    <item name="OtherContent">其他内容</item>
+    <item name="Log On">登录</item>
+    <item name="Title">标题</item>
+    <item name="language is applied">语言已设定。</item>
+    <item name="Menu">主菜单</item>
+    <item name="MasterData">基础信息</item>
+    <item name="Close">关闭</item>
+    <item name="Select">选择</item>
+    <item name="OK">确认</item>
+    <item name="CreatedTime">创建时间</item>
+
+    <!--ticket列表-->
+    <item name="TRT">TRT</item>
+    <item name="CountryCode">CountryCode</item>
+    <item name="Service">Service</item>
+    <item name="ActualStart">生效日期(始)</item>
+    <item name="ActualFinish">失效日期(止)</item>
+    <item name="PRIORITY">PRIORITY</item>
+    <item name="Reason">Reason</item>
+    <item name="TOPerson">TOPerson</item>
+
+    <item name="FunctionNameNotNull">功能名称不能为空</item>
+    <item name="ActionNameNotNull">事件名称不能为空</item>
+    <item name="ControllerNameNotNull">控制项不能为空</item>
+    <item name="FunctionTypeNotNull">类别不能为空</item>
+    <item name="GroupTypeNotNull">所属分组不能为空</item>
+    <item name="SortidNotNull">序号不能为空</item>
+    <item name="FunctionNameRepeat">Action/Controller/Area存在重复</item>
+    <item name="To">To</item>
+    
+  </Module>
+</Localization>
+  

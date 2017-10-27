@@ -1,0 +1,480 @@
+﻿
+@{
+    ViewBag.Title = "OverallReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script src="@Url.Content("~/Scripts/jquery.easyui/jquery.easyui.min-1.4.2.js")" type="text/javascript"></script>
+    <link href="@Url.Content("~/Scripts/jquery.easyui/easyui.css")" rel="stylesheet" type="text/css" media="screen" />
+    <link href="@Url.Content("~/Scripts/jquery.easyui/icon.css")" rel="stylesheet" type="text/css" media="screen" />
+    <style type="text/css">
+        .dateControlYM {
+            margin-left: 0px;
+            margin-right: 0px; 
+            padding-top: 3px; 
+            padding-bottom: 3px;
+        }
+        input::-ms-clear { display: none; } 
+    </style>
+    <script type="text/javascript">
+        
+        //初始化
+        $(function () {
+            
+            $('#Model').combobox({
+                data: [{ id: 'CombinedHistograms', text: '<=CombinedHistograms>' },{ id: 'PieChart', text: '<=pieChart>' }
+                    ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false
+            });
+
+            $('#Xline').combobox({
+                data: [{ id: 'CR', text: 'CR' }
+                    , { id: 'Issue', text: 'Issue' }
+                    , { id: 'Project', text: 'Project' }
+                    , { id: 'Ticket', text: 'Ticket' }],
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            });
+
+            $('#Yline').combobox({
+                data: [{ id: 'Sys', text: 'System' }
+                    , { id: 'User', text: 'User' }
+                    ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue == 'User') {
+                        $("#Applist").combotree('disable');
+                        $("#Applist").combotree('clear');
+                        $("#ITMember").combotree('enable');
+                    }
+                    else if (newValue == 'Sys')
+                    {
+                        $("#ITMember").combotree('disable');
+                        $("#ITMember").combotree('clear');
+                        $("#Applist").combotree('enable');
+                    }
+                }
+            });
+            
+            $('#ITMember').combotree({
+                url: '@Url.Action("OverallReportITMember", "Reports")',
+                valueField: 'id',
+                textField: 'text',
+                lines: true,
+                multiple: true,
+                panelHeight: 300
+            });
+
+            $('#Applist').combotree({
+                url: '@Url.Action("OverallReportApplist", "Reports")',
+                valueField: 'id',
+                textField: 'text',
+                lines: true,
+                multiple: true,
+                panelHeight: 300
+            });
+
+            $('#SaveActualDateScales').combobox({
+                data: [{ id: 'dd', text: '<=dd>' }
+                    , { id: 'wk', text: '<=wk>' }
+                    , { id: 'mm', text: '<=mm>' }
+                    , { id: 'qq', text: '<=qq>' }
+                    , { id: 'yy', text: '<=yy>' }
+                ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false
+            });
+            $("#SaveActualDateScales").combobox('disable');
+
+            $('#SaveActualDateType').combobox({
+                data: [{ id: 'default', text: '<=default>' }
+                    , { id: 'near', text: '<=near>' }],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue == "near") {
+                        $("#SaveActualDateScales").combobox('enable');
+                        $("#SaveActualDate").numberbox('enable');
+                    } else {
+                        $("#SaveActualDateScales").combobox("clear");
+                        $("#SaveActualDateScales").combobox('disable');
+                        $("#SaveActualDate").numberbox('clear');
+                        $("#SaveActualDate").numberbox('disable');
+                    }
+                }
+            });
+            $('#SaveActualDateType').combobox('setValue', 'default');
+
+            //弹出的dialog
+            $("#saveSetting").dialog({
+                title: 'Setting',
+                width: 450,
+                height: 170,
+                modal: true
+            })
+
+            var iframeHeight = getBrowserWidthHeight().height;
+            $("#formDiv").css({ "height": iframeHeight - 150 + "px" });
+        });
+
+        //清空下拉条件
+        function reset() {
+            $("#btnReset").click(function () {
+                $("#ActualDATA").val("");
+                $("#ActualDATATO").val("");
+                $("#Model").attr("value", "");
+                $("#Xline").attr("value", "");
+                
+                $("#Yline").attr("value", "");
+                $("#defaultLoad").attr("value","");
+
+            });
+        }
+
+        //检索之前的验证
+        function XCheck(allvalue, treevalue, msg) {
+            var error = true;
+            var newValue = allvalue;
+            //取得当前combotree的tree对象
+            var tree = treevalue;
+            //取得tree对象的所有父节点
+            var root = tree.tree("getRoots");
+            //获取不确定的父节点
+            var indeterminate = tree.tree('getChecked', 'indeterminate');
+            var size = 0;
+            for (var i = 0; i < newValue.length; i++) {
+                var node1 = newValue[i];
+                for (var j = 0; j < root.length; j++) {
+                    if (node1 == root[j].id) {
+                        size++;
+                    }
+                }
+            }
+            for (var i = 0; i < indeterminate.length; i++) {
+                var node2 = indeterminate[i].id;
+                for (var j = 0; j < root.length; j++) {
+                    if (node2 == root[j].id) {
+                        size++;
+                    }
+                }
+            }
+            if (size > 1) {
+                error = false;
+                alert(msg + "<=XlineNotSelectDouble>")
+            }
+
+            return error;
+        }
+
+        function SelectCheck(value, msg) {
+           
+            var error = true;
+            if (value == "") {
+                error = false;
+                alert(msg)
+            }
+            return error;
+        }
+
+        function doCheck() {
+            if (!SelectCheck($("#Model").combobox('getValue'), "<=NotNull> Model")) return false;
+            if (!SelectCheck($("#ActualDATA").val(), "<=NotNull> ActualDate")) return false;
+            if (!SelectCheck($("#ActualDATATO").val(), "<=NotNull> ActualDateTo")) return false;
+            if ($("#Yline").combotree("getValues") == "User" && $("#ITMember").combotree("getValues") == "") {
+                alert("<=NotNull> X(User)");
+                return false;
+            }
+            if ($("#Yline").combotree("getValues") == "Sys" && $("#Applist").combotree("getValues") == "") {
+                alert("<=NotNull> X(System)");
+                return false;
+            }
+            if ($("YXline") == 'User') {
+                alert("User")
+                return false;
+            }
+            if (!SelectCheck($("#Xline").combotree("getValues"), "<=NotNull> Type")) return false;
+            return true;
+        }
+
+        function GetParam() {
+            var str = $("#frmSearch").serialize();
+            str += "&Model=" + $("#Model").combotree("getValues");
+            str += "&xline=" + $("#Xline").combotree("getValues");
+
+            str += "&Yline=" + $("#Yline").combotree("getValues");
+
+            //var checkbox = document.getElementById("defaultLoad");
+
+            //var checkflag = "0";
+            //if (checkbox.checked) {
+            //    checkflag = "1";
+            //}
+
+            //str += "&checkboxflag=" + checkflag;
+
+            str += "&ActualDATA=" + $("#ActualDATA").val();
+            str += "&ActualDATATO=" + $("#ActualDATATO").val();
+
+            str += "&ITMember=" + $("#ITMember").combotree("getValues");
+            str += "&Applist=" + $("#Applist").combotree("getValues");
+            return str;
+        }
+
+        //检索
+        function search() {
+            if (!doCheck()) return;
+
+            var str = GetParam();
+             
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetIframeURLoverall", "Reports")',
+                data: str,
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    document.getElementById("formDiv").innerHTML = '<iframe id="OverallReport" name="OverallReport" frameborder="0" scrolling="yes" border="0" style="width: 100%;height: 100%;" src=""></iframe>';
+
+                    var formHtml = '<FORM id=\"OverallReportSerer\" action=\"' + result.url + result.reportName
+                    + "&rc:toolbar=true\" method=\"post\" >";
+                    formHtml += '<INPUT type=\"hidden\" name=\"GraphicsType\" value=\"' + result.GraphicsType + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"FromDate\" value=\"' + result.FromDate + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"EndDate\" value=\"' + result.EndDate + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"YType\" value=\"' + result.YType + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"Filter\" value=\"' + result.Filter + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"SysType\" value=\"' + result.SysType + '\"/>';                    
+                    formHtml += '<INPUT type=\"hidden\" name=\"rc:Parameters\" value=\"False\"/> ';
+                    formHtml += '</FORM>';
+                    setTimeout(function(){
+                        document.getElementById("OverallReport").contentWindow.document.body.innerHTML = formHtml;
+                        document.getElementById("OverallReport").contentWindow.document.getElementById("OverallReportSerer").submit();
+                    },0);
+                },
+                error: function () {
+                }
+            });
+        };
+        //日期控件
+        function showDate() {
+            WdatePicker({ skin: 'default', dateFmt: 'yyyy-MM-dd' });
+        }
+
+        function SaveSetting() {
+            ResetSave();
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("PipelineSaveSettingCheck", "Reports")',
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.flg) {
+                        if (!doCheck()) return;
+                        $("#saveSetting").dialog("open");
+                    } else {
+                        alert("<=pipelineMsg5>");
+                    }
+                }
+            });
+        }
+
+        function ResetSave() {
+            $("#SaveName").textbox("setValue", "");
+            $("#SaveDesc").textbox("setValue", "");
+            $("#SaveActualDateType").combobox('setValue', 'default');
+        }
+
+        function Save() {
+            var errorMsg = "";
+            if ($("#SaveName").val() == "") {
+                errorMsg += "<=NotNull> Name\n";
+            }
+            if ($("#SaveName").val() != "") {
+                if (getByteLen($("#SaveName").val()) > 500) {
+                    errorMsg += "<=pipelineMsg3>Name<=pipelineMsg6>\n";
+                }
+            }
+            if ($("#SaveDesc").val() == "") {
+                errorMsg += "<=NotNull> Desc\n";
+            }
+            if ($("#SaveDesc").val() != "") {
+                if (getByteLen($("#SaveDesc").val()) > 500) {
+                    errorMsg += "<=pipelineMsg3>Desc<=pipelineMsg6>\n";
+                }
+            }
+            if ($("#SaveActualDateType").combobox('getValue') == 'near') {
+                if ($("#SaveActualDate").val() == "" || $("#SaveActualDateScales").combobox('getValue') == "") {
+                    errorMsg += "ActualDate<=pipelineMsg4>\n";
+                }
+            }
+            if (errorMsg != "") {
+                alert(errorMsg);
+                return;
+            }
+
+            var str = GetParam();
+            str += "&SaveName=" + $("#SaveName").val();
+            str += "&SaveDesc=" + $("#SaveDesc").val();
+            str += "&SaveActualDateType=" + $("#SaveActualDateType").combobox('getValue');
+            str += "&SaveActualDate=" + $("#SaveActualDate").val();
+            str += "&SaveActualDateScales=" + $("#SaveActualDateScales").combobox('getValue');
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("PipelineSaveSettingCheck", "Reports")',
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.flg) {
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("OverallSaveSetting", "Reports")',
+                            data: str,
+                            dataType: 'json',
+                            cache: false,
+                            success: function (result) {
+                                if (result.flg) {
+                                    $("#saveSetting").dialog("close");
+                                } else {
+                                    alert("<=SaveError>");
+                                }
+                            }
+                        });
+                    } else {
+                        alert("<=pipelineMsg5>");
+                    }
+                }
+            });
+
+
+        }
+        //取得字符长度（可以区分全角半角）
+        function getByteLen(val) {
+            var len = 0;
+            for (var i = 0; i < val.length; i++) {
+                if (val[i].match(/[^\x00-\xff]/ig) != null) //全角 
+                    len += 2;
+                else
+                    len += 1;
+            }
+            return len;
+        }
+    </script>
+}
+<div class="column_search">
+    <form id="frmSearch" name="frmSearch">
+    <h3 class="column_title">
+        <=Search></h3>
+        <table class="table">
+            <tr>
+                <td class="title">ActualDate:</td>
+                <td>
+                    <span class="textbox" style="width: 138px; height: 20px;">
+                        <input id="ActualDATA" class="textbox-text Wdate dateControlYM" tabindex="1" onclick='showDate()' style=" width: 130px;"/>
+                    </span>
+                </td>
+                <td class="title">To:</td>
+                <td>
+                    <span class="textbox" style="width: 138px; height: 20px;">
+                        <input id="ActualDATATO" class="textbox-text Wdate dateControlYM" tabindex="1" onclick='showDate()' style=" width: 130px;"/>
+                    </span>
+                </td>
+                <td class="title">Model:</td>
+                <td>
+@*                    <select id="Model" class="easyui-combobox" name="dept" style="width:140px;">   
+                          <option value="PieChart">饼图</option>                            
+                          <option value="CombinedHistograms">组合柱状图</option>
+                    </select>*@
+                    <input class="easyui-combobox" id="Model" style="width:140px;"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="title">Y:</td>
+                <td>                   
+@*                <select id="Yline" class="easyui-combobox" name="dept" style="width:140px;">  
+                    <option value="User">人员</option> 
+                    <option value="Sys">系统</option>
+                </select>*@
+                    <input class="easyui-combobox" id="Yline" style="width:140px;"/>
+                </td>
+                <td class="title">X(User)：</td>
+                <td>
+                    <input id="ITMember" class="easyui-combotree" style="width:140px;"/>
+                </td>
+
+                 <td class="title">X(System)：</td>
+                <td>
+                    <input id="Applist" class="easyui-combotree" style="width:140px;"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="title">Type</td>
+                <td>
+                    <input class="easyui-combobox" id="Xline" value="" style="width:140px;"/>
+                </td>
+          
+@*                        <td class="title"> </td>                   
+                <td>
+                     <input id="defaultLoad" type="checkbox" class="easyui-checkbox" value="Exceed SLA" />DefaultLoad
+                </td>     *@
+            </tr>
+        </table>
+        <div class="btn_bar">
+        <input type="button" class="button" id="btnSearch" value="<=Search>" onclick="search();"/>
+        <input type="button" class="button" id="btnReset" value="<=Reset>" tabindex="6" onclick="reset();" />   
+        <input type="button" class="button" id="btnSaveSetting" value="<=SaveSetting>" tabindex="7" onclick="SaveSetting();"/>    
+    </div>
+    </form>
+</div>
+
+<div id="formDiv">
+</div>
+<div id="saveSetting" class="column_edit" closed="true">
+    <div class="column_search">
+        <form id="frmDetail" name="frmDetail">
+            <table class="table">
+                <tr>
+                    <td class="title">
+                        Name
+                    </td>
+                    <td colspan="3">
+                        <input id="SaveName" class="easyui-textbox" style="width: 300px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        Desc
+                    </td>
+                    <td colspan="3">
+                        <input id="SaveDesc" class="easyui-textbox" style="width: 300px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        ActualDate
+                    </td>
+                    <td>
+                        <input id="SaveActualDateType" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveActualDate" class="easyui-numberbox" data-options="min:0,precision:0" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveActualDateScales" style="width: 80px"/>
+                    </td>
+                </tr>
+            </table>
+            <div class="btn_bar">
+                <input type="button" class="button" id="btnSave" value="<=Save>" onclick="Save();"/>
+                <input type="button" class="button" id="btnResetSave" value="<=Reset>" onclick="ResetSave();"/>
+            </div>
+        </form>
+    </div>
+</div>

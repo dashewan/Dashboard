@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Localization>
+  <Module name="Account">
+    <item name="NameNotNull">Log in fail:User name can't be null!</item>
+    <item name="PassWordNotNull">Log in fail:Password can't be null!</item>
+    <item name="Applicationerror">Application is wrong,pls contact the administrator!</item>
+    <item name="Loginerror">Log in fail:User name or password is wrong!</item>
+    <item name="UserName">User Name</item>
+    <item name="Pwd">Password</item>
+    <item name="KeyCode">Key Code</item>
+    <item name="KeyCodeError">Key Code Error</item>
+    <item name="language">Language</item>
+    <item name="China">Chinese</item>
+    <item name="English">English</item>
+    <item name="Login">Log in</item>
+    <item name="Reset">Reset</item>
+    <item name="LoginSuccess">Log in success!</item>
+    <item name="PwdorNameError">User name or password is wrong!</item>
+    <item name="UserExpireError">User name is expire!</item>
+    <item name="UserLogin">DHL User Login</item>
+    <!-- 密码强制修改-->
+    <item name="UserNames">User Name</item>
+    <item name="ModifyPwd">Modify Password</item>
+    <item name="OldPwd">Original Password</item>
+    <item name="NewPwd">New Password</item>
+    <item name="ConfirmPwd">Retype Password</item>
+    <item name="Modify">Modify</item>
+    <item name="ModifyNameNotNull">User name can't be null!</item>
+    <item name="Tooltip">Password is invaild,pls modify it!</item>
+    <item name="OldPwdNotMatched">The original password doesn't match!</item>
+    <item name="NewPwdNotMatched">Retype password doesn't same as the new password!</item>
+    <item name="OldPwdNotNull">Original password can't be null!</item>
+    <item name="NewPwdNotNull">New password can't be null!</item>
+    <item name="ConfirmPwdNotNull">Retype password can't be null!</item>
+    <item name="PasswordError">The password length must be at least 8 characters,including uppercase letters, lowercase letters, numbers, special characters.</item>
+    <item name="ForbidMatchOldPwd">New password can't be same as the original password!</item>
+    <item name="ModifySuccess">Password has been modified successfully!</item>
+  </Module>
+</Localization>

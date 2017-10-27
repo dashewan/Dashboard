@@ -1,0 +1,189 @@
+﻿@using FrogDashboard.Core.Utility;
+@using FrogDashboard.Domain.SysManagement;
+@using FrogDashboard.Authentication.HtmlExtension;
+@{
+    ViewBag.Title = "<=RoleInfo>";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script type="text/javascript" language="javascript">
+
+        var reloadGrid = function () {
+            var url = '@Url.Action("GetSysRoleData", "MasterData")';
+            $('#tblRole').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        }
+
+        $(function () {
+            var _SysRoleId = "";
+            $("#txtRoleCodeSearch").focus();
+            $("#tblRole").jqGrid({
+                datatype: "json",
+                mtype: 'POST',
+                height: 325,
+                colNames: ['SysRoleId', '<=RoleCode>', '<=RoleName>', '<=Remark>'],
+                colModel: [
+                 { name: 'SysRoleId', index: 'SysRoleId', hidden: true },
+                 { name: 'RoleCode', index: 'RoleCode' },
+                 { name: 'RoleName', index: 'RoleName' },
+                 //{ name: 'SysOrganizationId', index: 'SysOrganizationId', hidden: true },
+                 //{ name: 'OrganizationName', index: 'OrganizationName', sortable: false },
+                 { name: 'Remarks', index: 'Remarks', width:300 },
+                 ],
+                pager: 1,
+                rowNum: 0,
+                sortname: 'RoleCode',
+                sortorder: "desc",
+                rownumbers: true, //显示行号
+                //列宽
+                shrinkToFit: false,
+                autowidth: true,
+                viewrecords: true,
+                sortable: true,
+                width: "100%",
+                altRows: true, //隔行变色
+                altclass: 'jqodd', //隔行变色样式
+                pager: $('#divPager'),
+                rowNum: 15,
+                rowList: [15, 20, 50, 100],
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                //caption: ' ',
+                closeAfterAdd: false,
+                onSelectRow: function (id) {
+                    _SysRoleId = $('#tblRole').getCell(id, 'SysRoleId');
+                },
+                ondblClickRow: function (id) {
+                    editRole(id);
+                }
+            });
+
+            $("#btnSearch").click(function () {
+                var url = '@Url.Action("GetSysRoleData", "MasterData")';
+                url += "/?" + $("#frmSearch").serialize();
+                $('#tblRole').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+            });
+
+            $("#btnReset").click(function () {
+                $("#txtRoleCodeSearch").val("");
+                $("#txtRoleNameSearch").val("");
+                //$("#txtOrganizationNameSearch").val("");
+            });
+
+            $("#btnNew").click(function () {
+      
+                _SysRoleId = "";
+                var _url = '@Url.Action("SysRoleDetail", "MasterData")';
+                _url += "/?sysRoleId=" + _SysRoleId;
+                openWin(_url);
+            });
+
+            $("#btnDelete").click(function () {
+                var id = $('#tblRole').jqGrid('getGridParam', 'selrow');
+                _SysRoleId = $('#tblRole').getCell(id, 'SysRoleId');
+
+                if (_SysRoleId == "") {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+                if (!confirm("<=SureDelete>")) return false;
+
+                var str = "SysRoleId=" + _SysRoleId;
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteSysRole", "MasterData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        alert(result.Msg);
+                        if (result.Success)
+                            $("#tblRole").setGridParam({
+                                url: '@Url.Action("GetSysRoleData", "MasterData")'
+                            }).trigger("reloadGrid");
+                    }
+                })
+            });
+
+            $("#btnExport").click(function () {
+                var url = '@Url.Action("RoleInfoExportExcel", "MasterData")'
+                window.location.href = url;
+            });
+
+            var editRole = function (id) {
+                _SysRoleId = $('#tblRole').getCell(id, 'SysRoleId');
+                var _url = '@Url.Action("SysRoleDetail", "MasterData")';
+                _url += "/?sysRoleId=" + _SysRoleId;
+                openWin(_url);
+            }
+
+            var openWin = function (url) {
+                var horizontalPadding = 30;
+                var verticalPadding = 30;
+                var $this = $(this);
+                $('<iframe id="ifrmRoleDetail" src="' + url + '" frameborder="0" scrolling="no" />').dialog({
+                    title: ($this.attr('title')) ? $this.attr('title') : '<=RoleDetail>',
+                    autoOpen: true,
+                    width: 800,
+                    height: 380,
+                    modal: true,
+                    resizable: true,
+                    autoResize: true,
+                    overlay: {
+                        opacity: 0.5,
+                        background: "black"
+                    },
+                    open: function (event, ui) {
+                        $('body').css('overflow', 'hidden');
+                        $('.ui-widget-overlay').css('width', '100%');
+                    },
+                    close: function (event, ui) {
+                        $('body').css('overflow', 'auto');
+                    }
+                }).width(800 - horizontalPadding).height(380 - verticalPadding);
+            }
+        })
+    </script>
+}
+<div class="column_search">
+    <form id="frmSearch" name="frmSearch">
+        <h3 class="column_title"><=Search></h3>
+        <table class="table">
+            <tr>
+                <td class="title">
+                    <=RoleCode>
+                </td>
+                <td>
+                    <input type="text" id="txtRoleCodeSearch" class="text" name="RoleCode" tabindex="1" />
+                </td>
+                <td class="title">
+                    <=RoleName>
+                </td>
+                <td>
+                    <input type="text" id="txtRoleNameSearch" class="text" name="RoleName" tabindex="2" />
+                </td>
+@*                <td class="title">
+                    <=OrganizationName>
+                </td>
+                <td>
+                    <input type="text" id="txtOrganizationNameSearch" class="text" name="OrganizationName" tabindex="3" />
+                </td>*@
+                <td class="title">
+                </td>
+                <td>
+                </td>
+            </tr>
+        </table>
+        <div class="btn_bar">
+          @*  @Html.GenerateButton("MasterData", "GetSysRoleData", "btnSearch", "<=Search>")*@
+            <input type="button" id="btnSearch" class="button" value="<=Search>" tabindex="4" />
+            <input type="button" id="btnReset" class="button" value="<=Reset>" tabindex="5" />
+            <input type="button" id="btnNew" class="button" value="<=New>" tabindex="6" />
+            <input type="button" id="btnDelete" class="button" value="<=Delete>" tabindex="7" />
+        </div>
+    </form>
+</div>
+<div class="column_grid">
+    <table id="tblRole">
+    </table>
+    <div id="divPager">
+    </div>
+</div>

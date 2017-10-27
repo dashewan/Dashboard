@@ -1,0 +1,272 @@
+﻿@using FrogDashboard.Authentication.HtmlExtension;
+@{
+    ViewBag.Title = "<=BasPdcSequenceInfo>";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script type="text/javascript">
+
+        var searchData = function () {
+            var url = '@Url.Action("GetBasPdcSequence", "BasicData")';
+            url += "/?" + $("#frmSearch").serialize();
+            $('#tblBasPdcSequence').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        }
+
+        var clearForm = function () {
+            $("#frmSave").find("input:text").val("");
+        };
+
+        var editData = function (result) {
+            $("#tblSave").css("display", "");
+            $("#btnSave").removeAttr("disabled");
+
+            clearForm();
+            $("#txtBasPdcSequenceId").val(result.BasPdcSequenceId);
+            $("#txtPdc").val(result.Pdc);
+            $("#txtCityCode").val(result.CityCode);
+            $("#txtSequenceNumber").val(result.SequenceNumber);
+            $("#cbActive").attr("checked", result.Active);
+        }
+
+        var edit = function (id) {
+            var BasPdcSequenceId = $('#tblBasPdcSequence').getCell(id, 'BasPdcSequenceId');
+            if (BasPdcSequenceId == "") return;
+            var str = "BasPdcSequenceId=" + BasPdcSequenceId;
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetBasPdcSequenceById", "BasicData")',
+                data: str,
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.Success) {
+                        editData(result.BasPdcSequence);
+                    }
+                }
+            });
+        }
+
+        function PageLock() {
+            $("#divLock").dialog('open');
+        }
+
+        function PageUnLock() {
+            $("#divLock").dialog('close');
+        }
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#btnSave").attr("disabled", "disabled");
+
+            $("#txtSequenceNumber").decimalInput("99");
+            $("#txtPdcSearch").focus();
+
+            $("#btnSearch").click(function () {
+                clearForm();
+                searchData();
+                $("#tblSave").css("display", "none");
+                $("#btnSave").attr("disabled", "disabled");
+            });
+
+            $("#btnAdd").click(function () {
+                clearForm();
+                $("#tblSave").css("display", "");
+                $("#btnSave").removeAttr("disabled");
+                $("#cbActive").attr("checked", true);
+            });
+
+            $("#frmSave").validate({
+                rules: {
+                    Pdc: {
+                        required: true
+                    },
+                    SequenceNumber: {
+                        required: true
+                    }
+                },
+                messages: {
+                    Pdc: {
+                        required: "<=PdcIsRequired>"
+                    },
+                    SequenceNumber: {
+                        required: "<=SequenceNumberIsRequired>"
+                    }
+                }
+            });
+
+            $("#btnSave").click(function () {
+                if (!$('form[name=frmSave]').valid()) {
+                    CheckFormMessage();
+                    return;
+                }
+
+                //如果仓库不存在,则终止保存
+                if ($("#txtCityCode").val() == "") {
+                    alert("<=PlsRightPDC>");
+                    return;
+                }
+
+                var str = $("#frmSave").serialize();
+                str += "&Active=" + $("#cbActive").attr("checked");
+                PageLock();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveBasPdcSequence", "BasicData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        PageUnLock();
+                        alert(result.Msg);
+                        if (result.Success) {
+                            searchData();
+                            editData(result.BasPdcSequence);
+                        }
+                    },
+                    complete: function () {
+                        PageUnLock();
+                    }
+                });
+            });
+        })
+    </script>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            $("#tblBasPdcSequence").jqGrid({
+                datatype: "json",
+                mtype: 'POST',
+                height: 220,
+                colNames: ['', '<=Pdc>', '<=SequenceNumber>', '<=CreatedUser>', '<=CreatedDate>', '<=Active>'],
+                colModel: [
+				{ name: 'BasPdcSequenceId', index: 'BasPdcSequenceId', hidden: true },
+				{ width: 90, name: 'Pdc', index: 'Pdc' },
+				{ width: 90, name: 'SequenceNumber', index: 'SequenceNumber' },
+				{ width: 120, name: 'CreatedUserCode', index: 'CreatedUserCode' },
+				{ width: 120, name: 'CreatedDate', index: 'CreatedDate' },
+                { width: 60,name: 'Active', index: 'Active'},
+                 ],
+                pager: 1,
+                rowNum: 15,
+                sortname: 'SequenceNumber',
+                sortorder: "asc",
+                rownumbers: true,
+                shrinkToFit: false,
+                autowidth: true,
+                viewrecords: true,
+                sortable: true,
+                width: "100%",
+                pager: $('#divPager'),
+                rowList: [15, 20, 50, 100],
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                ondblClickRow: function (id) {
+                    edit(id);
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#divLock").dialog({
+                autoOpen: false,
+                resizable: false,
+                width: 200,
+                height: 110,
+                modal: true,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+        })
+    </script>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            AutoInput({
+                displayFields: "PdcCode;PdcName",
+                displayLabels: "<=PdcCode>;<=PdcName>",
+                width: 450,
+                queryFieldName: "PdcCode",
+                url: '@Url.Action("GetPDCAutoInputData", "MasterData")',
+                fillControls: "txtCityCode:CityCode",
+                controlId: "txtPdc",
+                imagePath: "../../Content/Images/AutoImage"
+            });
+        });
+    </script>
+}
+<div class="column_search">
+    <form id="frmSearch" name="frmSearch" action="">
+    <h3 class="column_title">
+        <=Search></h3>
+    <table class="table">
+        <tr>
+            <td class="lftitle">
+                <=Pdc>
+                <input type="text" class="text" id="txtPdcSearch" name="Pdc" maxlength="50" />
+                <input style="display: none" />
+            </td>
+            <td style="width:70%:">
+            </td>
+        </tr>
+    </table>
+    <div class="btn_bar">
+        <div class="btn_bar">
+            @Html.GenerateButton("BasicData", "GetBasPdcSequence", "btnSearch", "<=Search>")
+            <input type="reset" class="button" id="btnReset" value="<=Reset>" />
+        </div>
+    </div>
+    </form>
+</div>
+<div class="column_grid">
+    <table id="tblBasPdcSequence">
+    </table>
+    <div id="divPager">
+    </div>
+</div>
+<div class="column_edit" id="divSave">
+    <form id="frmSave" name="frmSave" action="">
+    <div class="btn_bar">
+        @Html.GenerateButton("BasicData", "AddBasPdcSequence", "btnAdd", "<=New>")
+        @Html.GenerateButton("BasicData", "SaveBasPdcSequence", "btnSave", "<=Save>")
+    </div>
+    <h3 class="column_title">
+        <=Edit></h3>
+    <table class='table' style="display: none" id="tblSave">
+        <tr>
+            <td class="title">
+                <=Pdc>*
+            </td>
+            <td>
+                <input type="text" class="text" id="txtPdc" name="Pdc" />
+                <input type="text" class="text" id="txtCityCode" name="CityCode"
+                    style="display: none" />
+                <input type="text" class="text" id="txtBasPdcSequenceId" name="BasPdcSequenceId"
+                    style="display: none" />
+            </td>
+            <td class="title">
+                <=SequenceNumber>*
+            </td>
+            <td>
+                <input type="text" class="text" id="txtSequenceNumber" name="SequenceNumber" />
+            </td>
+            <td class="title">
+                <=Active>
+            </td>
+            <td>
+                <input type="checkbox" id="cbActive" class="checkbox" tabindex="18" />
+            </td>
+            <td class="title">
+            </td>
+            <td>
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>
+<div id="divLock" align="center" style="display: none" class="transparent">
+    <=DataProcess><br />
+    <img src="../../Content/Images/Load1.gif" />
+</div>

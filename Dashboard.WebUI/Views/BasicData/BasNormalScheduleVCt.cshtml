@@ -1,0 +1,890 @@
+﻿@using FrogDashboard.Core.Utility;
+@using FrogDashboard.Authentication.HtmlExtension;
+@model FrogDashboard.Domain.BasicData.CBasNormalSchedule
+@{
+    ViewBag.Title = "<=BasNormalScheduleVCtInfo>";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script type="text/javascript">
+        var basNormalScheduleId = "@Model.BasNormalScheduleId";
+
+        var searchData = function () {
+            var url = '@Url.Action("GetBasNormalScheduleVCt", "BasicData")';
+            url += "/?" + $("#frmSearch").serialize();
+            url += "&BasNormalScheduleId=" + basNormalScheduleId;
+            $('#tblBasNormalScheduleVCt').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        }
+
+        var clearForm = function () {
+            $("#frmSave").find("input:text").val("");
+            $("#frmSave").find("select").attr("value", "");
+            $("#tblBasNormalScheduleVCtDet").clearGridData();
+            basNormalScheduleVCtId = "";
+        };
+
+        var editData = function (result) {
+            clearForm();
+            $("#txtBasNormalScheduleVCtId").val(result.BasNormalScheduleVCtId);
+            basNormalScheduleVCtId = result.BasNormalScheduleVCtId;
+            $("#txtDealerCode").val(result.DealerCode);
+            $("#txtFacingPdc").val(result.FacingPdc);
+            $("#txtDealerType").val(result.DealerType);
+            $("#txtDealerName").val(result.DealerName);
+            $("#txtDestination").val(result.Destination);
+            $("#txtProvince").val(result.Province);
+
+            if (result.FirstVCutoffTime != null) {
+                date = new Date(parseInt(result.FirstVCutoffTime.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtFirstVCutoffTime").val(date.format("HH:MM:ss"));
+            }
+            if (result.FirstVPickupTime != null) {
+                date = new Date(parseInt(result.FirstVPickupTime.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtFirstVPickupTime").val(date.format("HH:MM:ss"));
+            }
+
+            $("#txtFirstVTransMode").val(result.FirstVTransMode);
+            $("#txtFirstVLeadtime").val(result.FirstVLeadtime);
+
+            $("#selFirstVLeadtimeAmPm").attr("value", result.FirstVLeadtimeAmPm);
+            if (result.FirstVLeadtimeStart != null) {
+                date = new Date(parseInt(result.FirstVLeadtimeStart.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtFirstVLeadtimeStart").val(date.format("HH:MM:ss"));
+            }
+            if (result.FirstVLeadtimeEnd != null) {
+                date = new Date(parseInt(result.FirstVLeadtimeEnd.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtFirstVLeadtimeEnd").val(date.format("HH:MM:ss"));
+            }
+            if (result.SecondVCutoffTime != null) {
+                date = new Date(parseInt(result.SecondVCutoffTime.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtSecondVCutoffTime").val(date.format("HH:MM:ss"));
+            }
+            if (result.SecondVPickupTime != null) {
+                date = new Date(parseInt(result.SecondVPickupTime.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtSecondVPickupTime").val(date.format("HH:MM:ss"));
+            }
+            searchDetData();
+        }
+
+        var edit = function (id) {
+            var BasNormalScheduleVCtId = $('#tblBasNormalScheduleVCt').getCell(id, 'BasNormalScheduleVCtId');
+            if (BasNormalScheduleVCtId == "") return;
+            var str = "BasNormalScheduleVCtId=" + BasNormalScheduleVCtId;
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetBasNormalScheduleVCtById", "BasicData")',
+                data: str,
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.Success) {
+                        $("#dlgBasNormalScheduleVCt").dialog("open");
+                        editData(result.BasNormalScheduleVCt);
+                    }
+                }
+            });
+        }
+
+        function PageLock() {
+            $("#divLock").dialog('open');
+        }
+
+        function PageUnLock() {
+            $("#divLock").dialog('close');
+        }
+    </script>
+    <script type="text/javascript">
+        var basNormalScheduleVCtId = "";
+
+        var searchDetData = function () {
+            var url = '@Url.Action("GetBasNormalScheduleVCtDet", "BasicData")';
+            url += "/?" + $("#frmSearch").serialize();
+            url += "&BasNormalScheduleVCtId=" + basNormalScheduleVCtId;
+            $('#tblBasNormalScheduleVCtDet').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        }
+
+        var clearDetForm = function () {
+            $("#frmSaveDet").find("input:text").val("");
+            $("#frmSaveDet").find("select").attr("value", "");
+        };
+
+        var editDetData = function (result) {
+            clearDetForm();
+            $("#txtBasNormalScheduleVCtDetId").val(result.BasNormalScheduleVCtDetId);
+            $("#txtPdc").val(result.Pdc);
+            $("#selCargoType").attr("value", result.CargoType);
+
+            $("#txtSecondVTransMode").val(result.SecondVTransMode);
+            $("#txtSecondVLeadtime").val(result.SecondVLeadtime);
+
+            $("#selSecondVLeadtimeAmPm").attr("value", result.SecondVLeadtimeAmPm);
+            if (result.SecondVLeadtimeStart != null) {
+                date = new Date(parseInt(result.SecondVLeadtimeStart.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtSecondVLeadtimeStart").val(date.format("HH:MM:ss"));
+            }
+            if (result.SecondVLeadtimeEnd != null) {
+                date = new Date(parseInt(result.SecondVLeadtimeEnd.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtSecondVLeadtimeEnd").val(date.format("HH:MM:ss"));
+            }
+        }
+
+        var editDet = function (id) {
+            var BasNormalScheduleVCtDetId = $('#tblBasNormalScheduleVCtDet').getCell(id, 'BasNormalScheduleVCtDetId');
+            if (BasNormalScheduleVCtDetId == "") return;
+            var str = "BasNormalScheduleVCtDetId=" + BasNormalScheduleVCtDetId;
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetBasNormalScheduleVCtDetById", "BasicData")',
+                data: str,
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.Success) {
+                        $("#dlgBasNormalScheduleVCtDet").dialog("open");
+                        editDetData(result.BasNormalScheduleVCtDet);
+                    }
+                }
+            });
+        }
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#txtFirstVLeadtime,#txtSecondVLeadtime").decimalInput("99");
+            $("#txtDealerCodeSearch").focus();
+
+            $("#btnSearch").click(function () {
+                searchData();
+            });
+
+            $("#btnCancel").click(function () {
+                searchData();
+                $("#dlgBasNormalScheduleVCt").dialog("close");
+            });
+
+            $("#btnAddBasNormalScheduleVCt").click(function () {
+                clearForm();
+                $("#dlgBasNormalScheduleVCt").dialog("open");
+            });
+
+            $("#btnAdd").click(function () {
+                clearForm();
+            });
+
+            $("#frmSave").validate({
+                rules: {
+                    DealerName: {
+                        required: true
+                    },
+                    SecondVCutoffTime: {
+                        required: true
+                    },
+                    SecondVPickupTime: {
+                        required: true
+                    }
+                },
+                messages: {
+                    DealerName: {
+                        required: "<=DealerIsRequired>"
+                    },
+                    SecondVCutoffTime: {
+                        required: "<=SecondVCutoffTimeIsRequired>"
+                    },
+                    SecondVPickupTime: {
+                        required: "<=SecondVPickupTimeIsRequired>"
+                    }
+                }
+            });
+
+            $("#btnSave").click(function () {
+                if (!$('form[name=frmSave]').valid()) {
+                    CheckFormMessage("frmSave");
+                    return;
+                }
+                var str = $("#frmSave").serialize();
+                str += "&BasNormalScheduleId=" + basNormalScheduleId;
+                PageLock();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveBasNormalScheduleVCt", "BasicData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        PageUnLock();
+                        alert(result.Msg);
+                        if (result.Success) {
+                            searchData();
+                            editData(result.BasNormalScheduleVCt);
+                        }
+                    },
+                    complete: function () {
+                        PageUnLock();
+                    }
+                });
+            });
+        })
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#btnSearchDet").click(function () {
+                searchDetData();
+            });
+
+            $("#btnCancelDet").click(function () {
+                searchDetData();
+                $("#dlgBasNormalScheduleVCtDet").dialog("close");
+            });
+
+            $("#btnAddBasNormalScheduleVCtDet").click(function () {
+                if (basNormalScheduleVCtId == "") {
+                    alert("<=FirstSaveNormalScheduleVCt>");
+                    return false;
+                }
+                clearDetForm();
+                $("#dlgBasNormalScheduleVCtDet").dialog("open");
+            });
+
+            $("#btnAddDet").click(function () {
+                clearDetForm();
+            });
+
+            $("#frmSaveDet").validate({
+                rules: {
+                    Pdc: {
+                        required: true
+                    },
+                    CargoType: {
+                        required: true
+                    },
+                    SecondVLeadtime: {
+                        required: true
+                    },
+                    SecondVLeadtimeAmPm: {
+                        required: true
+                    },
+                    SecondVLeadtimeStart: {
+                        required: true
+                    },
+                    SecondVLeadtimeEnd: {
+                        required: true
+                    }
+                },
+                messages: {
+                    Pdc: {
+                        required: "<=PdcIsRequired>"
+                    },
+                    CargoType: {
+                        required: "<=CargoTypeIsRequired>"
+                    },
+                    SecondVLeadtime: {
+                        required: "<=SecondVLeadtimeIsRequired>"
+                    },
+                    SecondVLeadtimeAmPm: {
+                        required: "<=SecondVLeadtimeAmPmIsRequired>"
+                    },
+                    SecondVLeadtimeStart: {
+                        required: "<=SecondVLeadtimeStartIsRequired>"
+                    },
+                    SecondVLeadtimeEnd: {
+                        required: "<=SecondVLeadtimeEndIsRequired>"
+                    }
+                }
+            });
+
+            $("#btnSaveDet").click(function () {
+                if (basNormalScheduleVCtId == "") {
+                    alert("<=FirstSaveNormalScheduleVCt>");
+                    return false;
+                }
+                if (!$('form[name=frmSaveDet]').valid()) {
+                    CheckFormMessage("frmSaveDet");
+                    return;
+                }
+                var str = $("#frmSaveDet").serialize();
+                str += "&BasNormalScheduleId=" + basNormalScheduleId;
+                str += "&BasNormalScheduleVCtId=" + basNormalScheduleVCtId;
+                PageLock();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveBasNormalScheduleVCtDet", "BasicData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        PageUnLock();
+                        alert(result.Msg);
+                        if (result.Success) {
+                            searchDetData();
+                            editDetData(result.BasNormalScheduleVCtDet);
+                        }
+                    },
+                    complete: function () {
+                        PageUnLock();
+                    }
+                });
+            });
+        })
+    </script>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            $("#btnNormalScheduleVCtImport").click(function () {
+                $("#dlgImport").dialog("open");
+                var cloneFile = $("#fileNormalScheduleImport").clone();
+                $("#fileNormalScheduleImport").replaceWith(cloneFile);
+                $("#fileNormalScheduleImport").focus();
+                $("#txtFileType").html("Normal Schedule V Cargo Type");
+            });
+
+            $("#btnNormalScheduleVCtTemplate").click(function () {
+                var url = '../../Upload/Normal Schedule V Cargo Type Template.xlsx';
+                window.location.href = url;
+            });
+
+            $("#btnImportCancel").click(function () {
+                $("#dlgImport").dialog("close");
+                $("#txtFileType").html("");
+            });
+
+            $("#btnImportOK").click(function () {
+                if ($("#fileNormalScheduleImport").val() == "") {
+                    alert("<=FirstSelectUpload>");
+                    return;
+                }
+                var url = '@Url.Action("NormalScheduleImport", "BasicData")';
+                url += "/?basNormalScheduleId=" + basNormalScheduleId;
+                url += "&FileType=" + $("#txtFileType").html();
+                $('#frmImport').attr('action', url);
+                PageLock();
+                $('#frmImport').ajaxSubmit({
+                    success: function (result) {
+                        PageUnLock();
+                        alert(result);
+                        searchData();
+                        $("#btnImportCancel").click();
+                    },
+                    error: function () {
+                        PageUnLock();
+                    }
+                })
+            });
+        });
+    </script>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            $("#tblBasNormalScheduleVCt").jqGrid({
+                url: '@Url.Action("GetBasNormalScheduleVCt", "BasicData")' + "/?BasNormalScheduleId=" + basNormalScheduleId,
+                datatype: "json",
+                mtype: 'POST',
+                height: 260,
+                colNames: ['', '<=DealerCode>', '<=FacingPdc>', '<=DealerType>', '<=DealerName>', '<=Destination>', '<=Province>',
+                 '<=SecondVCutoffDay>', '<=SecondVCutoffTime>', '<=SecondVPickupDay>', '<=SecondVPickupTime>', '<=FirstVCutoffDay>',
+                 '<=FirstVCutoffTime>', '<=FirstVPickupDay>', '<=FirstVPickupTime>', '<=FirstVTransMode>', '<=FirstVLeadtime>', '<=FirstVLeadtimeAmPm>',
+                 '<=FirstVLeadtimeStart>', '<=FirstVLeadtimeEnd>'],
+                colModel: [
+				{ name: 'BasNormalScheduleVCtId', index: 'BasNormalScheduleVCtId', hidden: true },
+				{ width: 90, name: 'DealerCode', index: 'DealerCode' },
+				{ width: 90, name: 'FacingPdc', index: 'FacingPdc' },
+				{ width: 90, name: 'DealerType', index: 'DealerType' },
+				{ width: 250, name: 'DealerName', index: 'DealerName' },
+				{ width: 90, name: 'Destination', index: 'Destination' },
+				{ width: 90, name: 'Province', index: 'Province' },
+				{ width: 150, name: 'SecondVCutoffDay', index: 'SecondVCutoffDay' },
+				{ width: 150, name: 'SecondVCutoffTime', index: 'SecondVCutoffTime' },
+				{ width: 150, name: 'SecondVPickupDay', index: 'SecondVPickupDay' },
+				{ width: 150, name: 'SecondVPickupTime', index: 'SecondVPickupTime' },
+				{ width: 90, name: 'FirstVCutoffDay', index: 'FirstVCutoffDay' },
+				{ width: 90, name: 'FirstVCutoffTime', index: 'FirstVCutoffTime' },
+				{ width: 90, name: 'FirstVPickupDay', index: 'FirstVPickupDay' },
+				{ width: 90, name: 'FirstVPickupTime', index: 'FirstVPickupTime' },
+				{ width: 90, name: 'FirstVTransMode', index: 'FirstVTransMode' },
+				{ width: 90, name: 'FirstVLeadtime', index: 'FirstVLeadtime' },
+				{ width: 120, name: 'FirstVLeadtimeAmPm', index: 'FirstVLeadtimeAmPm' },
+				{ width: 120, name: 'FirstVLeadtimeStart', index: 'FirstVLeadtimeStart' },
+				{ width: 120, name: 'FirstVLeadtimeEnd', index: 'FirstVLeadtimeEnd' }
+                 ],
+                pager: 1,
+                rowNum: 15,
+                sortname: 'DealerCode',
+                sortorder: "asc",
+                rownumbers: true,
+                shrinkToFit: false,
+                autowidth: true,
+                viewrecords: true,
+                sortable: true,
+                width: "100%",
+                pager: $('#divPager'),
+                rowList: [15, 20, 50, 100],
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                ondblClickRow: function (id) {
+                    edit(id);
+                }
+            });
+
+            $("#tblBasNormalScheduleVCtDet").jqGrid({
+                datatype: "json",
+                mtype: 'POST',
+                height: 130,
+                colNames: ['', '<=Pdc>', '<=CargoType>', '<=SecondVTransMode>', '<=SecondVLeadtime>',
+                 '<=SecondVLeadtimeAmPm>', '<=SecondVLeadtimeStart>', '<=SecondVLeadtimeEnd>'],
+                colModel: [
+				{ name: 'BasNormalScheduleVCtDetId', index: 'BasNormalScheduleVCtDetId', hidden: true },
+				{ width: 90, name: 'Pdc', index: 'Pdc' },
+				{ width: 90, name: 'CargoType', index: 'CargoType' },
+				{ width: 90, name: 'SecondVTransMode', index: 'SecondVTransMode' },
+				{ width: 90, name: 'SecondVLeadtime', index: 'SecondVLeadtime' },
+				{ width: 120, name: 'SecondVLeadtimeAmPm', index: 'SecondVLeadtimeAmPm' },
+				{ width: 120, name: 'SecondVLeadtimeStart', index: 'SecondVLeadtimeStart' },
+				{ width: 120, name: 'SecondVLeadtimeEnd', index: 'SecondVLeadtimeEnd' }
+                 ],
+                pager: 1,
+                rowNum: 0,
+                sortname: 'Pdc',
+                sortorder: "asc",
+                rownumbers: true,
+                shrinkToFit: false,
+                //autowidth: true,
+                viewrecords: true,
+                sortable: true,
+                width: 950,
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                ondblClickRow: function (id) {
+                    editDet(id);
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#dlgBasNormalScheduleVCt").dialog({
+                height: 430,
+                width: 1030,
+                modal: true,
+                title: "<=BasNormalScheduleVCtInfo>",
+                autoOpen: false,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+
+            $("#dlgBasNormalScheduleVCtDet").dialog({
+                height: 230,
+                width: 1030,
+                modal: true,
+                title: "<=BasNormalScheduleVCtDetInfo>",
+                autoOpen: false,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+
+            $("#divLock").dialog({
+                autoOpen: false,
+                resizable: false,
+                width: 200,
+                height: 110,
+                modal: true,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+
+            $("#dlgImport").dialog({
+                height: 110,
+                width: 500,
+                modal: true,
+                title: "<=Import>",
+                autoOpen: false,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+        })
+    </script>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            var strDealer = "txtDealerName:CustName"
+            strDealer += ";txtDealerType:CustTypeCode"
+            strDealer += ";txtDestination:CityCode"
+            strDealer += ";txtProvince:ProvinceCode"
+            strDealer += ";txtFacingPdc:RelatedWarehouseCode"
+
+            AutoInput({
+                displayFields: "CustCode;CustName",
+                displayLabels: "<=DealerCode>;<=DealerName>",
+                width: 450,
+                queryFieldName: "CustCode",
+                url: '@Url.Action("GetDealerAutoInputData", "MasterData")',
+                fillControls: strDealer,
+                controlId: "txtDealerCode",
+                imagePath: "../../Content/Images/AutoImage"
+            });
+
+            AutoInput({
+                displayFields: "PdcCode;PdcName",
+                displayLabels: "<=PdcCode>;<=PdcName>",
+                width: 450,
+                queryFieldName: "PdcCode",
+                url: '@Url.Action("GetPDCAutoInputData", "MasterData")',
+                fillControls: "",
+                controlId: "txtPdc",
+                imagePath: "../../Content/Images/AutoImage"
+            });
+
+            //导出Schedule
+            $("#btnExportNormalScheduleVct").click(function () {
+                //请求数据,生成Excel文件,返回文件的路径
+                PageLock();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("ExportBasNormalScheduleS", "BasicData")',
+                    data: { BasNormalScheduleId: basNormalScheduleId, ScheduleType: "vct" },
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        PageUnLock();
+                        if (result.Success) {
+                            window.location.href = result.FileName;
+                        } else {
+                            alert(result.msg);
+                        }
+                    },
+                    error: function () {
+                        PageUnLock();
+                    }
+                });
+            });
+        });
+    </script>
+}
+<div class="column_search">
+    <fieldset>
+        <legend style="font-weight: bold"><=BasNormalScheduleInfo></legend>
+        <table class='table'>
+            <tr>
+                <td class="title">
+                    <=ScheduleNo>
+                </td>
+                <td>
+                    <input type="text" class="text txtdisable" id="txtScheduleNo" value="@Model.ScheduleNo" disabled="disabled" />
+                </td>
+                <td class="title">
+                    <=EffectiveDate>
+                </td>
+                <td>
+                    <input type="text" class="text txtdisable" id="txtEffectiveDate" value="@Model.EffectiveDate.ToString("yyyy-MM-dd")" disabled="disabled" />
+                </td>
+                <td class="title">
+                    <=ExpirationDate>
+                </td>
+                <td>
+                    <input type="text" class="text txtdisable" id="txtExpirationDate" value="@Model.ExpirationDate.ToString("yyyy-MM-dd")" disabled="disabled" />
+                </td>
+            </tr>
+            <tr>
+                <td class="title">
+                    <=Remark>
+                </td>
+                <td colspan="5">
+                    <input type="text" class="text txtdisable" id="txtRemark" name="Remark" value="@Model.Remark" style="width: 94.5%"
+                        disabled="disabled" />
+                </td>
+            </tr>
+        </table>
+    </fieldset>
+    <fieldset>
+        <form id="frmSearch" name="frmSearch" action="">
+        <table class="table">
+            <tr>
+                <td class="title">
+                    <=DealerCode>
+                </td>
+                <td>
+                    <input type="text" class="text" id="txtDealerCodeSearch" name="DealerCode" />
+                    <input style="display: none" />
+                </td>
+                <td class="title">
+                </td>
+                <td>
+                </td>
+                <td class="title">
+                </td>
+                <td>
+                </td>
+            </tr>
+        </table>
+        <div class="btn_bar">
+            <div class="btn_bar">
+                @Html.GenerateButton("BasicData", "GetBasNormalScheduleVCt", "btnSearch", "<=Search>")
+                <input type="reset" class="button" id="btnReset" value="<=Reset>" />
+                @Html.GenerateButton("BasicData", "AddBasNormalScheduleVCt", "btnAddBasNormalScheduleVCt", "<=New>")
+                @Html.GenerateButton("BasicData", "NormalScheduleVCtImport", "btnNormalScheduleVCtImport", "<=Import>")
+                <input type="button" class="button" id="btnNormalScheduleVCtTemplate" value="<=Template>" />
+                @Html.GenerateButton("BasicData", "ExportBasNormalScheduleS", "btnExportNormalScheduleVct", "<=Export>")
+            </div>
+        </div>
+        </form>
+    </fieldset>
+</div>
+<div class="column_grid">
+    <table id="tblBasNormalScheduleVCt">
+    </table>
+    <div id="divPager">
+    </div>
+</div>
+<div id="dlgBasNormalScheduleVCt" style="display: none">
+    <div class="column_edit">
+        <div class="btn_bar">
+            @Html.GenerateButton("BasicData", "AddBasNormalScheduleVCt", "btnAdd", "<=New>")
+            @Html.GenerateButton("BasicData", "SaveBasNormalScheduleVCt", "btnSave", "<=Save>")
+            <input type="button" class="button" id="btnCancel" value="<=Cancel>" />
+        </div>
+        <fieldset>
+            <legend style="font-weight: bold"><=BasNormalScheduleVCtInfo></legend>
+            <form id="frmSave" name="frmSave" action="">
+            <table class='table' id="tblSave">
+                <tr>
+                    <td class="title">
+                        <=DealerCode>*
+                    </td>
+                    <td>
+                        <input type="text" class="text" id="txtBasNormalScheduleVCtId" name="BasNormalScheduleVCtId"
+                            style="display: none;" />
+                        <input type="text" class="text" id="txtDealerCode" name="DealerCode" />
+                    </td>
+                    <td class="title">
+                        <=SecondVCutoffTime>*
+                    </td>
+                    <td>
+                        @Html.DatePicker("SecondVCutoffTime", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtSecondVCutoffTime" } }, "dateFmt: 'HH:mm:ss'")
+                    </td>
+                    <td class="title">
+                        <=SecondVPickupTime>*
+                    </td>
+                    <td>
+                        @Html.DatePicker("SecondVPickupTime", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtSecondVPickupTime" } }, "dateFmt: 'HH:mm:ss'")
+                    </td>
+                    <td class="title">
+                        <=DealerName>
+                    </td>
+                    <td>
+                        <input type="text" class="text txtdisable" id="txtDealerName" name="DealerName" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=DealerType>
+                    </td>
+                    <td>
+                        <input type="text" class="text txtdisable" id="txtDealerType" name="DealerType" readonly="readonly" />
+                    </td>
+                    <td class="title">
+                        <=Destination>
+                    </td>
+                    <td>
+                        <input type="text" class="text txtdisable" id="txtDestination" name="Destination"
+                            readonly="readonly" />
+                    </td>
+                    <td class="title">
+                        <=Province>
+                    </td>
+                    <td>
+                        <input type="text" class="text txtdisable" id="txtProvince" name="Province" readonly="readonly" />
+                    </td>
+                    <td class="title">
+                        <=FacingPdc>
+                    </td>
+                    <td>
+                        <input type="text" class="text txtdisable" id="txtFacingPdc" name="FacingPdc" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="8">
+                        <hr />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="8" style="font-size: 14px; font-weight: bold">
+                        1st
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=FirstVCutoffTime>
+                    </td>
+                    <td>
+                        @Html.DatePicker("FirstVCutoffTime", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtFirstVCutoffTime" } }, "dateFmt: 'HH:mm:ss'")
+                    </td>
+                    <td class="title">
+                        <=FirstVPickupTime>
+                    </td>
+                    <td>
+                        @Html.DatePicker("FirstVPickupTime", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtFirstVPickupTime" } }, "dateFmt: 'HH:mm:ss'")
+                    </td>
+                    <td class="title">
+                        <=FirstVTransMode>
+                    </td>
+                    <td>
+                        <input type="text" class="text" id="txtFirstVTransMode" name="FirstVTransMode" maxlength="50" />
+                    </td>
+                    <td class="title">
+                        <=FirstVLeadtime>
+                    </td>
+                    <td>
+                        <input type="text" class="text" id="txtFirstVLeadtime" name="FirstVLeadtime" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=FirstVLeadtimeAmPm>
+                    </td>
+                    <td>
+                        <select id="selFirstVLeadtimeAmPm" class="select" name="FirstVLeadtimeAmPm">
+                            <option value=''></option>
+                            <option value='am'>am</option>
+                            <option value='pm'>pm</option>
+                        </select>
+                    </td>
+                    <td class="title">
+                        <=FirstVLeadtimeStart>
+                    </td>
+                    <td>
+                        @Html.DatePicker("FirstVLeadtimeStart", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtFirstVLeadtimeStart" } }, "dateFmt: 'HH:mm:ss'")
+                    </td>
+                    <td class="title">
+                        <=FirstVLeadtimeEnd>
+                    </td>
+                    <td>
+                        @Html.DatePicker("FirstVLeadtimeEnd", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtFirstVLeadtimeEnd" } }, "dateFmt: 'HH:mm:ss'")
+                    </td>
+                </tr>
+            </table>
+            </form>
+        </fieldset>
+        <fieldset>
+            <legend style="font-weight: bold"><=Detail></legend>
+            <div class="btn_bar">
+                @Html.GenerateButton("BasicData", "GetBasNormalScheduleVCtDet", "btnSearchDet", "<=Search>")
+                @Html.GenerateButton("BasicData", "AddBasNormalScheduleVCtDet", "btnAddBasNormalScheduleVCtDet", "<=New>")
+            </div>
+            <div class="column_grid">
+                <table id="tblBasNormalScheduleVCtDet">
+                </table>
+            </div>
+        </fieldset>
+    </div>
+</div>
+<div id="divLock" align="center" style="display: none" class="transparent">
+    <=DataProcess><br />
+    <img src="../../Content/Images/Load1.gif" />
+</div>
+<div id="dlgImport" style="display: none">
+    <div class="column_edit">
+        <form id="frmImport" name="frmImport" method="post" enctype="multipart/form-data"
+        action='@Url.Action("NormalScheduleImport", "BasicData")'>
+        <table>
+            <tr>
+                <td class="title">
+                </td>
+                <td>
+                    <div id="txtFileType">
+                    </div>
+                    <input type="file" name="FileNormalScheduleImport" size="60" id="fileNormalScheduleImport" />
+                </td>
+            </tr>
+        </table>
+        <div class="btn_bar" style="float: right">
+            <input type="button" class="button" id="btnImportOK" value="<=OK>" />
+            <input type="button" class="button" id="btnImportCancel" value="<=Cancel>" />
+        </div>
+        </form>
+    </div>
+</div>
+<div id="dlgBasNormalScheduleVCtDet" style="display: none">
+    <div class="column_edit">
+        <div class="btn_bar">
+            @Html.GenerateButton("BasicData", "AddBasNormalScheduleVCtDet", "btnAddDet", "<=New>")
+            @Html.GenerateButton("BasicData", "SaveBasNormalScheduleVCtDet", "btnSaveDet", "<=Save>")
+            <input type="button" class="button" id="btnCancelDet" value="<=Cancel>" />
+        </div>
+        <fieldset>
+            <legend style="font-weight: bold"><=BasNormalScheduleVCtDetInfo></legend>
+            <form id="frmSaveDet" name="frmSaveDet" action="">
+            <table class='table' id="tblSaveDet">
+                <tr>
+                    <td class="title">
+                        <=Pdc>*
+                    </td>
+                    <td>
+                        <input type="text" class="text" id="txtBasNormalScheduleVCtDetId" name="BasNormalScheduleVCtDetId"
+                            style="display: none;" />
+                        <input type="text" class="text" id="txtPdc" name="Pdc" maxlength="50" />
+                    </td>
+                    <td class="title">
+                        <=CargoType>*
+                    </td>
+                    <td>
+                        <select id="selCargoType" class="select" name="CargoType">
+                            <option value=''></option>
+                            <option value='Normal'>Normal</option>
+                            <option value='DG/Bulky'>DG/Bulky</option>
+                        </select>
+                    </td>
+                    <td class="title">
+                        <=SecondVTransMode>
+                    </td>
+                    <td>
+                        <input type="text" class="text" id="txtSecondVTransMode" name="SecondVTransMode"
+                            maxlength="50" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=SecondVLeadtime>*
+                    </td>
+                    <td>
+                        <input type="text" class="text" id="txtSecondVLeadtime" name="SecondVLeadtime" />
+                    </td>
+                    <td class="title">
+                        <=SecondVLeadtimeAmPm>*
+                    </td>
+                    <td>
+                        <select id="selSecondVLeadtimeAmPm" class="select" name="SecondVLeadtimeAmPm">
+                            <option value=''></option>
+                            <option value='am'>am</option>
+                            <option value='pm'>pm</option>
+                        </select>
+                    </td>
+                    <td class="title">
+                        <=SecondVLeadtimeStart>*
+                    </td>
+                    <td>
+                        @Html.DatePicker("SecondVLeadtimeStart", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtSecondVLeadtimeStart" } }, "dateFmt: 'HH:mm:ss'")
+                    </td>
+                    <td class="title">
+                        <=SecondVLeadtimeEnd>*
+                    </td>
+                    <td>
+                        @Html.DatePicker("SecondVLeadtimeEnd", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtSecondVLeadtimeEnd" } }, "dateFmt: 'HH:mm:ss'")
+                    </td>
+                </tr>
+            </table>
+            </form>
+        </fieldset>
+    </div>
+</div>

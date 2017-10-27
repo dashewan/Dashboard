@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Localization>
+  <Module name="Home">
+    <item name="ModifyPwd">Modify Password</item>
+    <item name="TabAlert">No more than 7 pages!</item>
+    <item name="Home">Home</item>
+    <item name="About">About</item>
+    <item name="My MVC Application">My MVC Application!</item>
+    <item name="PageContent">Page Content</item>
+    <item name="OtherContent">Others</item>
+    <item name="Log On">Log In</item>
+    <item name="Title">Title</item>
+    <item name="language is applied">Language has been set.</item>
+    <item name="Menu">Menu</item>
+    <item name="MasterData">Master Data</item>
+    <item name="SaveError">Save error occured,pls contact the administrator!</item>
+    <item name="ChangeRole">Switch</item>
+    <item name="EnLang">English</item>
+    <item name="CnLang">中文</item>
+    <item name="Exit">Logout</item>
+    <item name="CurrentRole">Role</item>
+    <item name="PlsSaveCurrentDate">Pls save the current data！</item>
+    <item name="LeavePage">Are you sure to leave the page?</item>
+    <item name="SystemTimeOut">System already timeout, please login again.</item>
+    <item name="HomePage">My home page</item>
+    <item name="Dashboard1">Dashboard1</item>
+    <item name="Dashboard2">Dashboard2</item>
+    <item name="Dashboard3">Dashboard3</item>
+    <item name="Dashboard4">Dashboard4</item>
+    <item name="Dashboard5">Dashboard5</item>
+    <!-- 主页面左侧菜单  -->
+    <item name="BusinessInfo">BusinessInfo</item>
+    <item name="ChartInfo">Reports</item>
+    <item name="HomeManagement">HomeManagement</item>
+    <item name="System">SystemManagement</item>
+    <!--基础数据-->
+    <item name="BasicData.BasNormalSchedule">Normal Schedule</item>
+    <item name="BasicData.BasSpecialScheduleIndex">Special Schedule</item>
+    <item name="BasicData.BasSpecialDay">Special Day</item>
+    <item name="MasterData.DataDictionary">DataDictionary</item>
+    <!--KPI计算-->
+    <item name="KPICalculation.KPICalculation">KPI Calculation</item>
+    <item name="ProjectPipeline.ProjectPipeline">Project Pipeline</item>
+    <item name="ProductCR.ProductCR">Change Request</item>
+    <item name="TICKET.TICKETIndex">Service Ticket</item>
+    <!--报表管理-->
+	<item name="BasicData.BasPdcSequence">PDC Sequence</item>
+    <item name="Reports.AllDataFormReport">All Data Form Report</item>
+    <item name="Reports.CustomerPerformanceReport">Customer Performance Report</item>
+    <item name="Reports.ForwarderPerformanceReport">Forwarder Performance Report</item>
+    <item name="Reports.MonthlyKpiByDealerTmReport">Dealer KPI By Transportation Mode</item>
+    <item name="Reports.MonthlyKpiByDealerCtReport">Dealer KPI By Cargo Type</item>
+    <item name="Reports.CRReport">Change Request</item>
+    <item name="Reports.TICKETReport">Service Ticket</item>
+    <item name="Reports.OverallReport">Overall</item>
+    <item name="Reports.PipelineReport">Project Pipeline</item>
+    <!-- 系统管理  -->
+    <item name="MasterData.SysOrganization">Organization Management</item>
+    <item name="MasterData.SysFunction">Function Management</item>
+    <item name="MasterData.SysUser">User Management</item>
+    <item name="MasterData.SysRole">Role Management</item>
+    <!--首页管理-->
+    <item name="Dashboard.DashboardIndex">Dashboard Management</item>
+  </Module>
+</Localization>

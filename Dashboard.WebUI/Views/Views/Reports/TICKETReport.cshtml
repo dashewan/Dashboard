@@ -1,0 +1,578 @@
+﻿@{
+    ViewBag.Title = "TICKETReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script src="@Url.Content("~/Scripts/jquery.easyui/jquery.easyui.min-1.4.2.js")" type="text/javascript"></script>
+    <link href="@Url.Content("~/Scripts/jquery.easyui/easyui.css")"
+        rel="stylesheet" type="text/css" media="screen" />
+    <link href="@Url.Content("~/Scripts/jquery.easyui/icon.css")"
+        rel="stylesheet" type="text/css" media="screen" />
+        <style type="text/css">
+        .dateControlYM {
+            margin-left: 0px;
+            margin-right: 0px; 
+            padding-top: 3px; 
+            padding-bottom: 3px;
+        }
+        input::-ms-clear { display: none; } 
+    </style>
+    <script type="text/javascript">
+        $(function () {
+            $('#Xline').combotree({
+                url: '@Url.Action("TICKETReportXline", "Reports")',
+                valueField: 'id',
+                textField: 'text',
+                lines: true,
+                multiple: true,
+                panelHeight: 300
+            });
+
+            $('#XlineT').combotree({
+                url: '@Url.Action("TICKETReportXline", "Reports")',
+                valueField: 'id',
+                textField: 'text',
+                lines: true,
+                multiple: true,
+                panelHeight: 300
+            });
+            $('#SaveActualFinishScales').combobox({
+                data: [{ id: 'dd', text: '<=dd>' }
+                    , { id: 'wk', text: '<=wk>' }
+                    , { id: 'mm', text: '<=mm>' }
+                    , { id: 'qq', text: '<=qq>' }
+                    , { id: 'yy', text: '<=yy>' }
+                ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false
+            });
+
+            $('#Yline').combobox({
+                data: [{ id: 'AvgTime', text: 'AvgTime' }
+                    ,{ id: 'Ticket#', text: 'Ticket#' }
+                     
+                ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue == 'AvgTime' && ($("#Model").combobox('getValue') == 'PieChart' || $("#Model").combobox('getValue') == 'LineChart'))
+                    {
+                        $('#Yline').combobox('setValue', oldValue);
+                        alert("<=ticketMsg1>")
+                    }
+                }
+            })
+
+            $("#SaveActualFinishScales").combobox('disable');
+
+            $('#SaveActualFinishType').combobox({
+                data: [{ id: 'default', text: '<=default>' }
+                    , { id: 'near', text: '<=near>' }],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue == "near") {
+                        $("#SaveActualFinishScales").combobox('enable');
+                        $("#SaveActualFinish").numberbox('enable');
+                    } else {
+                        $("#SaveActualFinishScales").combobox("clear");
+                        $("#SaveActualFinishScales").combobox('disable');
+                        $("#SaveActualFinish").numberbox('clear');
+                        $("#SaveActualFinish").numberbox('disable');
+                    }
+                }
+            });
+            $('#SaveActualFinishType').combobox('setValue', 'default');
+
+            //弹出的dialog
+            $("#saveSetting").dialog({
+                title: 'Setting',
+                width: 450,
+                height: 170,
+                modal: true
+            })
+            $("#Model").combobox({
+                data: [{ id: 'BarChart', text: '<=BarChart>' }
+                    , { id: 'CombinedHistograms', text: '<=CombinedHistograms>' }
+                    , { id: 'LineChart', text: '<=LineChart>' }
+                    , { id: 'PieChart', text: '<=pieChart>' }],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                onChange: function (newValue, oldValue) {
+                    
+                    if (newValue != "CombinedHistograms") {
+                        $("#XlineT").combotree('disable');
+                        $("#XlineT").combotree('clear');
+                    } else {
+                        $("#XlineT").combotree('enable');
+                    }
+                      
+                    if (newValue == "LineChart") {
+                       
+                        $("#linechartscale").combobox("enable");
+                       
+                    } else {
+                        $("#linechartscale").combobox("clear");
+                        $("#linechartscale").combobox("disable");
+                    }
+
+                    if ((newValue == 'PieChart' || newValue == 'LineChart') && $("#Yline").combobox('getValue') == 'AvgTime')
+                    {
+                        $("#Model").combobox('setValue', oldValue);
+                        alert("<=ticketMsg1>")
+                    }
+                }
+            })
+            $("#linechartscale").combobox({
+                data: [
+                    { id: 'dd', text: '<=dd>' }
+                    , { id: 'mm', text: '<=mm>' }
+                    , { id: 'qq', text: '<=qq>' }
+                    , { id: 'wk', text: '<=wk>' }
+                    ,{ id: 'yy', text: '<=yy>' }
+                , ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                disabled:true
+            })
+            $("#slachecked").click(function () {
+                if (this.checked) {
+                    alert("<=SelectCombinedHistograms>")
+                }
+            })
+
+            var iframeHeight = getBrowserWidthHeight().height;
+            $("#formDiv").css({ "height": iframeHeight - 180 + "px" });
+        })
+        
+        function resetval() {
+            $("#ActualFinishTO").val("");
+            $("#ActualFinish").val("");
+            $("#Model").combobox("clear");
+            $("#linechartscale").combobox("clear");
+
+            $("#Xline").combotree("clear");
+            $("#XlineT").combotree("clear");
+            $("#Yline").combobox("clear");
+            $("#slachecked").attr("checked", false);
+        }
+
+        //检索之前的验证
+        function XCheck(allvalue, treevalue, msg)
+        {
+            var error = true;
+            var newValue = allvalue;
+            //取得当前combotree的tree对象
+            var tree = treevalue;
+            //取得tree对象的所有父节点
+            var root = tree.tree("getRoots");
+            //获取不确定的父节点
+            var indeterminate = tree.tree('getChecked', 'indeterminate');
+            var size = 0;
+            for (var i = 0; i < newValue.length; i++) {
+                var node1 = newValue[i];
+                for (var j = 0; j < root.length; j++) {
+                    if (node1 == root[j].id) {
+                        size++;
+                    }
+                }
+            }
+            for (var i = 0; i < indeterminate.length; i++) {
+                var node2 = indeterminate[i].id;
+                for (var j = 0; j < root.length; j++) {
+                    if (node2 == root[j].id) {
+                        size++;
+                    }
+                }
+            }
+            if (size > 1)
+            {
+                error = false;
+                alert(msg + "<=XlineNotSelectDouble>")
+            }
+                
+            return error;
+        }
+
+        function SelectCheck(value , msg)
+        {
+            var error = true;
+            if (value == "")
+            {
+                error = false;
+                alert(msg)
+            }
+            return error;
+        }
+
+        function doCheck() {
+            //if (!SelectCheck($("#ActualFinish").val(), "ActualFinish<=NotNull>")) return false;
+            //if (!SelectCheck($("#ActualFinishTO").val(), "ActualFinishTO<=NotNull>")) return false;
+            if (!SelectCheck($("#Model").combotree("getValues"), "<=NotNull> Model")) return false;
+            if (!SelectCheck($("#Xline").combotree("getValues"), "X<=XlineNotNull>")) return false;
+            if (!SelectCheck($("#Yline").combotree("getValues"), "Y<=XlineNotNull>")) return false;
+            if ($("#Model").combobox("getValue") == 'CombinedHistograms') {
+                if (!SelectCheck($("#XlineT").combotree("getValues"), "X2<=XlineNotNull>")) return false;
+            }
+            //X轴验证
+            if (!XCheck($("#Xline").combotree("getValues"), $("#Xline").combotree("tree"), 'X')) return false;
+            
+            //X2轴验证
+            if (!XCheck($("#XlineT").combotree("getValues"), $("#XlineT").combotree("tree"), 'X2')) return false;
+            if ($("#Yline").combobox("getValues") == "AvgTime" && !($("#Model").combobox("getValues") == "PieChart" || $("#Model").combobox("getValues") == "BarChart" || $("#Model").combobox("getValues") == "CombinedHistograms")) {
+                alert("<=YCantNotChanged>");
+                return false;
+            }
+          
+            var checkbox = document.getElementById("slachecked");
+            var checkflag = "0";
+            if (checkbox.checked) {
+                if ($("#Model").combotree("getValue") != 'CombinedHistograms'){
+                    alert("<=SelectCombinedHistograms>")
+                    return;
+                }
+                checkflag = "1";
+            }
+
+            //当选择组合柱状图之后，勾选了TRT之后，X和X1都不允许选择TRT
+            if ($("#Model").combotree("getValue") == 'CombinedHistograms' && checkflag == "1") {
+                var tree = $("#Xline").combotree("tree");
+                //获取不确定的父节点
+                var indeterminate = tree.tree('getChecked', 'indeterminate');
+                //获取确定的父节点
+                var treeCheck = $("#Xline").combotree('getValues');
+                if (indeterminate.length > 0) {
+                    if (indeterminate[0].id == "TRT") {
+                        alert("<=xlineNotTRT>");
+                        return false;
+                    }
+                } else {
+                    if (treeCheck[0] == "TRT") {
+                        alert("<=xlineNotTRT>");
+                        return false;
+                    }
+                }
+
+                tree = $("#XlineT").combotree("tree");
+                //获取不确定的父节点
+                indeterminate = tree.tree('getChecked', 'indeterminate');
+                //获取确定的父节点
+                treeCheck = $("#XlineT").combotree('getValues');
+                if (indeterminate.length > 0) {
+                    if (indeterminate[0].id == "TRT") {
+                        alert("<=xlineNotTRT>");
+                        return false;
+                    }
+                } else {
+                    if (treeCheck[0] == "TRT") {
+                        alert("<=xlineNotTRT>");
+                        return false;
+                    }
+                }
+
+            }
+            return true;
+        }
+
+        function GetParam() {
+            //var str = $("#frmSearch").serialize();
+            var str = "";
+            str += "Model=" + $("#Model").combobox("getValue");
+            str += "&linechartscale=" + $("#linechartscale").combobox("getValue");
+            str += "&xline=" + $("#Xline").combotree("getValues");
+            str += "&xlineT=" + $("#XlineT").combotree("getValues");
+            str += "&Yline=" + $("#Yline").combobox("getValue");
+            var tree1 = $("#Xline").combotree("tree");
+            var node = "";
+            var indeterminate1 = tree1.tree('getChecked', 'indeterminate');
+            for (var i = 0; i < indeterminate1.length; i++) {
+                node = indeterminate1[i].id;
+                break;
+            }
+            str += "&indeterminateX1=" + node;
+            if ($("#Model").combotree("getValue") == 'CombinedHistograms') {
+                node = "";
+                var tree2 = $("#XlineT").combotree("tree");
+                var indeterminate2 = tree2.tree('getChecked', 'indeterminate');
+                for (var i = 0; i < indeterminate2.length; i++) {
+                    node = indeterminate2[i].id;
+                    break;
+                }
+                str += "&indeterminateX2=" + node;
+            }
+            var checkbox = document.getElementById("slachecked");
+            var checkflag = "0";
+            if (checkbox.checked) {
+                checkflag = "1";
+            }
+            str += "&checkboxflag=" + checkflag;
+
+            str += "&ActualFinish=" + $("#ActualFinish").val();
+            str += "&ActualFinishTO=" + $("#ActualFinishTO").val();
+
+            return str;
+        }
+
+        //检索
+        function search() {
+            if (!doCheck()) return;
+
+            var str = GetParam();
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetIframeURLTicket", "Reports")',
+                data: str,
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    document.getElementById("formDiv").innerHTML = '<iframe id="TicketReport" name="TicketReport" frameborder="0" scrolling="yes" border="0" style="width: 100%;height: 100%;" src=""></iframe>';
+
+                    var formHtml = '<FORM id=\"TicketReportSerer\" action=\"' + result.url + result.reportName
+                    + "&rc:toolbar=true\" method=\"post\" >";
+                    formHtml += '<INPUT type=\"hidden\" name=\"GraphicsType\" value=\"' + result.GraphicsType + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"ActualFinish\" value=\"' + result.ActualFinish + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"ActualFinishTO\" value=\"' + result.ActualFinishTO + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"Yline\" value=\"' + result.Yline + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"linechartscale\" value=\"' + result.linechartscale + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"ColumnX1\" value=\"' + result.ColumnX1 + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"Xline\" value=\"' + result.Xline + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"ColumnX2\" value=\"' + result.ColumnX2 + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"XlineT\" value=\"' + result.XlineT + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"slachecked\" value=\"' + result.slachecked + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"rc:Parameters\" value=\"False\"/> ';
+                    formHtml += '</FORM>';
+                    setTimeout(function(){
+                        document.getElementById("TicketReport").contentWindow.document.body.innerHTML = formHtml;
+                        document.getElementById("TicketReport").contentWindow.document.getElementById("TicketReportSerer").submit();
+                    },0);
+                },
+                error: function () {
+                }
+            });
+        };
+
+        //日期控件
+        function showDate() {
+            WdatePicker({ skin: 'default', dateFmt: 'yyyy-MM-dd' });
+        }
+
+        function ResetSave() {
+            $("#SaveName").textbox("setValue", "");
+            $("#SaveDesc").textbox("setValue", "");
+            $("#SaveActualFinishType").combobox('setValue', 'default');
+        }
+
+        function SaveSetting() {
+            ResetSave();
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("PipelineSaveSettingCheck", "Reports")',
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.flg) {
+                        if (!doCheck()) return;
+                        $("#saveSetting").dialog("open");
+                    } else {
+                        alert("<=pipelineMsg5>");
+                    }
+                }
+            });
+        }
+
+        function Save() {
+            var errorMsg = "";
+            if ($("#SaveName").val() == "") {
+                errorMsg += "<=NotNull> Name\n";
+            }
+            if ($("#SaveName").val() != "") {
+                if (getByteLen($("#SaveName").val()) > 500) {
+                    errorMsg += "<=pipelineMsg3>Name<=pipelineMsg6>\n";
+                }
+            }
+            if ($("#SaveDesc").val() == "") {
+                errorMsg += "<=NotNull> Desc\n";
+            }
+            if ($("#SaveDesc").val() != "") {
+                if (getByteLen($("#SaveDesc").val()) > 500) {
+                    errorMsg += "<=pipelineMsg3>Desc<=pipelineMsg6>\n";
+                }
+            }
+            if ($("#SaveActualFinishType").combobox('getValue') == 'near') {
+                if ($("#SaveActualFinish").val() == "" || $("#SaveActualFinishScales").combobox('getValue') == "") {
+                    errorMsg += "ActualFinish<=pipelineMsg4>\n";
+                }
+            }
+            if (errorMsg != "") {
+                alert(errorMsg);
+                return;
+            }
+
+            var str = GetParam();
+            str += "&SaveName=" + $("#SaveName").val();
+            str += "&SaveDesc=" + $("#SaveDesc").val();
+            str += "&SaveActualFinishType=" + $("#SaveActualFinishType").combobox('getValue');
+            str += "&SaveActualFinish=" + $("#SaveActualFinish").val();
+            str += "&SaveActualFinishScales=" + $("#SaveActualFinishScales").combobox('getValue');
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("PipelineSaveSettingCheck", "Reports")',
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.flg) {
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("TicketSaveSetting", "Reports")',
+                            data: str,
+                            dataType: 'json',
+                            cache: false,
+                            success: function (result) {
+                                if (result.flg) {
+                                    $("#saveSetting").dialog("close");
+                                } else {
+                                    alert("<=SaveError>");
+                                }
+                            }
+                        });
+                    } else {
+                        alert("<=pipelineMsg5>");
+                    }
+                }
+            });
+
+
+        }
+        //取得字符长度（可以区分全角半角）
+        function getByteLen(val) {
+            var len = 0;
+            for (var i = 0; i < val.length; i++) {
+                if (val[i].match(/[^\x00-\xff]/ig) != null) //全角 
+                    len += 2;
+                else
+                    len += 1;
+            }
+            return len;
+        }
+       
+    </script>
+}
+<div class="column_search">
+    <form id="frmSearch" name="frmSearch">
+    <h3 class="column_title">
+        <=Search></h3>
+        <table class="table">
+            <tr>
+              
+                <td class="title">ActualFinish:</td>
+                <td>
+                    <span class="textbox" style="width: 138px; height: 20px;">
+                        <input id="ActualFinish" class="textbox-text Wdate dateControlYM" tabindex="1" onclick='showDate()' style=" width: 130px;"/>
+                    </span>
+                </td>
+               <td class="title">TO:</td>
+                <td>
+                    <span class="textbox" style="width: 138px; height: 20px;">
+                        <input id="ActualFinishTO" class="textbox-text Wdate dateControlYM" tabindex="2" onclick='showDate()' style=" width: 130px;"/>
+                    </span>
+                </td>
+
+                <td class="title"> TRT:</td>                   
+                <td>
+                     <input id="slachecked" type="checkbox" value="Exceed SLA" />Exceed SLA
+                </td>                  
+                </tr>
+
+                    <tr>
+                          <td class="title">Model:</td>
+                <td>
+                    <input id="Model" class="easyui-combobox" name="dept" style="width:140px;"/>   
+                </td>
+
+                  <td class="title"><=ticketMsg2>:</td>
+                <td>            
+                    <input id="linechartscale" class="easyui-combobox" name="dept" style="width:140px;"/>   
+                </td>
+
+                  <td class="title">X:</td>
+                <td>
+                    <input id="Xline" class="easyui-combotree" style="width:140px;" />
+                  </td>
+              </tr>
+
+                <tr>
+               
+                   <td class="title">X2:</td>
+                <td>
+                    <input id="XlineT" class="easyui-combotree" disabled="disabled" editable="false" style="width:140px;" />
+                </td>
+                 <td class="title">Y:</td>
+                <td>                   
+@*                <select id="Yline" class="easyui-combobox" name="dept" style="width:140px;" editable="false">  
+                    <option value="Ticket#">Ticket#</option> 
+                    <option value="AvgTime">AvgTime</option>
+                </select>*@
+                    <input id="Yline" class="easyui-combobox" name="Yline" style="width:140px;"/>   
+                </td>
+            </tr>
+        </table>
+
+        <div class="btn_bar">
+     
+      <input type="button" class="button" id="btnSearch" value="<=Search>" onclick="search();"/>
+      <input type="button" class="button" id="btnReset" value="<=Reset>" tabindex="6" onclick="resetval();" />   
+      <input type="button" class="button" id="btnSaveSetting" value="<=SaveSetting>" tabindex="7" onclick="SaveSetting();"/>
+    </div>
+
+    </form>
+</div>
+
+<div id="formDiv">
+</div>
+<div id="saveSetting" class="column_edit" closed="true">
+    <div class="column_search">
+        <form id="frmDetail" name="frmDetail">
+            <table class="table">
+                <tr>
+                    <td class="title">
+                        Name
+                    </td>
+                    <td colspan="3">
+                        <input id="SaveName" class="easyui-textbox" style="width: 300px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        Desc
+                    </td>
+                    <td colspan="3">
+                        <input id="SaveDesc" class="easyui-textbox" style="width: 300px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        ActualFinish
+                    </td>
+                    <td>
+                        <input id="SaveActualFinishType" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveActualFinish" class="easyui-numberbox" data-options="min:0,precision:0" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveActualFinishScales" style="width: 80px"/>
+                    </td>
+                </tr>
+            </table>
+            <div class="btn_bar">
+                <input type="button" class="button" id="btnSave" value="<=Save>" onclick="Save();"/>
+                <input type="button" class="button" id="btnResetSave" value="<=Reset>" onclick="ResetSave();"/>
+            </div>
+        </form>
+    </div>
+</div>

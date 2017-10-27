@@ -1,0 +1,703 @@
+﻿@using FrogDashboard.Domain.SysManagement;
+@model FrogDashboard.Domain.SysManagement.SysRole
+@{
+    var orgName = (@Model.SysOrganization == null ? "" : @Model.SysOrganization.OrganizationName);
+    var isInOrg = (@Model.SysOrganization == null ? true : @Model.SysOrganization.IsInterior);
+    ViewBag.Title = "<=RoleInfo>";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <link rel="stylesheet" href="@Url.Content("~/Scripts/jquery.treeview/jquery.treeview.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Scripts/jquery.treeview/demo/screen.css")" />
+    <script src="@Url.Content("~/Scripts/jquery.treeview/jquery.treeview.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery.treeview/jquery.treeview.async.js")" type="text/javascript"></script>
+    <script type="text/javascript" language="javascript">
+        var _SysRoleId = "@Model.SysRoleId";
+        var _isInOrg = "@isInOrg";
+        var _selMenuId = "";
+        var _inputTag;
+        var tab;
+        $(function () {
+
+            tab = $("ul.tabs").tabs("div.panes > div");
+
+            $("#dialog:ui-dialog").dialog("destroy");
+            $("#dialog-SelectUser").dialog({
+                height: 330,
+                width: 520,
+                modal: true,
+                title: "<=SelectUser>",
+                autoOpen: false
+            });
+            $("#dialog-SelectOrg").dialog({
+                height: 330,
+                width: 250,
+                modal: true,
+                title: "<=SelectOrganization>",
+                autoOpen: false
+            });
+            $("#btnSearchUser").click(function () {
+                var url = '@Url.Action("GetSysUserDataByRole", "MastessrData")';
+                url += "/?" + $("#frmSelectUser").serialize();
+                $('#tblSysUser').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+            });
+            $("#btnResetUser").click(function () {
+                $("#txtUserCodeSearch").val("");
+                $("#txtUserNameSearch").val("");
+            });
+
+            $("#frmRoleEdit").validate({
+                rules: {
+                    RoleCode: {
+                        required: true
+                    },
+                    RoleName: {
+                        required: true
+                    },
+                    OrganizationName: {
+                        required: true
+                    }
+                },
+                messages: {
+                    RoleCode: {
+                        required: "<=RoleCodeNotNull>"
+                    },
+                    RoleName: {
+                        required: "<=RoleNameNotNull>"
+                    }
+                    //,
+                    //OrganizationName: {
+                    //    required: "<=OrganizationNameNotNull>"
+                    //}
+                }
+            });
+            $("#btnSave").click(function () {
+                if ($("#txtRoleName").val() == "Administrator" && $("#txtRoleCode").val() != "1")
+                {
+                    alert("<=AdminOnlyOne>");
+                    return;
+                }
+
+                var str = $("#frmRoleEdit").serialize();
+                str += "&SysRoleId=" + _SysRoleId;
+                if (!$('form[name=frmRoleEdit]').valid()) {
+                    CheckFormMessage();
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveSysRole", "MasterData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        alert(result.Msg);
+                        if (result.Success) {
+                            window.parent.reloadGrid();
+                            _SysRoleId = result.RoleId;
+                            _isInOrg = result.IsInOrg;
+                            initForm();
+                        }
+                    }
+                })
+            });
+            var initForm = function () {
+                if (_SysRoleId == "") {
+                    $("#txtRoleCode").removeAttr("disabled");
+                    $("#txtRoleName").removeAttr("disabled");
+                    $("#txtRoleCode").focus();
+                    $("input[type='button']").attr("disabled", "disabled");
+                }
+                else {
+                    $("#txtRoleCode").attr("disabled", "disabled");
+                    if ($("#txtRoleName").val() == "Administrator") {
+                        $("#txtRoleName").attr("disabled", "disabled");
+                        $("#txtRemarks").attr("disabled", "disabled");
+                    }
+                    $("#txtRoleName").focus();
+                    $("input[type='button']").removeAttr("disabled");
+                }
+                $("#btnSave").removeAttr("disabled");
+                $("#dialog-SelectOrg input[type='button']").removeAttr("disabled");
+
+            }
+            initForm();
+        })
+    </script>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            $("#tblSysUserRole").jqGrid({
+                url: '@Url.Action("GetSysUserRoleData", "MasterData")' + "/?sysRoleId=" + _SysRoleId,
+                datatype: "json",
+                mtype: 'POST',
+                height: 120,
+                colNames: ['SysUserRoleId', 'SysRoleId', 'SysUserId', '<=UserCode>', '<=UserName>'],
+                colModel: [
+                 { name: 'SysUserRoleId', index: 'SysUserRoleId', hidden: true },
+                 { name: 'SysRoleId', index: 'SysRoleId', hidden: true },
+                 { name: 'SysUserId', index: 'SysUserId', hidden: true },
+                 { name: 'UserCode', index: 'UserCode', sortable: false },
+                 { name: 'UserName', index: 'UserName', sortable: false },
+                 ],
+                pager: 1,
+                rowNum: 0,
+                sortname: 'SysUserRoleId',
+                sortorder: "desc",
+                rownumbers: true, //显示行号
+                //列宽
+                shrinkToFit: false,
+                autowidth: true,
+                viewrecords: true,
+                sortable: false,
+                width: "100%",
+                pager: $('#divPager'),
+                rowNum: 15,
+                rowList: [15, 20, 50, 100],
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                //caption: ' ',
+                closeAfterAdd: false
+            });
+            $("#btnNewUser").click(function () {
+                $("#dialog-SelectUser").dialog("open");
+                $("#tblSysUser").jqGrid({
+                    url: '@Url.Action("GetSysUserDataByRole", "MasterData")',
+                    datatype: "json",
+                    mtype: 'POST',
+                    height: 140,
+                    colNames: ['SN', 'SysUserId', '<=UserCode>', '<=UserName>'],
+                    colModel: [
+                     { name: 'Id', index: 'Id', width: 50, align: 'left', sortable: false },
+                     { name: 'SysUserId', index: 'SysUserId', hidden: true },
+                     { name: 'UserCode', index: 'UserCode', sortable: false },
+                     { name: 'UserName', index: 'UserName', sortable: false },
+                     ],
+                    pager: 1,
+                    rowNum: 0,
+                    sortname: 'SysUserId',
+                    sortorder: "desc",
+                    //列宽
+                    shrinkToFit: false,
+                    autowidth: true,
+                    viewrecords: true,
+                    sortable: false,
+                    multiselect: true,
+                    width: "100%",
+                    pager: $('#userPager'),
+                    rowNum: 15,
+                    rowList: [15, 20, 50, 100],
+                    imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                    //caption: ' ',
+                    closeAfterAdd: false
+                });
+            });
+            $("#btnDeleteUser").click(function () {
+                var id = $('#tblSysUserRole').jqGrid('getGridParam', 'selrow');
+                if (id == null) {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+                if (!confirm("<=SureDelete>")) return false;
+                var str = "SysUserRoleId=" + $('#tblSysUserRole').getCell(id, 'SysUserRoleId');
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteSysUserRole", "MasterData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        alert(result.Msg);
+                        if (result.Success)
+                            $("#tblSysUserRole").setGridParam({
+                                url: '@Url.Action("GetSysUserRoleData", "MasterData")' + "/?sysRoleId=" + _SysRoleId
+                            }).trigger("reloadGrid");
+                    }
+                })
+            });
+            $("#btnSaveUser").click(function () {
+                var bsuc = false;
+                var id = $('#tblSysUser').jqGrid('getGridParam', 'selarrrow');
+                if (id.length < 1) {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+                $.each(id, function (i, v) {
+                    var userId = $('#tblSysUser').getCell(v, 'SysUserId');
+                    var arrIds = $('#tblSysUserRole').getDataIDs();
+                    if (arrIds.length > 0) {
+                        $.each(arrIds, function (b, s) {
+                            var tmpId = $('#tblSysUserRole').getCell(s, 'SysUserId');
+                            if (tmpId == userId) {
+                                userId = "";
+                            }
+                        });
+                    }
+                    if (userId != "") {
+                        var str = { SysRoleId: _SysRoleId, SysUserId: userId };
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("SaveSysUserRole", "MasterData")',
+                            data: str,
+                            dataType: 'json',
+                            async: false,
+                            cache: false,
+                            success: function (result) {
+                                if (result.Success) {
+                                    bsuc = true;
+                                }
+                            }
+                        })
+                    }
+                });
+                if (bsuc) {
+                    $("#tblSysUserRole").setGridParam({
+                        url: '@Url.Action("GetSysUserRoleData", "MasterData")' + "/?sysRoleId=" + _SysRoleId
+                    }).trigger("reloadGrid");
+                }
+                $("#dialog-SelectUser").dialog("close");
+            });
+        })
+    </script>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            $("#tblSysRoleFunction").jqGrid({
+                datatype: "json",
+                mtype: 'POST',
+                height: 150,
+                colNames: ['SysRoleFunctionId', '<=Assign>', 'SysFunctionId', '<=FunctionName>', '<=ActionName>', '<=ControllerName>'],
+                colModel: [
+                 { name: 'SysRoleFunctionId', index: 'SysRoleFunctionId', hidden: true },
+                 { name: 'Assign', index: 'Assign', width: 50, sortable: false },
+                 { name: 'SysFunctionId', index: 'SysFunctionId', hidden: true },
+                 { name: 'FunctionName', index: 'FunctionName', sortable: false },
+                 { name: 'ActionName', index: 'ActionName', sortable: false },
+                 { name: 'ControllerName', index: 'ControllerName', sortable: false },
+                 ],
+                sortname: 'Id',
+                sortorder: "desc",
+                //列宽
+                shrinkToFit: false,
+                autowidth: true,
+                viewrecords: true,
+                sortable: false,
+                width: "100%",
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images'
+            });
+
+            $("#btnSetRoleFunction").click(function () {
+                if (_SysRoleId == "") {
+                    alert("<=PleaseSaveRole>");
+                    return;
+                }
+                var selCount = 0;
+                var str = "Count=" + $("#tblSysRoleFunction tr").length;
+                str += "&SysRoleId=" + _SysRoleId;
+                str += "&MenuId=" + _selMenuId;
+                alert(str);
+                $.each($("#tblSysRoleFunction tr"), function (i, v) {
+                    str += "&SysRoleFunctionId" + i + "=" + $(v).find("td:eq(0)").text();
+                    str += "&Assign" + i + "=" + ($(v).find("td:eq(1)").find("input[type=checkbox]").attr("checked") == true ? "True" : "False");
+                    str += "&SysFunctionId" + i + "=" + $(v).find("td:eq(2)").text();
+                    selCount++;
+                })
+
+                if (selCount == 0) {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveSysRoleFunction", "MasterData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        alert(result.Msg);
+                        if (result.Success) {
+                            $("#tblSysRoleFunction").jqGrid("clearGridData");
+                            editFunc(_selMenuId);
+                        }
+                    }
+                })
+            });
+        })
+    </script>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            $("#tblSysDataAuth").jqGrid({
+                datatype: "json",
+                mtype: 'POST',
+                height: 120,
+                colNames: ['SysDataAuthId', 'SysRoleId', '<=RoleName>', 'SysOrganizationId', '<=OrganizationName>'],
+                colModel: [
+                 { name: 'SysDataAuthId', index: 'SysDataAuthId', hidden: true },
+                 { name: 'SysRoleId', index: 'SysRoleId', hidden: true },
+                 { name: 'RoleName', index: 'RoleName', width: 100, sortable: false },
+                 { name: 'SysOrganizationId', index: 'SysOrganizationId', hidden: true },
+                 { name: 'OrganizationName', index: 'OrganizationName', width: 180, sortable: false },
+                 ],
+                sortname: 'SysDataAuthId',
+                sortorder: "desc",
+                //列宽
+                shrinkToFit: false,
+                autowidth: true,
+                viewrecords: true,
+                sortable: false,
+                width: "100%",
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images'
+            });
+
+            $("#btnNewDataAuth").click(function () {
+              
+                var roleName = $("#txtRoleName").val();
+                var rows = $("#tblSysDataAuth tr").length;
+                var newRowData = {
+                    SysDataAuthId: "",
+                    SysRoleId: _SysRoleId,
+                    RoleName: roleName,
+                    SysOrganizationId: $("<input style='width:100%' type='text' />").attr("value", ""),
+                    OrganizationName: $("<input ondblclick='selOrg(this)' style='width:100%' type='text' readonly />").attr("value", "")
+                }
+                $("#tblSysDataAuth").addRowData(rows, newRowData);
+            });
+
+            $("#btnSaveDataAuth").click(function () {
+                if (_SysRoleId == "") {
+                    alert("<=PleaseSaveRole>");
+                    return;
+                }
+                var errFlag = false;
+                var str = "Count=" + $("#tblSysDataAuth tr").length;
+                $.each($("#tblSysDataAuth tr"), function (i, v) {
+                    if ($(v).find("td:eq(3)").find('input').val() == "") errFlag = true;
+                    str += "&SysDataAuthId" + i + "=" + $(v).find("td:eq(0)").text();
+                    str += "&SysRoleId" + i + "=" + _SysRoleId;
+                    str += "&SysOrganizationId" + i + "=" + $(v).find("td:eq(3)").find('input').val();
+                });
+                if (errFlag) {
+                    alert("<=OrgOfDataAuthNotNull>");
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveSysDataAuth", "MasterData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        alert(result.Msg);
+                        if (result.Success) {
+                            $("#tblSysDataAuth").jqGrid("clearGridData");
+                            $('#tblSysDataAuth').setGridParam({ url: '', page: 1 }).trigger("reloadGrid");
+                            editAuth(_SysRoleId);
+                        }
+                    }
+                })
+            });
+
+            $("#btnDeleteDataAuth").click(function () {
+                var id = $('#tblSysDataAuth').jqGrid('getGridParam', 'selrow');
+                var authId = $('#tblSysDataAuth').getCell(id, 'SysDataAuthId');
+                if (id == null) {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+                if (!confirm("<=SureDelete>")) return false;
+                if (authId == "") {
+                    $('#tblSysDataAuth').jqGrid('delRowData', id);
+                    alert("<=DeleteSuccess>");
+                    return;
+                }
+
+                var str = "SysDataAuthId=" + authId;
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteSysDataAuth", "MasterData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        alert(result.Msg);
+                        $("#tblSysDataAuth").jqGrid("clearGridData");
+                        editAuth(_SysRoleId);
+                    }
+                })
+            });
+
+            var editAuth = function (id) {
+                $.getJSON('@Url.Action("GetSysDataAuthData", "MasterData")', { sysRoleId: id, r: Math.random() }, function (jsonData) {
+                    $.each(jsonData, function (i, v) {
+                        var rows = $("#tblSysDataAuth tr").length;
+                        var newRowData = {
+                            SysDataAuthId: v.SysDataAuthId,
+                            SysRoleId: v.SysRoleId,
+                            RoleName: v.RoleName,
+                            SysOrganizationId: $("<input style='width:100%' type='text' />").attr("value", v.SysOrganizationId),
+                            OrganizationName: $("<input ondblclick='selOrg(this)' style='width:100%' type='text' readonly/>").attr("value", v.OrganizationName)
+                        }
+                        $("#tblSysDataAuth").addRowData(rows, newRowData);
+                    });
+                });
+            }
+            editAuth(_SysRoleId);
+        })
+    </script>
+    <script type="text/javascript">
+        var _selBranch = null;
+        function initTrees() {
+            $("#mixed").treeview({
+                url: '@Url.Action("FunctionTree", "MasterData")' + "/?r" + Math.random(),
+                ajax: {
+                    depth: 0,
+                    type: "post"
+                },
+                clickEvent: function (obj) {
+                    if (obj == null) return;
+                    _selBranch = $(obj);
+                    var parent = _selBranch.parent()
+                    if (parent.attr("depth") == 2)
+                        initForm(parent.attr("id"));
+                }
+            });
+        }
+
+        var editFunc = function (id) {
+            $.getJSON('@Url.Action("GetSysRoleFunctionData", "MasterData")', { ParentId: id, sysRoleId: _SysRoleId, r: Math.random() }, function (jsonData) {
+                $.each(jsonData, function (i, v) {
+                    var rows = $("#tblSysRoleFunction tr").length;
+                    var sCheckBox = (v.Assign == "" ? $("<input type='checkbox' />").attr("checked", "") : $("<input type='checkbox' />").attr("checked", "checked"));
+                    var newRowData = {
+                        SysRoleFunctionId: v.SysRoleFunctionId,
+                        Assign: sCheckBox,
+                        SysFunctionId: v.SysFunctionId,
+                        FunctionName: v.FunctionName,
+                        ActionName: v.ActionName,
+                        ControllerName: v.ControllerName
+                    }
+                    $("#tblSysRoleFunction").addRowData(rows, newRowData);
+                });
+            });
+        }
+
+        function initForm(id) {
+            $("#tblSysRoleFunction").jqGrid("clearGridData");
+            editFunc(id);
+            _selMenuId = id;
+        }
+
+        $(function () {
+            initTrees();
+        });
+    </script>
+    <script type="text/javascript">
+        var _orgBranch = null;
+        function OrgTrees(tid) {
+            $("#OrgMixed").treeview({
+                url: '@Url.Action("InitOrgTree", "MasterData")' + "/?r" + Math.random() + "&sysRoleId=" + tid,
+                ajax: {
+                    depth: 0,
+                    type: "post"
+                },
+                clickEvent: function (obj) {
+                    if (obj == null) return;
+                    _orgBranch = $(obj);
+                }
+            });
+        }
+        var selOrg = function (obj) {
+            _inputTag = $(obj);
+            $("#dialog-SelectOrg").dialog("open");
+            refreshOrg();
+            OrgTrees(_SysRoleId);
+        }
+        var selFn = function (obj) {
+            if (_isInOrg == "True" || _inputTag.attr("id") == "txtOrganizationName") {
+                _orgBranch = $(obj);
+                $("#OrgMixed").find("li>span").css('color', 'black');
+                $(obj).css('color', 'Red');
+            }
+        }
+        var refreshOrg = function () {
+            _orgBranch = null;
+            $("#OrgMixed").remove();
+            $('<ul id="OrgMixed"><li id="0" class="hasChildren" depth="0"><span onclick="selFn(this);">DPTS</span><ul><li><span class="placeholder">&nbsp;</span></li></ul></li></ul>').appendTo("#OrgTree");
+        }
+        $(function () {
+            $("#btnRefreshOrg").click(function () {
+                var tmpid = _inputTag.attr("id") == "txtOrganizationName" ? "" : _SysRoleId;
+                refreshOrg();
+                OrgTrees(tmpid);
+            });
+            $("#btnSelectOrg").click(function () {
+                if (_orgBranch != null) {
+                    if (_inputTag.attr("id") == "txtOrganizationName") {
+                        $("#txtSysOrganizationId").val(_orgBranch.parent().attr("id"));
+                        $("#txtOrganizationName").val(_orgBranch.text());
+                    }
+                    else {
+                        $(_inputTag).val(_orgBranch.text());
+                        $(_inputTag).parent().parent().find('td:eq(3)').find('input').val(_orgBranch.parent().attr("id"));
+                    }
+                }
+                $("#dialog-SelectOrg").dialog("close");
+            });
+            $("#txtOrganizationName").dblclick(function () {
+                _inputTag = $("#txtOrganizationName");
+                $("#dialog-SelectOrg").dialog("open");
+                refreshOrg();
+                OrgTrees("");
+            });
+        });
+    </script>
+}
+<div class="column_edit">
+    <form id="frmRoleEdit" name="frmRoleEdit">
+    <div class="btn_bar">
+        <input type="button" id="btnSave" class="button" value="<=Save>" tabindex="5" />
+    </div>
+    <hr />
+    <table class="table" border="0" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="title">
+                <=RoleCode>*
+            </td>
+            <td>
+                <input type="text" id="txtRoleCode" class="text" name="RoleCode" value ="@Model.RoleCode" maxlength="200" tabindex="1" style="width:80px" />
+            </td>
+            <td class="title">
+                <=RoleName>*
+            </td>
+            <td>
+                <input type="text" id="txtRoleName" class="text" name="RoleName" value ="@Model.RoleName" maxlength="200" tabindex="2" style="width:80px" />
+            </td>
+@*            <td class="title">
+                <=OrganizationName>*
+            </td>
+            <td>
+                <input type="text" id="txtOrganizationName" class="text" name="OrganizationName" value="@orgName" tabindex="3" readonly="readonly"/>
+                <input type="hidden" id="txtSysOrganizationId" class="text" name="SysOrganizationId" value="@Model.SysOrganizationId" />
+            </td>*@
+            <td class="title">
+                <=Remark>
+            </td>
+            <td>
+                <input type="text" id="txtRemarks" class="text" name="Remarks" value ="@Model.Remarks" maxlength="500" tabindex="4" style="width:200px" />
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>
+<br />
+<div id="frmDetail">
+    <ul class="tabs">
+        <li><a href="#first"><=User></a></li>
+        <li><a href="#second"><=FunctionAuth></a></li>
+        <li style="display:none;"><a href="#third"><=DataAuth></a></li>
+    </ul>
+    <div class="panes">
+        <div id="tab_RoleUser" class="column_search">
+            <form id="frmSysUserRole" name="frmSysUserRole">
+            <div class="btn_bar">
+                <input type="button" id="btnNewUser" class="button" value="<=Add>" tabindex="6" />
+                <input type="button" id="btnDeleteUser" class="button" value="<=Delete>" tabindex="7" />
+            </div>
+            </form>
+            <div class="column_grid ">
+                <table id="tblSysUserRole">
+                </table>
+                <div id="divPager">
+                </div>
+            </div>
+        </div>
+        <div id="tab_RoleFunction">
+            <table border="0">
+                <tr>
+                    <td valign="top" style="width: 200px">
+                        <div id="tree" class="tree" style="height: 218px;">
+                            <ul id="mixed">
+                                <li id="v" class="hasChildren" depth="0"><span><=MenuTree></span>
+                                    <ul>
+                                        <li><span class="placeholder">&nbsp;</span></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td valign="top">
+                        <div class="column_search">
+                            <form id="frmSysRoleFunction" name="frmRoleFunction">
+                            <div class="btn_bar">
+                                <input type="button" id="btnSetRoleFunction" class="button" value="<=Set>" tabindex="8" />
+                            </div>
+                            </form>
+                        </div>
+                        <div class="column_grid">
+                            <table id="tblSysRoleFunction">
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="tab_DataAuth" class="column_edit">
+            <form id="frmSysDataAuth" name="frmSysDataAuth">
+            <div class="btn_bar">
+                <input type="button" id="btnNewDataAuth" class="button" value="<=Add>" tabindex="9" />
+                <input type="button" id="btnSaveDataAuth" class="button" value="<=Save>" tabindex="10" />
+                <input type="button" id="btnDeleteDataAuth" class="button" value="<=Delete>" tabindex="11" />
+            </div>
+            </form>
+            <div class="column_grid">
+                <table id="tblSysDataAuth">
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dialog-SelectUser" class="column_search">
+    <form id="frmSelectUser" name="frmSelectUser">
+    <table class='table' border="0">
+        <tr>
+            <td class="title">
+                <=UserCode>
+            </td>
+            <td>
+                <input type="text" id="txtUserCodeSearch" class="text" name="UserCode" style="width: 100px" />
+            </td>
+            <td class="title">
+                <=UserName>
+            </td>
+            <td>
+                <input type="text" id="txtUserNameSearch" class="text" name="UserName" style="width: 100px" />
+            </td>
+        </tr>
+    </table>
+    <div class="btn_bar">
+        <input type="button" id="btnSearchUser" class="button" value="<=Search>" />
+        <input type="button" id="btnResetUser" class="button" value="<=Reset>" />&nbsp;&nbsp;
+        <input type="button" id="btnSaveUser" class="button" value="<=Select>" />
+    </div>
+    </form>
+    <div class="column_grid">
+        <table id="tblSysUser">
+        </table>
+        <div id="userPager">
+        </div>
+    </div>
+</div>
+<div id="dialog-SelectOrg">
+    <div class="btn_bar">
+        <input type="button" id="btnSelectOrg" class="button" value="<=Select>" />
+        <input type="button" id="btnRefreshOrg" class="button" value="<=Refresh>" />
+    </div>
+    <div id="OrgTree">
+        <ul id="OrgMixed">
+            <li id="0" class="hasChildren" depth="0"><span onclick='selFn(this);'>DPTS</span>
+                <ul>
+                    <li><span class="placeholder">&nbsp;</span></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>

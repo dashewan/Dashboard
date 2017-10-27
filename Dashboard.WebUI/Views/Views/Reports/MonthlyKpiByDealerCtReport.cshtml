@@ -1,0 +1,167 @@
+﻿@using FrogDashboard.Core.Utility;
+@using FrogDashboard.Authentication.HtmlExtension;
+@{
+    ViewBag.Title = "AllDataFormReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script type="text/javascript">
+        var adjustmentType = "Montly KPI by Dealer by CT";
+    </script>
+    @Html.Partial("ReportPartial")
+    <script type="text/javascript">
+        $(function () {
+            $("#frmSearch").validate({
+                rules: {
+                    TimePeriod: {
+                        required: true
+                    },
+                    FromDate: {
+                        required: true
+                    },
+                    ToDate: {
+                        required: true
+                    }
+                },
+                messages: {
+                    TimePeriod: {
+                        required: "<=TimePeriodIsRequired>"
+                    },
+                    FromDate: {
+                        required: "<=FromDateIsRequired>"
+                    },
+                    ToDate: {
+                        required: "<=ToDateIsRequired>"
+                    }
+                }
+            });
+
+            $("#btnMonthlyKpiByDealerCtExport").click(function () {
+                if (!$('form[name=frmSearch]').valid()) {
+                    CheckFormMessage();
+                    return;
+                }
+                var startDate = $("#txtFromDate").val();
+                var endDate = $("#txtToDate").val();
+                if (!validDate(startDate, endDate)) {
+                    return;
+                }
+                if (!confirm("<=ExportConfirm>"))
+                    return false;
+                var str = $("#frmSearch").serialize();
+                str += "&DG=" + ($("#cbDG").attr("checked") ? "1" : "0");
+                PageLock();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("MonthlyKpiByDealerCtExport", "Reports")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        PageUnLock();
+                        if (result.Success) {
+                            var url = '@Url.Action("MonthlyKpiByDealerCtDownload", "Reports")'
+                            url += "/?" + "FileName=" + result.FileName;
+                            window.location.href = url;
+                        } else {
+                            alert(result.msg);
+                        }
+                    },
+                    error: function () {
+                        PageUnLock();
+                    }
+                });
+            });
+        });
+    </script>
+}
+<div class="column_search">
+    <form id="frmSearch" name="frmSearch" action="">
+    <h3 class="column_title">
+        <=Search></h3>
+    <table class="table">
+        <tr>
+            <td class="title">
+                <=TimePeriod>*
+            </td>
+            <td>
+                <select id='selTimePeriod' class="select" name="TimePeriod">
+                    <option value='TN Print Time'>TN Print Time</option>
+                    <option value='Supervisor Confirm Time'>Supervisor Confirm Time</option>
+                    <option value='Receiving Time'>Receiving Time</option>
+                </select>
+            </td>
+            <td class="title">
+                <=FromDate>*
+            </td>
+            <td>
+                @Html.DatePicker("FromDate", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtFromDate" } }, "dateFmt: 'yyyy-MM-dd'")
+            </td>
+            <td class="title">
+                <=ToDate>*
+            </td>
+            <td>
+                @Html.DatePicker("ToDate", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtToDate" } }, "dateFmt: 'yyyy-MM-dd'")
+            </td>
+            <td class="title">
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td class="title">
+                <=Shipper>
+            </td>
+            <td>
+                <input type="text" class="text" id="txtShipper" name="PDC" readonly="readonly" />
+            </td>
+            <td class="title">
+                <=Forwarder>
+            </td>
+            <td>
+                <input type="text" class="text" id="txtForwarder" name="Forwarder" readonly="readonly" />
+            </td>
+            <td class="title">
+                <=DealerType>
+            </td>
+            <td>
+                <input type="text" class="text" id="txtDealerType" name="DealerType" value="PC" readonly="readonly" />
+            </td>
+        </tr>
+        <tr>
+            <td class="title">
+                <=Consignee>
+            </td>
+            <td>
+                <input type="text" class="text" id="txtConsignee" name="Consignee" readonly="readonly" />
+            </td>
+            <td class="title">
+                <=TransportMode>
+            </td>
+            <td>
+                <input type="text" class="text" id="txtTransportMode" name="TransportMode" readonly="readonly" />
+            </td>
+            <td class="title">
+                <=TransportType>
+            </td>
+            <td>
+                <input type="text" class="text" id="txtTransportType" name="TransportType" readonly="readonly" />
+            </td>
+        </tr>
+    </table>
+    <div class="column_edit">
+        <div class="btn_bar">
+            @Html.GenerateButton("Reports", "MonthlyKpiByDealerCtExport", "btnMonthlyKpiByDealerCtExport", "<=MonthlyKpiByDealerCtExport>")
+            @Html.GenerateButton("Reports", "MonthlyKpiByDealerCtImport", "btnAdjustmentTableImport", "<=Import>")
+            <input type="button" class="button" id="btnAdjustmentTableTemplate" value="<=Template>" />
+            <input type="reset" class="button" id="btnReset" value="<=Reset>" />
+        </div>
+    </div>
+    </form>
+</div>
+<div class="column_grid">
+    <table id="tblBasAdjustmentTable">
+    </table>
+    <div id="divPager">
+    </div>
+</div>

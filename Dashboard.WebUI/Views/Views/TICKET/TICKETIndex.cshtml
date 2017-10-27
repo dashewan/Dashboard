@@ -1,0 +1,470 @@
+﻿@using FrogDashboard.Domain.SysManagement;
+@using FrogDashboard.Core.Utility;
+@using FrogDashboard.Authentication.HtmlExtension;
+@using FrogDashboard.Domain.Models.TICKET;
+@using FrogDashboard.Domain.MasterData;
+@{
+    ViewBag.Title = "<=TICKETManage>";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Head{
+    <script src="@Url.Content("~/Scripts/jquery.easyui/jquery.easyui.min-1.4.2.js")" type="text/javascript"></script>
+    <link href="@Url.Content("~/Scripts/jquery.easyui/easyui.css")" rel="stylesheet" type="text/css" media="screen" />
+    <link href="@Url.Content("~/Scripts/jquery.easyui/icon.css")" rel="stylesheet" type="text/css" media="screen" />
+    <style type="text/css">
+        .dateControlYM {
+            margin-left: 0px;
+            margin-right: 0px; 
+            padding-top: 3px; 
+            padding-bottom: 3px;
+        }
+        input::-ms-clear { display: none; } 
+    </style>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            var _SysFunctionId = "";
+            $("#txtTICKETIDSearch").focus();
+            $("#tblFunction").jqGrid({
+                datatype: "json",
+                mtype: 'POST',
+                height: getBrowserWidthHeight().height - 200,
+                colNames: ['ID', '<=TRT>', '<=CountryCode>', '<=Service>', '<=ActualStart>', '<=ActualFinish>', '<=TOPerson>', '<=PRIORITY>', '<=Reason>'],
+                colModel: [
+                 { name: 'ID', index: 'ID', hidden: true },
+                 { name: 'TRT', index: 'TRT' },
+                 { name: 'CountryCode', index: 'CountryCode' },
+                 { name: 'Service', index: 'Service' },
+                 { name: 'ActualStart', index: 'ActualStart' },
+                 { name: 'ActualFinish', index: 'ActualFinish' },
+                 { name: 'TOPerson', index: 'TOPerson' },
+                 { name: 'PRIORITY', index: 'PRIORITY', sortable: false, width: 100 },
+                 { name: 'Reason', index: 'Reason', sortable: false, width: 400 },
+                ],
+                pager: 1,
+                rowNum: 0,
+                sortname: 'ID',
+                sortorder: "desc",
+                rownumbers: true, //显示行号
+                //列宽
+                shrinkToFit: false,
+                autowidth: true,
+                viewrecords: true,
+                sortable: true,
+                width: "100%",
+                altRows: true, //隔行变色
+                altclass: 'jqodd', //隔行变色样式
+                pager: $('#divPager'),
+                rowNum: 15,
+                rowList: [15, 20, 50, 100],
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                //caption: ' ',
+                closeAfterAdd: false,
+                onSelectRow: function (id) {
+                    _SysFunctionId = $('#tblFunction').getCell(id, 'ID');
+                }
+                //,
+                //ondblClickRow: function (id) {
+                //    //editFunction(id);
+                //    //initParent();
+                //}
+            });
+
+            $("#btnDelete").click(function () {
+                var id = $('#tblFunction').jqGrid('getGridParam', 'selrow');
+                _SysFunctionId = $('#tblFunction').getCell(id, 'ID');
+
+                if (_SysFunctionId == "") {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+                if (!confirm("<=SureDelete>")) return false;
+
+                var str = "ID=" + _SysFunctionId;
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteTicket", "TICKET")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        alert(result.Msg);
+                        if (result.Success) {
+                            $("#tblFunction").setGridParam({
+                                url: GetGridUrl()
+                            }).trigger("reloadGrid");
+                        }
+                    }
+                })
+            });
+    
+            $("#btnReasonSave").click(function () {
+                if (!$('form[name=frmReason]').valid()) {
+                    CheckFormMessage();
+                    return;
+                }
+                var str = $("#frmReason").serialize();
+
+                str += "&ticketid=" + _SysFunctionId;
+
+                var id = $('#tblFunction').jqGrid('getGridParam', 'selrow');
+                _SysFunctionId = $('#tblFunction').getCell(id, 'ID');
+                var trtid = $('#tblFunction').getCell(id, 'TRT');
+
+                str += "&trtid=" + trtid;
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveTicket", "TICKET")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        alert(result.Msg);
+                        if (result.Success) {
+                            $("#tblFunction").setGridParam({
+                                url: GetGridUrl()
+                            }).trigger("reloadGrid");
+                        }
+                    }
+                })
+            });
+            
+
+            $("#FileImport").dialog({
+                title: '<=Import>',
+                width: 400,
+                height: 100,
+                modal: true
+            })
+
+            $("#dlgReason").dialog({
+                title: '<=Reason>',
+                width: 400,
+                height: 200,
+                modal: true
+            })
+
+
+        })
+    </script>
+
+    <script type="text/javascript">
+        function GetGridUrl() {
+            //alert($("#txtTOPersonSearch").combobox('getText'));
+            var url = '@Url.Action("TicketData", "TICKET")';
+            url += "/?" + $("#frmSearch").serialize();
+            url += "&txtTRTIDSearch=" + $("#txtTRTIDSearch").combobox('getValues');
+            url += "&txtCountryCodeSearch=" + $("#txtCountryCodeSearch").combobox('getValues');
+            url += "&txtServiceSearch=" + $("#txtServiceSearch").combobox('getValues');
+            url += "&txtPRIORITYSearch=" + $("#txtPRIORITYSearch").combobox('getValues');
+            url += "&txtTOPersonSearch=" + $("#txtTOPersonSearch").combobox('getText');
+            url += "&txtReasonSearch=" + $("#txtReasonSearch").combobox('getValues');
+            url += "&txtActualStartSearch=" + $("#txtActualStartSearch").val();
+            url += "&txtActualStartSearchTo=" + $("#txtActualStartSearchTo").val();
+            url += "&txtActualFinishSearch=" + $("#txtActualFinishSearch").val();
+            url += "&txtActualFinishSearchTo=" + $("#txtActualFinishSearchTo").val();
+            return url;
+        }
+
+        function search()
+        {
+            $('#tblFunction').setGridParam({ url: GetGridUrl(), page: 1 }).trigger("reloadGrid");
+        }
+
+        function ImportOK() {
+            var filepath = $("#fileImport").val();
+            if (filepath == "") {
+                alert("<=FirstSelectImport>");
+                return;
+            }
+            var extStart = filepath.lastIndexOf(".");
+            var ext = filepath.substring(extStart, filepath.length).toUpperCase();
+            if (ext != ".XLS" && ext != ".XLSX") {
+                alert("<=FileMustXls>");
+                $("#fileImport").val("");
+                return;
+            }
+            var url = '@Url.Action("ImportTICKETDistance", "TICKET")';
+            $('#frmImport').attr('action', url)
+            $('#frmImport').ajaxSubmit({
+                success: function (result) {
+                    alert(result);
+                    $("#btnSearch").click();
+                    var cloneFile = $("#fileImport").clone();
+                    $("#fileImport").replaceWith(cloneFile);
+                    $("#dlgImport").dialog("close");
+                }
+            });
+        }
+
+        function Cancel() {
+            $("#FileImport").dialog("close");
+        }
+
+        function ReasonClose() {
+            $("#dlgReason").dialog("close");
+        }
+
+        function resetValue() {
+            $("#txtTRTIDSearch").combobox("clear");
+            $("#txtCountryCodeSearch").combobox("clear");
+            $("#txtServiceSearch").combobox("clear");
+            $("#txtPRIORITYSearch").combobox("clear");
+            $("#txtTOPersonSearch").combobox("clear");
+            $("#txtReasonSearch").combobox("clear");
+            $("#txtActualStartSearch").val("");
+            $("#txtActualStartSearchTo").val("");
+            $("#txtActualFinishSearch").val("");
+            $("#txtActualFinishSearchTo").val("");
+            $("#frmSearch")[0].reset();
+
+        }
+     </script>
+  @* //绑定下拉框事件*@
+    <script type="text/javascript">
+        $(function () {
+            $('#txtTRTIDSearch').combobox({
+                url: '@Url.Action("TRTData","TICKET")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            });
+
+            $('#txtCountryCodeSearch').combobox({
+                url: '@Url.Action("CountryCodeData","TICKET")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            });
+
+            $('#txtServiceSearch').combobox({
+                url: '@Url.Action("ServiceData","TICKET")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            });
+
+            $('#txtPRIORITYSearch').combobox({
+                url: '@Url.Action("PRIORITYData","TICKET")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            });
+
+            $('#txtTOPersonSearch').combobox({
+                url: '@Url.Action("TOPersonData","TICKET")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+
+            });
+
+            $('#txtReasonSearch').combobox({
+                url: '@Url.Action("ReasonData","TICKET")',
+                valueField: 'id',
+                textField: 'text',
+                multiple: true
+            })
+        });
+   </script>
+
+   @* 弹出子界面*@
+    <script type="text/javascript">
+        function FileImport()
+        {
+            $("#FileImport").dialog("open");
+        }
+        function showMonth() {
+            WdatePicker({ skin: 'default', dateFmt: 'yyyy-MM' });
+        }
+
+        function showDate() {
+            WdatePicker({ skin: 'default', dateFmt: 'yyyy-MM-dd' });
+        }
+
+        function dlgReason() {
+            var _SysFunctionId = "";
+            var id = $('#tblFunction').jqGrid('getGridParam', 'selrow');
+            _SysFunctionId = $('#tblFunction').getCell(id, 'ID');
+            if (_SysFunctionId == "") {
+                alert("<=SelectOneDate>");
+                return;
+            }
+            $("#dlgReason").dialog("open");
+          
+        }
+    </script>
+}
+
+<div class="column_search">
+    <form id="frmSearch" name="frmSearch">
+    <h3 class="column_title">
+        <=Search></h3>
+    <table class="table">
+        <tr>
+            <td class="title">
+                <=TRT>
+            </td>
+            <td>
+                <input id="txtTRTIDSearch" class="text" name="TRTID" tabindex="1"
+                    style="width: 140px" />&nbsp;
+            </td>
+            
+            <td class="title">
+                <=CountryCode>
+            </td>
+            <td>
+                <input  id="txtCountryCodeSearch" class="text" name="CountryCode"
+                    tabindex="2" style="width: 140px" />&nbsp;
+            </td>
+            <td class="title">
+                <=Service>
+            </td>
+            <td>  
+                <input id="txtServiceSearch" class="text" name="Service" 
+                    tabindex="3" style="width:140px" />
+            </td>
+         
+            <td class="title">
+                <=PRIORITY>
+            </td>
+            <td>    
+                 <input  id="txtPRIORITYSearch" class="text" name="PRIORITY" 
+                    tabindex="3" style="width:140px" />
+            </td>
+               </tr>
+        <tr>
+            <td class="title">
+                <=TOPerson>
+            </td>
+            <td>
+                <input id="txtTOPersonSearch" class="text" name="TOPerson"
+                    tabindex="2" style="width: 140px" />&nbsp;
+            </td>
+
+            <td class="title">
+                <=Reason>
+            </td>
+            <td>
+                <input id="txtReasonSearch" class="text" name="Reason"
+                    tabindex="2" style="width: 140px" />&nbsp;
+            </td>
+          
+             <td class="title">
+                <=ActualStart>
+            </td>
+             <td>
+              <span class="textbox" style="width: 138px; height: 20px;">
+                    <input id="txtActualStartSearch" class="textbox-text Wdate dateControlYM" tabindex="13" onclick='showDate()' style=" width: 130px;" />
+                </span>
+            </td>
+
+            <td class="title">
+                <=To>
+            </td>
+            <td>
+                <span class="textbox" style="width: 138px; height: 20px;">
+                    <input id="txtActualStartSearchTo" class="textbox-text Wdate dateControlYM" tabindex="14" onclick='showDate()' style=" width: 130px;" />
+                </span>
+            </td>
+              </tr>
+
+         <tr>
+             <td class="title">
+                <=ActualFinish>
+            </td>
+           
+              <td>
+              <span class="textbox" style="width: 138px; height: 20px;">
+                    <input id="txtActualFinishSearch" class="textbox-text Wdate dateControlYM" tabindex="13" onclick='showDate()' style=" width: 130px;" />
+                </span>
+            </td>
+
+            <td class="title">
+                <=To>
+            </td>
+            <td>
+                <span class="textbox" style="width: 138px; height: 20px;">
+                    <input id="txtActualFinishSearchTo" class="textbox-text Wdate dateControlYM" tabindex="14" onclick='showDate()' style=" width: 130px;" />
+                </span>
+            </td>
+        </tr>
+    </table>
+    <div class="btn_bar">
+       @* @Html.GenerateButton("MasterData", "GetSysFunctionData", "btnSearch", "<=Search>")*@
+        <input type="button" class="button" id="btnSearch" value="<=Search>" tabindex="5" onclick="search();"/>
+     @*   <input type="button" class="button" id="btnSearch" value="<=Search>" tabindex="5"/>*@
+        <input type="button" class="button" id="btnReset" value="<=Reset>" tabindex="6"  onclick="resetValue();"/>
+        @*@Html.GenerateButton("MasterData", "NewFunctionData", "btnNew", "<=New>")*@
+         <input type="button" class="button" id="btnimport" value="<=Import>" tabindex="7" onclick="FileImport();" />
+       @* <input type="button" class="button" id="btnNew" value="<=New>" tabindex="7" />*@
+        <input type="button" class="button" id="btnDelete" value="<=Delete>" tabindex="8" />
+        <input type="button" class="button" id="btnReason" value="<=Reason>" tabindex="9" onclick="dlgReason();" />
+    </div>
+    </form>
+</div>
+
+<div class="column_grid">
+    <table id="tblFunction" class="table">
+    </table>
+    <div id="divPager">
+    </div>
+</div>
+
+@*导入开始层*@
+<div id="FileImport" class="column_edit"  closed="true">
+<FORM name=frmImport id=frmImport action=/TICKET/ImportTICKETDistance encType=multipart/form-data method=post>
+    <TABLE>
+        <TBODY>
+            <TR>
+                <TD class=title></TD>
+                <TD><INPUT name=fileImport id=fileImport type=file size=60 style="width:350px"> </TD>
+            </TR>
+        </TBODY>
+    </TABLE>
+
+    <DIV class=btn_bar style="FLOAT: right">
+        <INPUT class=button id="btnImportOK" type=button value="<=OK>" onclick="ImportOK();" /> 
+        <INPUT class=button id=btnImportCancel type=button value="<=Cancel>" onclick="Cancel();"/> 
+    </DIV>
+</FORM>
+</div>
+
+@*reason功能页面*@
+<div id="dlgReason" class="column_edit"  closed="true">
+<FORM name=frmReason id=frmReason  encType=multipart/form-data method=post>
+    <TABLE>
+        <TBODY>
+             <tr>
+                    <td class="title">
+                        <=Reason>
+                    </td>
+                    <td>
+                        <select id="selReason" class="select" name="Reason" tabindex="19">
+                            <option value=""></option>
+                         
+                              @foreach (CBasCodeDef itemReason in (List<CBasCodeDef>)ViewBag.Reason)
+                              {
+                                   <option value='@itemReason.CodeValue' >@itemReason.DisplayValue</option>
+                              }
+     
+                        </select>
+                    </td>
+                       
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+
+                </tr>
+        </TBODY>
+    </TABLE>
+
+    <DIV class=btn_bar style="FLOAT: right">
+      @*  <INPUT class=button id="btnReasonSave" type=button value="<=Save>" onclick="ReasonSave();" />    *@
+         <INPUT class=button id="btnReasonSave" type=button value="<=Save>"/>    
+        <INPUT class=button id="btnReasonClose" type=button value="<=Close>"  onclick="ReasonClose();"/>    
+    </DIV>
+</FORM>
+</div>
+

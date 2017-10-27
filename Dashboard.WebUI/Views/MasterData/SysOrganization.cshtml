@@ -1,0 +1,567 @@
+﻿@using FrogDashboard.Core.Utility;
+@using FrogDashboard.Authentication.HtmlExtension;
+@model FrogDashboard.Domain.SysManagement.SysOrganization
+@{
+    ViewBag.Title = "SysOrganization";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <link rel="stylesheet" href="@Url.Content("~/Scripts/jquery.treeview/jquery.treeview.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Scripts/jquery.treeview/demo/screen.css")" />
+    <script src="@Url.Content("~/Scripts/jquery.treeview/jquery.treeview.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery.treeview/jquery.treeview.async.js")" type="text/javascript"></script>
+    <script type="text/javascript">
+        var _selBranch = null;
+        var _addFlag = false;
+        function initTrees() {
+            $("#mixed").treeview({
+                url: '@Url.Action("InitializeTree", "MasterData")' + "/?r" + Math.random(),
+                // add some additional, dynamic data and request with POST
+                ajax: {
+                    /*
+                    data: {
+                    "additional": function () {
+                    return "yeah: " + new Date;
+                    }
+                    },
+                    */
+                    depth: 0,
+                    type: "post"
+                },
+                clickEvent: function (obj) {
+                    if (obj == null) return;
+                    //alert($(obj).parent().attr("id"));
+                    _addFlag = false;
+                    if (changed) {
+                        if (!confirm("<=SureCancel>")) {
+                            $("#mixed").find("li>span").css('color', 'black');
+                            _selBranch.css("color", "red");
+                            return;
+                        } else {
+                            changed = false;
+                            _selBranch = $(obj);
+                            $("#rdoSon").removeAttr("checked");
+                            $("#rdoSibling").removeAttr("checked");
+                            initForm(_selBranch.parent().attr("id"));
+                        }
+                    } else {
+                        _selBranch = $(obj);
+                        $("#rdoSon").removeAttr("checked");
+                        $("#rdoSibling").removeAttr("checked");
+                        initForm(_selBranch.parent().attr("id"));
+                    }
+                }
+            });
+        }
+
+        function initForm(id) {
+            $("#txtOrgCode").attr("disabled", true);
+            if (_selBranch.parent().attr("depth") == 0)
+                $("#cbInterior").removeAttr("disabled");
+            else
+                $("#cbInterior").attr("disabled", "disabled");
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetOrganization", "MasterData")',
+                //data: { id: branch.parent().attr("id") },
+                data: { id: id },
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    //alert(org.org.OrganizationName);
+                    $("#txtOrgName").val(result.org.OrganizationName);
+                    $("#txtOrgCode").val(result.org.OrganizationCode);
+                    $("#txtRemarks").val(result.org.Remarks);
+                    $("#cbInterior").attr("checked", result.org.IsInterior);
+                    $("#cbIsWarehouse").attr("checked", result.org.IsWarehouse);
+                    if (result.org.IsInterior && result.org.IsWarehouse) {
+                        $("#btnAddCust").attr("disabled", false);
+                    }
+                    else {
+                        $("#btnAddCust").val("<=CreateCustomer>");
+                        $("#btnAddCust").attr("disabled", true);
+                    }
+                    ChangeOrgCodeInput();
+                    editRole(id);
+                }
+            });   
+        }
+
+        var editRole = function (id) {
+            var url = '@Url.Action("GetSysRoleData", "MasterData")' + "/?SysOrganizationId=" + id;
+            $('#tblRole').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        }
+
+      
+
+        var changeCustState = function () {
+            if ($("#cbIsWarehouse").attr("checked")) {
+                $("#btnAddCust").attr("disabled", false);
+            
+            }
+            else {
+                $("#btnAddCust").val("<=CreateCustomer>");
+                $("#btnAddCust").attr("disabled", true);
+            }
+        }
+
+        var openWin = function (sUrl, sTitle, iWidth, iHeight) {
+            var horizontalPadding = 30;
+            var verticalPadding = 30;
+            var $this = $(this);
+            $('<iframe id="ifrmRoleDetail" src="' + sUrl + '" frameborder="0" scrolling="no" />').dialog({
+                title: sTitle,
+                autoOpen: true,
+                width: iWidth,
+                height: iHeight,
+                modal: true,
+                resizable: true,
+                autoResize: true,
+                overlay: {
+                    opacity: 0.5,
+                    background: "black"
+                }
+            }).width(iWidth - horizontalPadding).height(iHeight - verticalPadding);
+        }
+        var viewRoleDetail = function (id) {
+            _SysRoleId = $('#tblRole').getCell(id, 'SysRoleId');
+            var _url = '@Url.Action("SysRoleDetail", "MasterData")';
+            _url += "/?sysRoleId=" + _SysRoleId;
+            openWin(_url, '<=RoleDetail>', 800, 380);
+        }
+
+        var ChangeOrgCodeInput = function () {
+            if ($("#cbInterior").attr("checked") == false) {
+                $("#txtOrgCode").addClass("glControlText");
+                $("#txtOrgCode").bind("click keyup keydown");
+                AutoInput({
+                    displayFields: "CustCode;CustName",
+                    displayLabels: "<=ForwarderCode>;<=ForwarderName>",
+                    width: 450,
+                    queryFieldName: "CustCode",
+                    url: '@Url.Action("GetOrgForwardersAutoInputData", "CIM")',
+                    recordsPerPage: "5",
+                    fillControls: "txtOrgName:CustName",
+                    controlId: "txtOrgCode"
+                });
+            }
+            else {
+                $("#txtOrgCode").removeClass("glControlText");
+                $("#txtOrgCode").unbind();
+            }
+        }
+
+        $(function () {
+            initTrees();
+        });
+    </script>
+    <script type="text/javascript">
+
+        var selFn = function (obj) {
+         
+            _selBranch = $(obj);
+            $("#mixed").find("li>span").css('color', 'black');
+            $(obj).css('color', 'Red');
+            $("#rdoSon").removeAttr("checked");
+            $("#rdoSibling").removeAttr("checked");
+            initForm(_selBranch.parent().attr("id"));
+            editRole(_selBranch.parent().attr("id"));
+
+            /*
+            var selFn = function (obj) {
+            _selBranch = $(obj);
+            $("#mixed").find("li>span").css('color', 'black');
+            $(obj).css('color', 'Red');
+            $("#rdoSon").removeAttr("checked");
+            $("#rdoSibling").removeAttr("checked");
+            initForm(_selBranch.parent().attr("id"));
+            editRole(_selBranch.parent().attr("id"));
+            }*/
+
+            if (changed) {
+                if (!confirm("<=SureCancel>")) {
+                    $("#tree").find("li>span").css('color', 'black');
+                    _selBranch.css("color", "red");
+                    return;
+                } else {
+                    changed = false;
+                    _selBranch = $(obj);
+                    $("#mixed").find("li>span").css('color', 'black');
+                    $(obj).css('color', 'Red');
+                    $("#rdoSon").removeAttr("checked");
+                    $("#rdoSibling").removeAttr("checked");
+                    initForm(_selBranch.parent().attr("id"));
+                    editRole(_selBranch.parent().attr("id"));
+                }
+            } else {
+                _selBranch = $(obj);
+                $("#mixed").find("li>span").css('color', 'black');
+                $(obj).css('color', 'Red');
+                $("#rdoSon").removeAttr("checked");
+                $("#rdoSibling").removeAttr("checked");
+                initForm(_selBranch.parent().attr("id"));
+                editRole(_selBranch.parent().attr("id"));
+            }
+        }
+
+        $(function () {
+            $("ul.tabs").tabs("div.panes > div");
+
+            $("#txtOrgName").focus();
+            $("#rdoSibling,#rdoSon").click(function () {
+                $("#txtOrgCode").attr("disabled", false);
+                $("#frmOrg").find("input[type=text]").val("");
+                $("#txtRemarks").val("");
+            });
+
+            $("#cbIsWarehouse").click(function () {
+                if ((_selBranch != null || $("#rdoSon").attr("checked") || $("#rdoSibling").attr("checked")) && $("#cbInterior").attr("checked") == false) {
+                    alert("<=WarehouseToCustomerError>");
+                    $("#cbIsWarehouse").attr("checked", false);
+                }
+            });
+
+            $("#cbInterior").click(function () {
+                ChangeOrgCodeInput();
+            });
+
+            $("#btnClear").click(function () {
+                _selBranch = null;
+                $("#mixed").remove();
+                $('<ul id="mixed"><li id="@Model.SysOrganizationId" class="hasChildren" depth="0"><span onclick="selFn(this);">@Model.OrganizationName</span><ul><li><span class="placeholder">&nbsp;</span></li></ul></li></ul>').appendTo("#tree");
+                initTrees();
+            });
+
+            $("#btnAddCust").click(function () {
+                if (!_addFlag && _selBranch != null) {
+                    var orgId = _selBranch.parent().attr("id");
+                    var orgCode = $("#txtOrgCode").val();
+                    var orgName = $("#txtOrgName").val();
+                    var _url = '@Url.Action("DealersDetail", "CIM")';
+                    _url += "/?orgId=" + orgId + "&orgCode=" + orgCode + "&orgName=" + orgName;
+                    openWin(_url, '<=CustManagement>', 900, 320);
+                }
+            });
+
+            $("#btnNew").click(function () {
+                _addFlag = true;
+            });
+
+            $("#btnDelete").click(function () {
+                if (_selBranch == null) { alert("<=NotChoose>"); return; }
+                if (!confirm("<=SureDelete>")) return;
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteOrganziation", "MasterData")',
+                    data: { id: _selBranch.parent().attr("id") },
+                    dataType: 'json',
+                    cache: false,
+                    async: false,
+                    success: function (result) {
+                        if (result.Success) {
+                            _selBranch.parent().remove();
+                            _selBranch = null;
+                        }
+                        alert(result.Msg);
+                    }
+                });
+
+            });
+
+            $("#btnSave").click(function () {
+                if (_selBranch == null) { alert("<=NotChooseNode>"); return; };
+                if ($("#txtOrgCode").val() == "" || $("#txtOrgName").val() == "") {
+                    alert("<=OrgCodeAndNameNotNull>");
+                    return;
+                }
+                var selNode = _selBranch.parent();
+                var selId = _selBranch.parent().attr("id");
+                var currentDepth = selNode.attr("depth");
+
+                var str = $("#frmOrg").serialize();
+                str += "&SysOrganizationId=" + _selBranch.parent().attr("id");
+
+                if ($("#rdoSibling").attr("checked") == true)
+                    str += "&Sibling=" + selId;
+
+                if ($("#rdoSon").attr("checked") == true)
+                    str += "&Son=" + selId;
+
+                str += "&Depth=" + _selBranch.parent().attr("depth");
+                str += "&Interior=" + $("#cbInterior").attr("checked");
+                str += "&IsWarehouse=" + $("#cbIsWarehouse").attr("checked");
+
+                //alert(str);
+
+                if ($("#rdoSibling").attr("checked") == false && $("#rdoSon").attr("checked") == false) {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SaveOrganization", "MasterData")',
+                        data: str,
+                        dataType: 'json',
+                        cache: false,
+                        async: false,
+                        success: function (result) {
+                            alert(result.Msg);
+                            if (result.Success) {
+                                _selBranch.text(result.Text);
+                                changeCustState();
+                                changed = false;
+                            }
+                        }
+                    });
+                    return;
+                }
+
+                //处理树
+                if ($("#rdoSibling").attr("checked") == true) {
+                    var sibling = selNode;
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SaveOrganization", "MasterData")',
+                        data: str,
+                        dataType: 'json',
+                        cache: false,
+                        async: false,
+                        success: function (result) {
+                            alert(result.Msg);
+                            if (result.Success) {
+                                var newnodes = $(String.format("<li id ='{0}' depth ='{1}'><span onclick ='selFn(this);' class='folder'>{2}</span>",
+                                    result.Id, currentDepth, result.Text) + "</li>");
+                                newnodes.appendTo(sibling.parent());
+                                $("#mixed").treeview({
+                                    add: newnodes
+                                });
+                                changeCustState();
+                                changed = false;
+                            }
+                        }
+                    });
+
+                } else { //子级
+                    if (selNode.attr("depth") == "2") {//添加树状  
+                        alert("<=CanNotAddChild>");
+                        return;
+                    }
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SaveOrganization", "MasterData")',
+                        data: str,
+                        dataType: 'json',
+                        cache: false,
+                        async: false,
+                        success: function (result) {
+                            alert(result.Msg);
+                            if (result.Success) {
+                                changed = false;
+                                if (selNode.find("div").length == 0) {
+                                    //var isLast = selNode.parent().find("li:last").attr("id") == selId;
+                                    var isFirst = selNode.parent().find("li:first").attr("id") == selId;
+                                    var treeParent = selNode.parent().parent();
+                                    var onlyOneChild = treeParent.attr("depth") == 0 && treeParent.find("li").length == 1;
+                                    var newNode = null;
+                                    if (!isFirst || onlyOneChild) {
+                                        newNode = $(String.format("<li id='{0}' depth ='{1}' ><span onclick ='selFn(this);' class='folder'>{2}</span><ul>",
+                                        selId, currentDepth, _selBranch.text()) +
+                                       "</ul></li>").insertAfter(selNode.parent().find(">li").eq(selNode.index() - 1));
+                                        selNode.remove();
+                                    } else {
+                                        newNode = $(String.format("<li id='{0}' depth ='{1}' ><span onclick ='selFn(this);' class='folder'>{2}</span><ul>",
+                                         selId, currentDepth, _selBranch.text()) +
+                                       "</ul></li>").insertBefore(selNode.parent().find(">li").eq(selNode.index() + 1));
+                                        selNode.remove();
+                                    }
+
+                                    $("#mixed").treeview({
+                                        add: newNode
+                                    });
+
+                                    $("#" + selId + ">span").click();
+                                    var newNodes = $(String.format("<li id ={0} depth ={1}><span onclick ='selFn(this);' class='folder'>{2}</span>",
+                                        result.Id, parseInt(currentDepth) + 1, result.Text) +
+                                         "</li>").appendTo("#" + selId + ">ul");
+
+                                    $("#mixed").treeview({
+                                        add: newNodes
+                                    });
+                                } else {
+                                    var newnodes = $(String.format("<li id ={0} depth ={1}><span  onclick ='selFn(this);' class='folder'>{2}</span>",
+                                               result.Id, parseInt(currentDepth) + 1, result.Text) + "</li>").appendTo(selNode.find(">ul"));
+
+                                    $("#mixed").treeview({
+                                        add: newnodes
+                                    });
+                                    //alert(selNode[0].className);
+
+                                }
+                                var className = $("#" + selNode.attr("id"))[0].className;
+                                if (className.indexOf("expandable") != -1) {
+                                    $("#" + selNode.attr("id")).find(">div").click();
+                                }
+                                changeCustState();
+                            }
+                        }
+                    });
+
+
+
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            $("#tblRole").jqGrid({
+                datatype: "json",
+                mtype: 'POST',
+                height: 282,
+                colNames: ['SysRoleId', '<=RoleCode>', '<=RoleName>', '<=SysOrganizationId>', '<=OrganizationName>', '<=Remarks>'],
+                colModel: [
+                 { name: 'SysRoleId', index: 'SysRoleId', hidden: true },
+                 { name: 'RoleCode', index: 'RoleCode', hidden: true },
+                 { name: 'RoleName', index: 'RoleName', sortable: false },
+                 { name: 'SysOrganizationId', index: 'SysOrganizationId', hidden: true },
+                 { name: 'OrganizationName', index: 'OrganizationName', hidden: true },
+                 { name: 'Remarks', index: 'Remarks', sortable: false },
+                 ],
+                pager: 1,
+                rowNum: 0,
+                sortname: 'SysRoleId',
+                sortorder: "desc",
+                rownumbers: true, //显示行号
+                //列宽
+                shrinkToFit: false,
+                autowidth: true,
+                sortable: true,
+                viewrecords: true,
+                width: "100%",
+                pager: $('#ePager'),
+                rowNum: 15,
+                rowList: [15, 20, 50, 100],
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                //caption: ' ',
+                closeAfterAdd: false,
+                ondblClickRow: function (id) {
+                    viewRoleDetail(id);
+                }
+            });
+            $("#btnViewRole").click(function () {
+                var id = $('#tblRole').jqGrid('getGridParam', 'selrow');
+                if (id == null || id == "") {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+                viewRoleDetail(id);
+            });
+        })
+    </script>
+    <script type="text/javascript">
+        var changed = false;
+        $(function () {
+            $("#txtOrgName,#txtRemarks").change(function () {
+                changed = true;
+            });
+        });
+    </script>
+    <style type="text/css">
+    #orgTab
+    {
+        width:100%;
+    }
+    #orgTab .title
+    {
+        text-align:right;
+        width:54px;
+    }
+    </style>
+}
+<div id="main">
+    <table style="width: 100%">
+        <tr>
+            <td style="width: 180px; vertical-align: top;">
+                <div id="tree" class="tree" style="height: 400px;">
+                    <ul id="mixed">
+                        <li id="@Model.SysOrganizationId" class="hasChildren" depth="0"><span onclick='selFn(this);'>@Model.OrganizationName</span>
+                            <ul>
+                                <li><span class="placeholder">&nbsp;</span></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+            <td style="vertical-align: top;">
+                <div>
+                    <ul class="tabs">
+                        <li><a href="#first"><=OriDetail></a></li>
+                        <li><a href="#second"><=Role></a></li>
+                    </ul>
+                    <div class="panes">
+                        <div id="tab_OrgDetail">
+                            <form id="frmOrg">
+                            <div class="btn_bar">
+                                @Html.GenerateButton("MasterData", "SaveSysOrg", "btnSave", "<=Save>")
+                                @Html.GenerateButton("MasterData", "DelSysOrg", "btnDelete", "<=Delete>")
+                                <input type="button" class="button" id="btnClear" value="<=Refresh>" />
+                            </div>
+                            <div class="column_edit">
+                                <table id="orgTab">
+                                    <tr>
+                                        <td class="title">
+                                            <=Level>
+                                        </td>
+                                        <td>
+                                            <input type="radio" class="radio" id="rdoSibling" name="group" /><label for="rdoSibling"><=SameLevel></label>&nbsp;&nbsp;
+                                            <input type="radio" class="radio" id="rdoSon" name="group" /><label for="rdoSon"><=ChildLevel></label>
+                                            <input type="checkbox" class="checkbox" id="cbInterior" disabled="disabled" style="display:none;" />@*<=InternalOrganization>*@
+                                            <input type="checkbox" class="checkbox" id="cbIsWarehouse" style="display:none;" />@*<=IsWarehouse>*@
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="title">
+                                            <=OrganizationCode>*
+                                        </td>
+                                        <td>
+                                            <input id="txtOrgCode" type="text" class="text" name="OrganizationCode" disabled="disabled" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="title">
+                                            <=OrganizationName>*
+                                        </td>
+                                        <td>
+                                            <input id="txtOrgName" type="text" class="text" name="OrganizationName" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="title">
+                                            <=Remark>
+                                        </td>
+                                        <td>
+                                            <textarea id="txtRemarks" class="textarea" rows="5" cols="17" name="Remarks"></textarea>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            </form>
+                        </div>
+                        <div id="tab_Role">
+                            <form id="frmRole" name="frmRole">
+                            <div class="btn_bar">
+                                <input type="button" class="button" id="btnViewRole" value="<=View>" />
+                            </div>
+                            </form>
+                            <div class="column_grid">
+                                <table id="tblRole">
+                                </table>
+                                <div id="ePager">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>

@@ -1,0 +1,541 @@
+﻿@using FrogDashboard.Core.Utility;
+@using FrogDashboard.Authentication.HtmlExtension;
+@{
+    ViewBag.Title = "<=BasNormalScheduleInfo>";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script type="text/javascript">
+
+        var searchData = function () {
+            var url = '@Url.Action("GetBasNormalSchedule", "BasicData")';
+            url += "/?" + $("#frmSearch").serialize();
+            $('#tblBasNormalSchedule').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        }
+
+        var clearForm = function () {
+            $("#frmSave").find("input:text").val("");
+            $("#txtNormalScheduleSFileName").val("");
+            $("#txtNormalScheduleVCtFileName").val("");
+            $("#txtNormalScheduleVTmFileName").val("");
+        };
+
+        var editData = function (result) {
+            clearForm();
+            $("#txtBasNormalScheduleId").val(result.BasNormalScheduleId);
+            $("#txtScheduleNo").val(result.ScheduleNo);
+            if (result.EffectiveDate != null) {
+                date = new Date(parseInt(result.EffectiveDate.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtEffectiveDate").val(date.format("yyyy-mm-dd"));
+            }
+            if (result.ExpirationDate != null) {
+                date = new Date(parseInt(result.ExpirationDate.replace(/\/Date\((-?\d+)\)\//, '$1')));
+                $("#txtExpirationDate").val(date.format("yyyy-mm-dd"));
+            }
+            $("#txtNormalScheduleSFileName").val(result.NormalScheduleSFileName);
+            $("#txtNormalScheduleVCtFileName").val(result.NormalScheduleVCtFileName);
+            $("#txtNormalScheduleVTmFileName").val(result.NormalScheduleVTmFileName);
+            $("#txtRemark").val(result.Remark);
+            $("#txtNormalScheduleSFileName").val(result.NormalScheduleSFileName);
+            $("#txtNormalScheduleVCtFileName").val(result.NormalScheduleVCtFileName);
+            $("#txtNormalScheduleVTmFileName").val(result.NormalScheduleVTmFileName);
+        }
+
+        var edit = function (id) {
+            var BasNormalScheduleId = $('#tblBasNormalSchedule').getCell(id, 'BasNormalScheduleId');
+            if (BasNormalScheduleId == "") return;
+            var str = "BasNormalScheduleId=" + BasNormalScheduleId;
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetBasNormalScheduleById", "BasicData")',
+                data: str,
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.Success) {
+                        $("#dlgBasNormalSchedule").dialog("open");
+                        editData(result.BasNormalSchedule);
+                    }
+                }
+            });
+        }
+
+        var validDate = function (OpenDateFrom, OpenDateTo) {
+            var vFlag = true;
+            if (OpenDateFrom != null && OpenDateFrom != "" && OpenDateFrom != "undefined") {
+                if (OpenDateTo != null && OpenDateTo != "" && OpenDateTo != "undefined") {
+                    if (OpenDateFrom > OpenDateTo) {
+                        alert("<=EffectiveDateGreaterThanExpirationDate>");
+                        vFlag = false;
+                    }
+                }
+            }
+            return vFlag;
+        };
+
+        var importFile = function (type) {
+            if ($("#txtBasNormalScheduleId").val() == "") {
+                alert("<=FirstSave>");
+                return;
+            }
+            $("#dlgImport").dialog("open");
+            var cloneFile = $("#fileNormalScheduleImport").clone();
+            $("#fileNormalScheduleImport").replaceWith(cloneFile);
+            $("#fileNormalScheduleImport").focus();
+            $("#txtFileType").html(type);
+        }
+
+        function PageLock() {
+            $("#divLock").dialog('open');
+        }
+
+        function PageUnLock() {
+            $("#divLock").dialog('close');
+        }
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#txtScheduleNoSearch").focus();
+
+            $("#btnSearch").click(function () {
+                searchData();
+            });
+
+            $("#btnCancel").click(function () {
+                searchData();
+                $("#dlgBasNormalSchedule").dialog("close");
+            });
+
+            $("#btnAddBasNormalSchedule").click(function () {
+                clearForm();
+                $("#dlgBasNormalSchedule").dialog("open");
+            });
+
+            $("#btnAdd").click(function () {
+                clearForm();
+            });
+
+            $("#frmSave").validate({
+                rules: {
+                    ScheduleNo: {
+                        required: true
+                    },
+                    EffectiveDate: {
+                        required: true
+                    },
+                    ExpirationDate: {
+                        required: true
+                    }
+                },
+                messages: {
+                    ScheduleNo: {
+                        required: "<=ScheduleNoIsRequired>"
+                    },
+                    EffectiveDate: {
+                        required: "<=EffectiveDateIsRequired>"
+                    },
+                    ExpirationDate: {
+                        required: "<=ExpirationDateIsRequired>"
+                    }
+                }
+            });
+
+            $("#btnSave").click(function () {
+                if (!$('form[name=frmSave]').valid()) {
+                    CheckFormMessage();
+                    $("#txtScheduleNo").focus();
+                    return;
+                }
+                var startDate = $("#txtEffectiveDate").val();
+                var endDate = $("#txtExpirationDate").val();
+                if (!validDate(startDate, endDate)) {
+                    return;
+                }
+                var str = $("#frmSave").serialize();
+                PageLock();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveBasNormalSchedule", "BasicData")',
+                    data: str,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (result) {
+                        PageUnLock();
+                        alert(result.Msg);
+                        if (result.Success) {
+                            searchData();
+                            editData(result.BasNormalSchedule);
+                        }
+                    },
+                    complete: function () {
+                        PageUnLock();
+                    }
+                });
+            });
+        })
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#btnBasNormalScheduleS").click(function () {
+                var id = $('#tblBasNormalSchedule').jqGrid('getGridParam', 'selrow');
+                var BasNormalScheduleId = $('#tblBasNormalSchedule').getCell(id, 'BasNormalScheduleId');
+                if (BasNormalScheduleId == "") {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+
+                var url = '@Url.Action("BasNormalScheduleS", "BasicData")';
+                url += "/?BasNormalScheduleId=" + BasNormalScheduleId;
+                window.parent.navTab.openTab("NormalScheduleS", url, { title: "<=NormalScheduleS>",
+                    fresh: false, data: {}, external: true
+                });
+            });
+
+            $("#btnBasNormalScheduleVCt").click(function () {
+                var id = $('#tblBasNormalSchedule').jqGrid('getGridParam', 'selrow');
+                var BasNormalScheduleId = $('#tblBasNormalSchedule').getCell(id, 'BasNormalScheduleId');
+                if (BasNormalScheduleId == "") {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+
+                var url = '@Url.Action("BasNormalScheduleVCt", "BasicData")';
+                url += "/?BasNormalScheduleId=" + BasNormalScheduleId;
+                window.parent.navTab.openTab("NormalScheduleVCt", url, { title: "<=NormalScheduleVCt>",
+                    fresh: false, data: {}, external: true
+                });
+            });
+
+            $("#btnBasNormalScheduleVTm").click(function () {
+                var id = $('#tblBasNormalSchedule').jqGrid('getGridParam', 'selrow');
+                var BasNormalScheduleId = $('#tblBasNormalSchedule').getCell(id, 'BasNormalScheduleId');
+                if (BasNormalScheduleId == "") {
+                    alert("<=SelectOneDate>");
+                    return;
+                }
+
+                var url = '@Url.Action("BasNormalScheduleVTm", "BasicData")';
+                url += "/?BasNormalScheduleId=" + BasNormalScheduleId;
+                window.parent.navTab.openTab("NormalScheduleVTm", url, { title: "<=NormalScheduleVTm>",
+                    fresh: false, data: {}, external: true
+                });
+            });
+
+            $("#btnNormalScheduleS").click(function () {
+                if ($("#txtNormalScheduleSFileName").val() != "") {
+                    if (!confirm("<=DataImportedConfirm>")) return false;
+                }
+                importFile("Normal Schedule S");
+            });
+
+            $("#btnNormalScheduleVCt").click(function () {
+                if ($("#txtNormalScheduleVCtFileName").val() != "") {
+                    if (!confirm("<=DataImportedConfirm>")) return false;
+                }
+                importFile("Normal Schedule V Cargo Type");
+            });
+
+            $("#btnNormalScheduleVTm").click(function () {
+                if ($("#txtNormalScheduleVTmFileName").val() != "") {
+                    if (!confirm("<=DataImportedConfirm>")) return false;
+                }
+                importFile("Normal Schedule V Trans Mode");
+            });
+
+            $("#btnImportCancel").click(function () {
+                $("#dlgImport").dialog("close");
+                $("#txtFileType").html("");
+            });
+
+            $("#btnImportOK").click(function () {
+                if ($("#fileNormalScheduleImport").val() == "") {
+                    alert("<=FirstSelectUpload>");
+                    return;
+                }
+                var basNormalScheduleId = $("#txtBasNormalScheduleId").val();
+                var url = '@Url.Action("NormalScheduleImport", "BasicData")';
+                url += "/?basNormalScheduleId=" + basNormalScheduleId;
+                url += "&FileType=" + $("#txtFileType").html();
+                $('#frmImport').attr('action', url);
+                PageLock();
+                $('#frmImport').ajaxSubmit({
+                    success: function (result) {
+                        PageUnLock();
+                        alert(result);
+                        var str = "BasNormalScheduleId=" + basNormalScheduleId;
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("GetBasNormalScheduleById", "BasicData")',
+                            data: str,
+                            dataType: 'json',
+                            cache: false,
+                            async: false,
+                            success: function (result) {
+                                if (result.Success) {
+                                    editData(result.BasNormalSchedule);
+                                }
+                                else {
+                                    alert(result.Msg);
+                                }
+                            }
+                        });
+                        $("#btnImportCancel").click();
+                    },
+                    error: function () {
+                        PageUnLock();
+                    }
+                })
+            });
+        });
+    </script>
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            $("#tblBasNormalSchedule").jqGrid({
+                datatype: "json",
+                mtype: 'POST',
+                height: 320,
+                colNames: ['', '<=ScheduleNo>', '<=EffectiveDate>', '<=ExpirationDate>', '<=Remark>', '<=CreatedUser>', '<=CreatedDate>'],
+                colModel: [
+				{ name: 'BasNormalScheduleId', index: 'BasNormalScheduleId', hidden: true },
+				{ width: 120, name: 'ScheduleNo', index: 'ScheduleNo' },
+				{ width: 120, name: 'EffectiveDate', index: 'EffectiveDate' },
+				{ width: 120, name: 'ExpirationDate', index: 'ExpirationDate' },
+				{ width: 300, name: 'Remark', index: 'Remark' },
+				{ width: 120, name: 'CreatedUserCode', index: 'CreatedUserCode' },
+				{ width: 120, name: 'CreatedDate', index: 'CreatedDate' }
+                 ],
+                pager: 1,
+                rowNum: 15,
+                sortname: 'ScheduleNo',
+                sortorder: "asc",
+                rownumbers: true,
+                shrinkToFit: false,
+                autowidth: true,
+                viewrecords: true,
+                sortable: true,
+                width: "100%",
+                pager: $('#divPager'),
+                rowList: [15, 20, 50, 100],
+                imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images',
+                ondblClickRow: function (id) {
+                    edit(id);
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#dlgBasNormalSchedule").dialog({
+                height: 230,
+                width: 1030,
+                modal: true,
+                title: "<=BasNormalScheduleInfo>",
+                autoOpen: false,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+
+            $("#divLock").dialog({
+                autoOpen: false,
+                resizable: false,
+                width: 200,
+                height: 110,
+                modal: true,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+
+            $("#dlgImport").dialog({
+                height: 110,
+                width: 500,
+                modal: true,
+                title: "<=Import>",
+                autoOpen: false,
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                }
+            });
+        })
+    </script>
+}
+<div class="column_search">
+    <form id="frmSearch" name="frmSearch" action="">
+    <h3 class="column_title">
+        <=Search></h3>
+    <table class="table">
+        <tr>
+            <td class="title">
+                <=ScheduleNo>
+            </td>
+            <td>
+                <input type="text" class="text" style="display: none" />
+                <input type="text" class="text" id="txtScheduleNoSearch" name="ScheduleNo" />
+            </td>
+            <td class="title">
+            </td>
+            <td>
+            </td>
+            <td class="title">
+            </td>
+            <td>
+            </td>
+            <td class="title">
+            </td>
+            <td>
+            </td>
+        </tr>
+    </table>
+    <div class="btn_bar">
+        <div class="btn_bar">
+            @Html.GenerateButton("BasicData", "GetBasNormalSchedule", "btnSearch", "<=Search>")
+            <input type="reset" class="button" id="btnReset" value="<=Reset>" />
+            @Html.GenerateButton("BasicData", "AddBasNormalSchedule", "btnAddBasNormalSchedule", "<=New>")
+            @Html.GenerateButton("BasicData", "BasNormalScheduleS", "btnBasNormalScheduleS", "<=NormalScheduleS>")
+            @Html.GenerateButton("BasicData", "BasNormalScheduleVCt", "btnBasNormalScheduleVCt", "<=NormalScheduleVCt>")
+            @Html.GenerateButton("BasicData", "BasNormalScheduleVTm", "btnBasNormalScheduleVTm", "<=NormalScheduleVTm>")
+        </div>
+    </div>
+    </form>
+</div>
+<div class="column_grid">
+    <table id="tblBasNormalSchedule">
+    </table>
+    <div id="divPager">
+    </div>
+</div>
+<div id="dlgBasNormalSchedule" style="display: none">
+    <div class="column_edit">
+        <fieldset>
+            <legend style="font-weight: bold"><=BasNormalScheduleInfo></legend>
+            <div class="btn_bar">
+                @Html.GenerateButton("BasicData", "AddBasNormalSchedule", "btnAdd", "<=New>")
+                @Html.GenerateButton("BasicData", "SaveBasNormalSchedule", "btnSave", "<=Save>")
+                <input type="button" class="button" id="btnCancel" value="<=Cancel>" />
+            </div>
+            <form id="frmSave" name="frmSave" action="">
+            <table class='table' id="tblSave">
+                <tr>
+                    <td class="title">
+                        <=ScheduleNo>
+                    </td>
+                    <td>
+                        <input type="text" class="text" id="txtBasNormalScheduleId" name="BasNormalScheduleId"
+                            style="display: none" />
+                        <input type="text" class="text" id="txtScheduleNo" name="ScheduleNo" maxlength="50" />
+                    </td>
+                    <td class="title">
+                        <=EffectiveDate>*
+                    </td>
+                    <td>
+                        @Html.DatePicker("EffectiveDate", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtEffectiveDate" } }, "")
+                    </td>
+                    <td class="title">
+                        <=ExpirationDate>*
+                    </td>
+                    <td>
+                        @Html.DatePicker("ExpirationDate", null, new Dictionary<string, object> { { "class", "text" }, { "id", "txtExpirationDate" } }, "")
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=Remark>
+                    </td>
+                    <td colspan="5">
+                        <input type="text" class="text" id="txtRemark" name="Remark" style="width: 94.5%"
+                            maxlength="200" />
+                    </td>
+                </tr>
+            </table>
+            </form>
+        </fieldset>
+        <fieldset style="display: none">
+            <legend style="font-weight: bold"></legend>
+            <form id="frmUploadSourceFiles" name="frmUploadSourceFiles">
+            <table class='table'>
+                <tr>
+                    <td>
+                        <input type="button" class="button" id="btnNormalScheduleS" value="<=NormalScheduleS>"
+                            style="width: 200px" />
+                    </td>
+                    <td>
+                        <input type="text" class="text txtdisable" id="txtNormalScheduleSFileName" name="NormalScheduleSFileName"
+                            style="width: 400px" disabled="disabled" />
+                    </td>
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="button" class="button" id="btnNormalScheduleVCt" value="<=NormalScheduleVCt>"
+                            style="width: 200px" />
+                    </td>
+                    <td>
+                        <input type="text" class="text txtdisable" id="txtNormalScheduleVCtFileName" name="NormalScheduleVCtFileName"
+                            style="width: 400px" disabled="disabled" />
+                    </td>
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="button" class="button" id="btnNormalScheduleVTm" value="<=NormalScheduleVTm>"
+                            style="width: 200px" />
+                    </td>
+                    <td>
+                        <input type="text" class="text txtdisable" id="txtNormalScheduleVTmFileName" name="NormalScheduleVTmFileName"
+                            style="width: 400px" disabled="disabled" />
+                    </td>
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+            </table>
+            </form>
+        </fieldset>
+    </div>
+</div>
+<div id="divLock" align="center" style="display: none" class="transparent">
+    <=DataProcess><br />
+    <img src="../../Content/Images/Load1.gif" />
+</div>
+<div id="dlgImport" style="display: none">
+    <div class="column_edit">
+        <form id="frmImport" name="frmImport" method="post" enctype="multipart/form-data"
+        action='@Url.Action("NormalScheduleImport", "BasicData")'>
+        <table>
+            <tr>
+                <td class="title">
+                </td>
+                <td>
+                    <div id="txtFileType">
+                    </div>
+                    <input type="file" name="FileNormalScheduleImport" size="60" id="fileNormalScheduleImport" />
+                </td>
+            </tr>
+        </table>
+        <div class="btn_bar" style="float: right">
+            <input type="button" class="button" id="btnImportOK" value="<=OK>" />
+            <input type="button" class="button" id="btnImportCancel" value="<=Cancel>" />
+        </div>
+        </form>
+    </div>
+</div>

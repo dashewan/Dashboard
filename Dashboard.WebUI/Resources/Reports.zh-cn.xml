@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Localization>
+  <Module name="Pubic">
+    <item name="Search">查询</item>
+    <item name="Save">保存</item>
+    <item name="Delete">删除</item>
+    <item name="New">新增</item>
+    <item name="Edit">编辑</item>
+    <item name="View">查看</item>
+    <item name="Reset">查询条件重置</item>
+    <item name="SaveSuccess">保存成功</item>
+    <item name="SaveError">保存出错，请联系管理员</item>
+    <item name="DeleteSuccess">删除成功</item>
+    <item name="DeleteFail">删除失败</item>
+    <item name="SelectOneDate">请选定一条数据</item>
+    <item name="Remark">备注</item>
+    <item name="Active">有效</item>
+    <item name="IsDisabled">是否可用</item>
+    <item name="SureDelete">确定要删除么?</item>
+    <item name="Cancel">取消</item>
+    <item name="Name">Name</item>
+    <item name="Desc">Desc</item>
+    <item name="CreatedUser">创建人</item>
+    <item name="CreatedDate">创建时间</item>
+    <item name="DataProcess">处理中...</item>
+    <item name="Import">导入调整表</item>
+    <item name="OK">确认</item>
+    <item name="FirstSave">请先保存</item>
+    <item name="StartTimeGreaterThanEndTime">结束时间必须大于开始时间</item>
+    <item name="EndTimeGreaterThanStartTime">时间跨度不能大于12个月</item>
+    <item name="Template">调整表模板</item>
+    <item name="Export">导出</item>
+    <item name="ExportSuccess">成功导出</item>
+    <item name="ExportError">导出失败</item>
+    <item name="ExportConfirm">确定要导出吗?</item>
+    <item name="PrintDate">S单运单打印时间排除</item>
+    <item name="TnNo">运单编号排除</item>
+    <item name="TnProperty">运单性质排除</item>
+    <item name="Shipper">发货方</item>
+    <item name="Consignee">收货方</item>
+    <item name="ShipperCode">发货方编码</item>
+    <item name="ConsigneeCode">收货方编码</item>
+    <item name="Forwarder">承运商</item>
+    <item name="ForwarderName">承运商名称</item>
+    <item name="DealerType">经销商类型</item>
+    <item name="DG">危险品/超大货</item>
+    <item name="Exclude">(不包含)</item>
+    <item name="Confirm">确认</item>
+    <item name="TransportMode">运输模式</item>
+    <item name="TransportType">运输类型</item>
+    <item name="btnSave Setting">保存条件</item>
+    <item name="XlineNotSelectDouble">轴不能选择1个以上的父节点</item>
+    <item name="XlineNotNull">轴必须选择</item>
+    <item name="NotNull">必须输入</item>
+    <item name="pieChart">饼状图</item>
+    <item name="BarChart">柱状图</item>
+    <item name="CombinedHistograms">组合柱状图</item>
+    <item name="YCantNotChanged">Y为AvgTime时Model只能为饼图，柱状图或组合柱状图</item>
+
+    <item name="KickedOffDate">KickedOffDate</item>
+    <item name="TargetCompletionDate">TargetCompletionDate</item>
+    <item name="ActualCompletionDate">ActualCompletionDate</item>
+    <item name="ActualStartDate">ActualStartDate</item>
+    <item name="Mode">Mode</item>
+    <item name="To">To</item>
+    <item name="Project">Project#</item>
+    <item name="ESTLocalBudget">EST Local Budget</item>
+    <item name="ActLocalBudget">Act Local Budget</item>
+    <item name="SelectCombinedHistograms">当Exceed SLA被选中，请选择组合柱状图</item>
+    <item name="InitialAcutalBudget">Initial &amp; Actual Budget</item>
+    <item name="xlineNotTRT">在组合柱状图并且勾选了TRT的情况下，X和X2轴的值不能选择TRT类别</item>
+    <item name="pipelineMsg1">当Y轴选择了Initial &amp; Actual Budget的情况下，只能选择组合柱状图</item>
+    <item name="pipelineMsg2">当Y轴没有选择Project#的情况下，不能选择X和X2轴的以下节点值（1.Est.Budget Act.Budget; 2.Implementer; 3.Initial.EndDate Act.EndDate; 4.Initial.StartDate Act.StartDate; 5.IT PM;）</item>
+    <item name="pipelineMsg3"></item>
+    <item name="pipelineMsg6">的长度不能超过500个半角或者250个全角</item>
+    <item name="pipelineMsg4">选择了最近的情况下，必须输入当前选项对应行的数量和刻度</item>
+    <item name="pipelineMsg5">当前用户已经保存了5个首页Dashboard，请先删除再增加新的首页Dashboard</item>
+    <item name="SaveSetting">保存设置</item>
+    <item name="default">默认</item>
+    <item name="near">最近</item>
+    <item name="yy">年</item>
+    <item name="qq">季度</item>
+    <item name="mm">月</item>
+    <item name="wk">周</item>
+    <item name="dd">日</item>
+    <item name="PCR">PCR#</item>
+    <item name="ESTlBudget">ESTlBudget</item>
+    <item name="ESTBudget">ESTBudget</item>
+    <item name="ActBudget">ActBudget</item>
+    <item name="crMsg">当Y轴没有选择PCR#的情况下，不能选择X和X2轴的以下节点值（1.Est.Budget Act.Budget; 2.Target CompletionDate Actual CompletionDate;）</item>
+    
+  </Module>
+  <Module name="AllDataForm">
+    <item name="AllDataFormExport">运单信息导出</item>
+    <item name="FieldName">字段名</item>
+    <item name="DisplayName">列名</item>
+    <item name="SerialNo">序列号</item>
+    <item name="TimePeriod">时间范围类型</item>
+    <item name="FromDate">开始时间</item>
+    <item name="ToDate">结束时间</item>
+    <item name="TimePeriodIsRequired">时间范围类型为必选项</item>
+    <item name="FromDateIsRequired">开始时间为必选项</item>
+    <item name="ToDateIsRequired">结束时间为必选项</item>
+    <item name="FromDateGreaterThanToDate">结束时间必须大于开始时间</item>
+  </Module>
+  <Module name="CustomerPerformance">
+    <item name="CustomerPerformanceExport">客户KPI报表（按货物类型）导出</item>
+  </Module>
+  <Module name="ForwarderPerformance">
+    <item name="ForwarderPerformanceExport">承运商KPI报表（按运输方式）导出</item>
+  </Module>
+  <Module name="MonthlyKpiByDealerTm">
+    <item name="MonthlyKpiByDealerTmExport">经销商KPI（按运输方式）导出</item>
+  </Module>
+  <Module name="MonthlyKpiByDealerCt">
+    <item name="MonthlyKpiByDealerCtExport">经销商KPI（按货物类型）导出</item>
+  </Module>
+</Localization>

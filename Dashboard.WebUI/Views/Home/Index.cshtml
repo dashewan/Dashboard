@@ -1,0 +1,362 @@
+﻿@using FrogDashboard.Authentication.HtmlExtension
+@using FrogDashboard.Domain.SysManagement;
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv = "X-UA-Compatible" content = "IE=edge,chrome=1" />
+    <title>DHL DASHBOARD</title>
+    <link href="@Url.Content("~/Scripts/dwz-ria/themes/default/style.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Scripts/dwz-ria/themes/css/core.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Scripts/dwz-ria/themes/css/ieHack.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Scripts/Home/HomeTab.css")" rel="stylesheet" type="text/css" />
+    @*<script src="@Url.Content("~/Scripts/dwz-ria/js/jquery-1.4.4.js")" type="text/javascript"></script>*@
+    <script src="@Url.Content("~/Scripts/jquery-1.6.4.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/dwz-ria/js/jquery.validate.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/dwz-ria/dwz-bin/dwz.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/dwz-ria/js/dwz.regional.zh.js")" type="text/javascript"></script>
+    @*<script src="@Url.Content("~/Scripts/Home/HomeTab.js")" type="text/javascript"></script>*@
+    <script type="text/javascript">
+        tabAlert = "<=TabAlert>";
+        $(function () {
+            var lang = 'English';
+            var xmlPath = (lang =="English")? "/Scripts/dwz-ria/dwz.fragen.xml":"/Scripts/dwz-ria/dwz.frag.xml";
+            DWZ.init(xmlPath, {
+                loginUrl: "login_dialog.html", loginTitle: "登录", // 弹出登录对话框
+                statusCode: { ok: 200, error: 300, timeout: 301 }, //【可选】
+                pageInfo: { pageNum: "pageNum", numPerPage: "numPerPage", orderField: "orderField", orderDirection: "orderDirection" }, //【可选】
+                debug: false, // 调试模式 【true|false】
+                callback: function () {
+                    initEnv();
+                    $("#themeList").theme({ themeBase: "themes" }); // themeBase 相对于index页面的主题base路径
+                }
+            });
+            $("#aCnLang, #aEnLang").click(function () {
+
+                if (confirm("<=PlsSaveCurrentDate>")) {
+                    if ($(this).attr("id") == "aCnLang")
+                        window.location = '@Url.Action("SetLang", "Home", new { strLang = "SimplifiedChinese" })';
+                    else
+                        window.location = '@Url.Action("SetLang", "Home", new { strLang = "English" })';
+                }
+            });
+
+            $("#aExit").click(function () {
+               if(confirm("<=LeavePage>")){
+                window.location = "@Url.Action("LogOff", "Account")";
+                }
+            });
+
+            $("#aChangeRole").click(function(){
+                 if (confirm("<=PlsSaveCurrentDate>")) {
+                   var sysRoleId = $("#selUserRole").val();
+                   window.location = "/home/setrole/?sysRoleId="+ sysRoleId;
+                 }
+            });
+
+            $("#aPwd").click(function(){
+                  window.open('@{ <text>@Url.Action("ForceModifyPassword", "Account", new { forceModify = false })</text>}');
+            });
+            
+            //$("#name1").html("12312313131");
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetReportName", "Dashboard")',
+                dataType: 'json',
+                cache: false,
+                async: false,
+                success: function (result) {
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetReportParam", "Dashboard")',
+                dataType: 'json',
+                async: false,
+                success: function (result) {
+                    var str0;
+                    var str1;
+                    var str2;
+                    var str3;
+                    var str4;
+                    for (var i = 0; i < result.length; i++) {
+                        $("#name" + i).html(result[i].SpecName);
+                        document.getElementById("report" + i).innerHTML = '<iframe id="ifeReport' + i + '" name="ifeReport' + i + '" frameborder="0" scrolling="yes" border="0" style="width: 100%;height: 100%;" src=""></iframe>';
+                        var formHtml = '<FORM id=\"OBReportSerer' + i + '\" action=\"' + result[i].url + result[i].reportName + "&rc:toolbar=true\" method=\"post\" >";
+                        for (var j = 0; j < result[i].children.length; j++)
+                        {
+                            formHtml += '<INPUT type=\"hidden\" name=\"' + result[i].children[j].SqlField + '\" value=\"' + result[i].children[j].SqlValue + '\"/>';
+                        }
+                        formHtml += '<INPUT type=\"hidden\" name=\"rc:Parameters\" value=\"False\"/> ';
+                        formHtml += '</FORM>';
+                        if (i == 0)
+                            str0 = formHtml;
+                        if (i == 1)
+                            str1 = formHtml;
+                        if (i == 2)
+                            str2 = formHtml;
+                        if (i == 3)
+                            str3 = formHtml;
+                        if (i == 4)
+                            str4 = formHtml;
+                    }
+                    setTimeout(function () {
+                        for (var i = 0; i < result.length; i++) {
+                            if (i == 0)
+                                document.getElementById("ifeReport" + i).contentWindow.document.body.innerHTML = str0;
+                            if (i == 1)
+                                document.getElementById("ifeReport" + i).contentWindow.document.body.innerHTML = str1;
+                            if (i == 2)
+                                document.getElementById("ifeReport" + i).contentWindow.document.body.innerHTML = str2;
+                            if (i == 3)
+                                document.getElementById("ifeReport" + i).contentWindow.document.body.innerHTML = str3;
+                            if (i == 4)
+                                document.getElementById("ifeReport" + i).contentWindow.document.body.innerHTML = str4;
+
+                            document.getElementById("ifeReport" + i).contentWindow.document.getElementById("OBReportSerer" + i).submit();
+                        }
+                    }, 0);
+                }
+            });
+            var iframeHeight = getBrowserWidthHeight().height;
+            $("#report0").css({ "height": iframeHeight - 180 + "px" });
+            $("#report1").css({ "height": iframeHeight - 180 + "px" });
+            $("#report2").css({ "height": iframeHeight - 180 + "px" });
+            $("#report3").css({ "height": iframeHeight - 180 + "px" });
+            $("#report4").css({ "height": iframeHeight - 180 + "px" });
+        });
+        function selectTag(showContent, selfObj) {
+            // 操作标签
+            var tag = document.getElementById("tags").getElementsByTagName("li");
+            var taglength = tag.length;
+            for (i = 0; i < taglength; i++) {
+                tag[i].className = "";
+            }
+            selfObj.parentNode.className = "selectTag";
+            // 操作内容
+            for (i = 0; j = document.getElementById("tagContent" + i) ; i++) {
+                j.style.display = "none";
+            }
+            document.getElementById(showContent).style.display = "block";
+        }
+
+        //获取浏览器高度
+        function getBrowserWidthHeight() {
+            var intH = 0;
+            var intW = 0;
+            if (typeof window.innerWidth == 'number') {
+                intH = window.innerHeight;
+                intW = window.innerWidth;
+            }
+            else if (document.documentElement &&
+                  (document.documentElement.clientWidth ||
+                  document.documentElement.clientHeight)) {
+                intH = document.documentElement.clientHeight;
+                intW = document.documentElement.clientWidth;
+            }
+            else if (document.body &&
+                (document.body.clientWidth || document.body.clientHeight)) {
+                if (document.body.scrollHeight > document.body.clientHeight) {
+                    intH = document.body.scrollHeight;
+                    intW = document.body.scrollWidth;
+                }
+                else {
+                    intH = document.body.clientHeight;
+                    intW = document.body.clientWidth;
+                }
+            }
+
+            return { width: parseInt(intW), height: parseInt(intH) };
+        }
+    </script>
+    <style type="text/css">
+        #selUserRole
+        {
+            height:25px;
+            border-radius:3px;
+            line-height:25px;
+        }
+        OL LI {
+	        MARGIN: 8px
+        }
+        #con {
+	        FONT-SIZE: 12px; MARGIN: 0px auto; WIDTH: auto; margin-top:10px;
+        }
+        #tags {
+	        PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; 
+            MARGIN: 0px 0px 0px 10px; WIDTH: 800px; PADDING-TOP: 0px; HEIGHT: 23px
+        }
+        #tags LI {
+	        FLOAT: left; MARGIN-RIGHT: 1px; LIST-STYLE-TYPE: none; HEIGHT: 23px
+        }
+        #tags LI A {
+	        PADDING-RIGHT: 10px; PADDING-LEFT: 10px; FLOAT: left; PADDING-BOTTOM: 0px; COLOR: #999; 
+            LINE-HEIGHT: 23px; PADDING-TOP: 0px; HEIGHT: 23px; TEXT-DECORATION: none
+        }
+        #tags LI.emptyTag {
+	        BACKGROUND: none transparent scroll repeat 0% 0%; WIDTH: 4px
+        }
+        #tags LI.selectTag {
+	        BACKGROUND-POSITION: left top; MARGIN-BOTTOM: -2px; POSITION: relative; HEIGHT: 25px; font-weight:bolder;
+        }
+        #tags LI.selectTag A {
+	        BACKGROUND-POSITION: right top; COLOR: #000; LINE-HEIGHT: 25px; HEIGHT: 25px
+        }
+        #tagContent {
+	        PADDING-RIGHT: 1px;  PADDING-LEFT: 1px; PADDING-BOTTOM: 1px; PADDING-TOP: 1px; BACKGROUND-COLOR: #fff
+        }
+        .tagContent {
+	        PADDING-RIGHT: 10px; DISPLAY: none; PADDING-LEFT: 10px; 
+            PADDING-BOTTOM: 10px; WIDTH: auto; COLOR: #474747; PADDING-TOP: 10px;
+        }
+        #tagContent DIV.selectTag {
+	        DISPLAY: block
+        }
+        .nameValue {
+            font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div id="layout">
+        <div id="header">
+            <div class="headerNav">
+                <a class="logo">标志</a>
+                <ul class="nav">
+                    <li>
+                        <div>
+                            <=CurrentRole><select id="selUserRole" class="select">
+                                @foreach (SysRole sr in (List<SysRole>)ViewBag.UserRoles)
+                                {
+                                    if (sr.RoleName == ((SysRole)ViewBag.SysRole).RoleName)
+                                    {
+                                    <option value="@sr.SysRoleId" selected ="selected" >@sr.RoleName</option>    
+                                    }
+                                    else
+                                    {
+                                    <option value="@sr.SysRoleId" >@sr.RoleName</option>    
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </li>
+                    <li><a id="aChangeRole" target="_self" style="cursor: pointer;"><=ChangeRole></a></li>
+                    @{
+                        string lang = string.Empty;
+                        if (Request.Cookies["Lang"] == null)
+                        { lang = "English"; }
+                        else
+                        {
+                            lang = Request.Cookies["Lang"].Value;
+                        }
+                    }
+@*                    @{
+                        if (lang == "English")
+                        {
+                        <li><a id="aCnLang" target="_self" style="cursor: pointer;"><=CnLang></a></li>                
+                        }
+                        else
+                        {
+                        <li><a id="aEnLang" target="_self" style="cursor: pointer;"><=EnLang></a></li>
+                        }
+                    }*@
+@*                    <li><a id="aPwd" target="_self" style="cursor: pointer;"><=ModifyPwd></a></li>
+                    <li><a id="aExit" target="_self" style="cursor: pointer;"><=Exit></a></li>*@
+                </ul>
+            </div>
+            <!-- navMenu -->
+        </div>
+        <div id="leftside">
+            <div id="sidebar_s">
+                <div class="collapse">
+                    <div class="toggleCollapse">
+                        <div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="sidebar">
+                <div class="toggleCollapse">
+                    <h2>
+                        <=Menu></h2>
+                    <div>
+                        收缩</div>
+                </div>
+                <div class="accordion" fillspace="sidebar">
+                    @Html.GenerateMenu()
+                </div>
+            </div>
+        </div>
+        <div id="container">
+            <div id="navTab" class="tabsPage">
+                <div class="tabsPageHeader">
+                    <div class="tabsPageHeaderContent">
+                        <!-- 显示左右控制时添加 class="tabsPageHeaderMargin" -->
+                        <ul class="navTab-tab">
+                            <li tabid="main" class="main"><a href="javascript:;"><span><span class="home_icon"><=Home></span></span></a></li>
+                        </ul>
+                    </div>
+                    <div class="tabsLeft">
+                        left</div>
+                    <!-- 禁用只需要添加一个样式 class="tabsLeft tabsLeftDisabled" -->
+                    <div class="tabsRight">
+                        right</div>
+                    <!-- 禁用只需要添加一个样式 class="tabsRight tabsRightDisabled" -->
+                    <div class="tabsMore">
+                        more</div>
+                </div>
+                <ul class="tabsMoreList">
+                    <li><a href="javascript:;"><=HomePage></a></li>
+                </ul>
+                <div class="navTab-panel tabsPageContent layoutBox" id="iframeDiv">
+                    <div class="page unitBox" id="welcome">
+                        <div id="con">
+                            <ul id="tags">
+                                <li class="selectTag"><a onclick="selectTag('tagContent0',this)" href="javascript:void(0)"><=Dashboard1></a></li>
+                                <li><a onclick="selectTag('tagContent1',this)" href="javascript:void(0)"><=Dashboard2></a></li>
+                                <li><a onclick="selectTag('tagContent2',this)" href="javascript:void(0)"><=Dashboard3></a></li>
+                                <li><a onclick="selectTag('tagContent3',this)" href="javascript:void(0)"><=Dashboard4></a></li>
+                                <li><a onclick="selectTag('tagContent4',this)" href="javascript:void(0)"><=Dashboard5></a></li>
+                            </ul>
+                            <div id="tagContent">
+                                    
+                                <div class="tagContent selectTag" id="tagContent0" style="overflow:auto">
+                                    <br />
+                                    <label id="name0" class="nameValue"></label>
+                                    <div id="report0"></div>
+                                </div>
+                                <div class="tagContent" id="tagContent1" style="overflow:auto">
+                                    <br />
+                                    <label id="name1" class="nameValue"></label>
+                                    <div id="report1"></div>
+                                </div>
+                                <div class="tagContent" id="tagContent2" style="overflow:auto">
+                                    <br />
+                                    <label id="name2" class="nameValue"></label>
+                                    <div id="report2"></div>
+                                </div>
+                                <div class="tagContent" id="tagContent3" style="overflow:auto">
+                                    <br />
+                                    <label id="name3" class="nameValue"></label>
+                                    <div id="report3"></div>
+                                </div>
+                                <div class="tagContent" id="tagContent4" style="overflow:auto">
+                                    <br />
+                                    <label id="name4" class="nameValue"></label>
+                                    <div id="report4"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <div id="footer">
+        Copyright &copy; 2015 <a href="http://www.cn.dhl.com/" target="_blank"> DHL International GmbH.</a></div>
+</body>
+</html>

@@ -1,0 +1,742 @@
+﻿@{
+    ViewBag.Title = "CRReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Head{
+    <script src="@Url.Content("~/Scripts/jquery.easyui/jquery.easyui.min-1.4.2.js")" type="text/javascript"></script>
+    <link href="@Url.Content("~/Scripts/jquery.easyui/easyui.css")" rel="stylesheet" type="text/css" media="screen" />
+    <link href="@Url.Content("~/Scripts/jquery.easyui/icon.css")" rel="stylesheet" type="text/css" media="screen" />
+
+    <script type="text/javascript">
+        $(function () {
+            $('#Model').combobox({
+                data: [ { id: 'BarChart', text: '<=BarChart>' }
+                    , { id: 'CombinedHistograms', text: '<=CombinedHistograms>' }
+                    , { id: 'PieChart', text: '<=pieChart>' }
+                    ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue != "CombinedHistograms") {
+                        $("#xline2").combotree('disable');
+                        $("#xline2").combotree('clear');
+                    } else {
+                        $("#xline2").combotree('enable');
+                        
+                    }
+                    //else if (newValue == 'CombinedHistograms' && $('#YLine').combobox('getValue') != 'InitialAcutalBudget') {
+                    //    $("#xline2").combotree('enable');
+                    //}
+                }
+            });
+            $('#YLine').combobox({
+                data: [
+                 { id: 'ActBudget', text: '<=ActBudget>' }
+               , { id: 'ESTBudget', text: '<=ESTBudget>' }
+               , { id: 'PCR#', text: '<=PCR>' }
+                ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                onChange: function (newValue, oldValue) {
+                    //if (newValue == "ESTBudget" || newValue == "ActBudget") {
+                       
+                    //}
+                    //else if ($('#Model').combobox('getValue') == "CombinedHistograms" && newValue != "InitialAcutalBudget") {
+                    //    $("#xline2").combotree('enable');
+                    //}
+
+                    if ($('#xline').combotree('getValues').length > 0 && $(this).combobox('getValue') != 'PCR#') {
+                        var xlineStr = $('#xline').combotree('getValues');
+                        for (var i = 0; i < xlineStr.length; i++) {
+                            if (xlineStr[i].indexOf("Est.Budget Act.Budget") != -1
+                                || xlineStr[i].indexOf("Target CompletionDate Actual CompletionDate") != -1) {
+                                alert("<=crMsg>");
+                                $('#YLine').combobox('setValue', 'PCR#');
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($('#xline2').combotree('getValues').length > 0 && $(this).combobox('getValue') != 'PCR#') {
+                        var xlineStr = $('#xline2').combotree('getValues');
+                        for (var i = 0; i < xlineStr.length; i++) {
+                            if (xlineStr[i].indexOf("Est.Budget Act.Budget") != -1
+                                || xlineStr[i].indexOf("Target CompletionDate Actual CompletionDate") != -1) {
+                                alert("<=crMsg>");
+                                $('#YLine').combobox('setValue', 'PCR#');
+                                break;
+                            }
+                        }
+                    }
+                }
+            });
+
+            $('#xline').combotree({
+                url: '@Url.Action("CRReportXline", "Reports")',
+                valueField: 'id',
+                textField: 'text',
+                lines: true,
+                multiple: true,
+                panelHeight: 300,
+                onChange: function (newValue, oldValue) {
+                    if ($('#YLine').combobox('getValue') != "PCR#" && $(this).combotree('getValues').length > 0) {
+                        var xlineStr = $(this).combotree('getValues');
+                        for (var i = 0; i < xlineStr.length; i++) {
+                            if (xlineStr[i].indexOf("Est.Budget Act.Budget") != -1
+                                || xlineStr[i].indexOf("Target CompletionDate Actual CompletionDate") != -1) {
+                                alert("<=crMsg>");
+                                $(this).combotree('clear');
+                                break;
+                            }
+                        }
+                    }
+                }
+            });
+            $('#xline2').combotree({
+                url: '@Url.Action("CRReportXline", "Reports")',
+                valueField: 'id',
+                textField: 'text',
+                lines: true,
+                multiple: true,
+                panelHeight: 300,
+                onChange: function (newValue, oldValue) {
+                    if ($('#YLine').combobox('getValue') != "PCR#" && $(this).combotree('getValues').length > 0) {
+                        var xlineStr = $(this).combotree('getValues');
+                        for (var i = 0; i < xlineStr.length; i++) {
+                            if (xlineStr[i].indexOf("Est.Budget Act.Budget") != -1
+                                || xlineStr[i].indexOf("Target CompletionDate Actual CompletionDate") != -1) {
+                                alert("<=crMsg>");
+                                $(this).combotree('clear');
+                                break;
+                            }
+                        }
+                    }
+                }
+            });
+
+            $('#SaveKickedOffDateScales').combobox({
+                data: [{ id: 'dd', text: '<=dd>' }
+                    , { id: 'wk', text: '<=wk>' }
+                    , { id: 'mm', text: '<=mm>' }
+                    , { id: 'qq', text: '<=qq>' }
+                    , { id: 'yy', text: '<=yy>' }
+                ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false
+            });
+            $("#SaveKickedOffDateScales").combobox('disable');
+
+            $('#SaveKickedOffDateType').combobox({
+                data: [{ id: 'default', text: '<=default>' }
+                    , { id: 'near', text: '<=near>' }],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue == "near") {
+                        $("#SaveKickedOffDateScales").combobox('enable');
+                        $("#SaveKickedOffDate").numberbox('enable');
+                    } else {
+                        $("#SaveKickedOffDateScales").combobox("clear");
+                        $("#SaveKickedOffDateScales").combobox('disable');
+                        $("#SaveKickedOffDate").numberbox('clear');
+                        $("#SaveKickedOffDate").numberbox('disable');
+                    }
+                }
+            });
+            $('#SaveKickedOffDateType').combobox('setValue', 'default');
+
+            $('#SaveTargetCompletionDateScales').combobox({
+                data: [{ id: 'dd', text: '<=dd>' }
+                    , { id: 'wk', text: '<=wk>' }
+                    , { id: 'mm', text: '<=mm>' }
+                    , { id: 'qq', text: '<=qq>' }
+                    , { id: 'yy', text: '<=yy>' }
+                ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false
+            });
+            $("#SaveTargetCompletionDateScales").combobox('disable');
+
+            $('#SaveTargetCompletionDateType').combobox({
+                data: [{ id: 'default', text: '<=default>' }
+                    , { id: 'near', text: '<=near>' }],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue == "near") {
+                        $("#SaveTargetCompletionDateScales").combobox('enable');
+                        $("#SaveTargetCompletionDate").numberbox('enable');
+                    } else {
+                        $("#SaveTargetCompletionDateScales").combobox("clear");
+                        $("#SaveTargetCompletionDateScales").combobox('disable');
+                        $("#SaveTargetCompletionDate").numberbox('clear');
+                        $("#SaveTargetCompletionDate").numberbox('disable');
+                    }
+                }
+            });
+            $('#SaveTargetCompletionDateType').combobox('setValue', 'default');
+
+            $('#SaveActualCompletionDateScales').combobox({
+                data: [{ id: 'dd', text: '<=dd>' }
+                    , { id: 'wk', text: '<=wk>' }
+                    , { id: 'mm', text: '<=mm>' }
+                    , { id: 'qq', text: '<=qq>' }
+                    , { id: 'yy', text: '<=yy>' }
+                ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false
+            });
+            $("#SaveActualCompletionDateScales").combobox('disable');
+            var iframeHeight = getBrowserWidthHeight().height;
+            $("#formDiv").css({ "height": iframeHeight - 180 + "px" });
+            $('#SaveActualCompletionDateType').combobox({
+                data: [{ id: 'default', text: '<=default>' }
+                    , { id: 'near', text: '<=near>' }],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue == "near") {
+                        $("#SaveActualCompletionDateScales").combobox('enable');
+                        $("#SaveActualCompletionDate").numberbox('enable');
+                    } else {
+                        $("#SaveActualCompletionDateScales").combobox("clear");
+                        $("#SaveActualCompletionDateScales").combobox('disable');
+                        $("#SaveActualCompletionDate").numberbox('clear');
+                        $("#SaveActualCompletionDate").numberbox('disable');
+                    }
+                }
+            });
+            $('#SaveActualCompletionDateType').combobox('setValue', 'default');
+
+            $('#SaveActualStartDateScales').combobox({
+                data: [{ id: 'dd', text: '<=dd>' }
+                    , { id: 'wk', text: '<=wk>' }
+                    , { id: 'mm', text: '<=mm>' }
+                    , { id: 'qq', text: '<=qq>' }
+                    , { id: 'yy', text: '<=yy>' }
+                ],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false
+            });
+            $("#SaveActualStartDateScales").combobox('disable');
+
+            $('#SaveActualStartDateType').combobox({
+                data: [{ id: 'default', text: '<=default>' }
+                    , { id: 'near', text: '<=near>' }],
+                valueField: 'id',
+                textField: 'text',
+                multiple: false,
+                editable: false,
+                onChange: function (newValue, oldValue) {
+                    if (newValue == "near") {
+                        $("#SaveActualStartDateScales").combobox('enable');
+                        $("#SaveActualStartDate").numberbox('enable');
+                    } else {
+                        $("#SaveActualStartDateScales").combobox("clear");
+                        $("#SaveActualStartDateScales").combobox('disable');
+                        $("#SaveActualStartDate").numberbox('clear');
+                        $("#SaveActualStartDate").numberbox('disable');
+                    }
+                }
+            });
+            $('#SaveActualStartDateType').combobox('setValue', 'default');
+
+            //弹出的dialog
+            $("#saveSetting").dialog({
+                title: 'Setting',
+                width: 480,
+                height: 270,
+                modal: true
+            })
+        });
+        function SelectCheck(value, msg) {
+            var error = true;
+            if (value == "") {
+                error = false;
+                alert(msg)
+            }
+            return error;
+        }
+        //检索之前的验证
+        function XCheck(allvalue, treevalue, msg) {
+            var error = true;
+            var newValue = allvalue;
+            //取得当前combotree的tree对象
+            var tree = treevalue;
+            //取得tree对象的所有父节点
+            var root = tree.tree("getRoots");
+            //获取不确定的父节点
+            var indeterminate = tree.tree('getChecked', 'indeterminate');
+            var size = 0;
+            for (var i = 0; i < newValue.length; i++) {
+                var node1 = newValue[i];
+                for (var j = 0; j < root.length; j++) {
+                    if (node1 == root[j].id) {
+                        size++;
+                    }
+                }
+            }
+            for (var i = 0; i < indeterminate.length; i++) {
+                var node2 = indeterminate[i].id;
+                for (var j = 0; j < root.length; j++) {
+                    if (node2 == root[j].id) {
+                        size++;
+                    }
+                }
+            }
+            if (size > 1) {
+                error = false;
+                alert(msg + "<=XlineNotSelectDouble>")
+            }
+
+            return error;
+        }
+        //所有的check
+        function doCheck() {
+            //if (!SelectCheck($("#kickedOffDate").val(), "Kicked Off Date<=NotNull>")) return false;
+            //if (!SelectCheck($("#kickedOffDateTo").val(), "Kicked Off Date To<=NotNull>")) return false;
+            if (!SelectCheck($("#Model").combotree("getValue"), "<=NotNull> Model")) return false;
+            if (!SelectCheck($("#YLine").combotree("getValue"), "Y<=XlineNotNull>")) return false;
+            if (!SelectCheck($("#xline").combotree("getValues"), "X<=XlineNotNull>")) return false;
+            if ($("#Model").combotree("getValue") == 'CombinedHistograms' && $('#YLine').combobox('getValue') != 'InitialAcutalBudget') {
+                if (!SelectCheck($("#xline2").combotree("getValues"), "X2<=XlineNotNull>")) return false;
+            }
+            //X轴验证
+            if (!XCheck($("#xline").combotree("getValues"), $("#xline").combotree("tree"), 'X')) return false;
+            //X2轴验证
+            if ($('#YLine').combobox('getValue') == 'InitialAcutalBudget' && $("#Model").combotree("getValue") != 'CombinedHistograms') {
+                alert("<=pipelineMsg1>");
+                return false;
+            }
+            if (!XCheck($("#xline2").combotree("getValues"), $("#xline2").combotree("tree"), 'X2')) return false;
+            return true;
+        }
+
+        function GetParam() {
+            var str;
+            str += "&KickedOffDate=" + $("#kickedOffDate").val();
+            str += "&KickedOffDateTo=" + $("#kickedOffDateTo").val();
+            str += "&TargetCompletionDate=" + $("#targetCompletionDate").val();
+            str += "&TargetCompletionDateTo=" + $("#targetCompletionDateTo").val();
+            str += "&ActualCompletionDate=" + $("#actualCompletionDate").val();
+            str += "&ActualCompletionDateTo=" + $("#actualCompletionDateTo").val();
+            str += "&ActualstartDate=" + $("#actualstartDate").val();
+            str += "&ActualstartDateTo=" + $("#actualstartDateTo").val();
+            str += "&Model=" + $("#Model").combobox("getValue");
+            str += "&YLine=" + $("#YLine").combobox("getValue");
+            str += "&xline=" + $("#xline").combotree("getValues");
+            str += "&xline2=" + $("#xline2").combotree("getValues");
+            return str;
+        }
+        //检索
+        function search() {
+            if (!doCheck()) return;
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetIframeURL", "Reports")',
+                data: GetParam(),
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    document.getElementById("formDiv").innerHTML = '<iframe id="ifeReport" name="ifeReport" frameborder="0" scrolling="yes" border="0" style="width: 100%;height: 100%;" src=""></iframe>';
+
+                    var formHtml = '<FORM id=\"OBReportSerer\" action=\"' + result.url + result.reportName
+                    + "&rc:toolbar=true\" method=\"post\" >";
+                    formHtml += '<INPUT type=\"hidden\" name=\"KickedOffDate\" value=\"' + result.kickedOffDate + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"KickedOffDateTo\" value=\"' + result.kickedOffDateTo + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"TargetCompletionDate\" value=\"' + result.targetCompletionDate + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"TargetCompletionDateTo\" value=\"' + result.targetCompletionDateTo + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"ActualCompletionDate\" value=\"' + result.actualCompletionDate + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"ActualCompletionDateTo\" value=\"' + result.actualCompletionDateTo + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"ActualstartDate\" value=\"' + result.actualstartDate + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"ActualstartDateTo\" value=\"' + result.actualstartDateTo + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"Model\" value=\"' + result.model + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"YLine\" value=\"' + result.yLine + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"XGroup\" value=\"' + result.xGroup + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"XGroup2\" value=\"' + result.xGroup2 + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"XLine\" value=\"' + result.xline + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"XLine2\" value=\"' + result.xline2 + '\"/>';
+                    formHtml += '<INPUT type=\"hidden\" name=\"rc:Parameters\" value=\"False\"/> ';
+                    formHtml += '</FORM>';
+                    setTimeout(function(){
+                        document.getElementById("ifeReport").contentWindow.document.body.innerHTML = formHtml;
+                        document.getElementById("ifeReport").contentWindow.document.getElementById("OBReportSerer").submit();
+                    },0);
+                },
+                error: function () {
+                }
+            });
+        };
+        //日期控件
+        function showDate() {
+            WdatePicker({ skin: 'default', dateFmt: 'yyyy-MM-dd' });
+        }
+        //月份控件
+        function showMonth() {
+            WdatePicker({ skin: 'default', dateFmt: 'yyyy-MM' });
+        }
+
+        function SaveSetting() {
+            ResetSave();
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("PipelineSaveSettingCheck", "Reports")',
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.flg) {
+                        if (!doCheck()) return;
+                        $("#saveSetting").dialog("open");
+                    } else {
+                        alert("<=pipelineMsg5>");
+                    }
+                }
+            });
+        }
+        function ResetVal() {
+            $("#kickedOffDate").val("");
+            $("#kickedOffDateTo").val("");
+            $("#targetCompletionDate").val("");
+            $("#targetCompletionDateTo").val("");
+            $("#actualCompletionDate").val("");
+            $("#actualCompletionDateTo").val("");
+            $("#actualstartDate").val("");
+            $("#actualstartDateTo").val("");
+          
+            $("#Model").combobox("clear");
+            $("#YLine").combobox("clear");
+            $("#xline").combotree("clear");
+            $("#xline2").combotree("clear");
+        }
+        function ResetSave() {
+            $("#SaveName").textbox("setValue", "");
+            $("#SaveDesc").textbox("setValue", "");
+            $("#SaveKickedOffDateType").combobox('setValue', 'default');
+            $("#SaveTargetCompletionDateType").combobox('setValue', 'default');
+            $("#SaveActualCompletionDateType").combobox('setValue', 'default');
+            $("#SaveActualStartDateType").combobox('setValue', 'default');
+        }
+       
+        function Save() {
+            var errorMsg = "";
+            if ($("#SaveName").val() == "") {
+                errorMsg += "<=NotNull> Name\n";
+            }
+            if ($("#SaveName").val() != "") {
+                if (getByteLen($("#SaveName").val()) > 500) {
+                    errorMsg += "<=pipelineMsg3>Name<=pipelineMsg6>\n";
+                }
+            }
+            if ($("#SaveDesc").val() == "") {
+                errorMsg += "<=NotNull> Desc\n";
+            }
+            if ($("#SaveDesc").val() != "") {
+                if (getByteLen($("#SaveDesc").val()) > 500) {
+                    errorMsg += "<=pipelineMsg3>Desc<=pipelineMsg6>\n";
+                }
+            }
+            if ($("#SaveKickedOffDateType").combobox('getValue') == 'near') {
+                if ($("#SaveKickedOffDate").val() == "" || $("#SaveKickedOffDateScales").combobox('getValue') == "") {
+                    errorMsg += "Kicked Off Date<=pipelineMsg4>\n";
+                }
+            }
+            if ($("#SaveTargetCompletionDateType").combobox('getValue') == 'near') {
+                if ($("#SaveTargetCompletionDate").val() == "" || $("#SaveTargetCompletionDateScales").combobox('getValue') == "") {
+                    errorMsg += "Target Completion Date<=pipelineMsg4>\n";
+                }
+            }
+            if ($("#SaveActualCompletionDateType").combobox('getValue') == 'near') {
+                if ($("#SaveActualCompletionDate").val() == "" || $("#SaveActualCompletionDateScales").combobox('getValue') == "") {
+                    errorMsg += "Actual Completion Date<=pipelineMsg4>\n";
+                }
+            }
+            if ($("#SaveActualStartDateType").combobox('getValue') == 'near') {
+                if ($("#SaveActualStartDate").val() == "" || $("#SaveActualStartDateScales").combobox('getValue') == "") {
+                    errorMsg += "Actual Start Date<=pipelineMsg4>\n";
+                }
+            }
+            if (errorMsg != "") {
+                alert(errorMsg);
+                return;
+            }
+
+            var str = GetParam();
+            str += "&SaveName=" + $("#SaveName").val();
+            str += "&SaveDesc=" + $("#SaveDesc").val();
+            str += "&SaveKickedOffDateType=" + $("#SaveKickedOffDateType").combobox('getValue');
+            str += "&SaveKickedOffDate=" + $("#SaveKickedOffDate").val();
+            str += "&SaveKickedOffDateScales=" + $("#SaveKickedOffDateScales").combobox('getValue');
+            str += "&SaveTargetCompletionDateType=" + $("#SaveTargetCompletionDateType").combobox('getValue');
+            str += "&SaveTargetCompletionDate=" + $("#SaveTargetCompletionDate").val();
+            str += "&SaveTargetCompletionDateScales=" + $("#SaveTargetCompletionDateScales").combobox('getValue');
+            str += "&SaveActualCompletionDateType=" + $("#SaveActualCompletionDateType").combobox('getValue');
+            str += "&SaveActualCompletionDate=" + $("#SaveActualCompletionDate").val();
+            str += "&SaveActualCompletionDateScales=" + $("#SaveActualCompletionDateScales").combobox('getValue');
+            str += "&SaveActualStartDateType=" + $("#SaveActualStartDateType").combobox('getValue');
+            str += "&SaveActualStartDate=" + $("#SaveActualStartDate").val();
+            str += "&SaveActualStartDateScales=" + $("#SaveActualStartDateScales").combobox('getValue');
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("PipelineSaveSettingCheck", "Reports")',
+                dataType: 'json',
+                cache: false,
+                success: function (result) {
+                    if (result.flg) {
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("PCRSaveSetting", "Reports")',
+                            data: str,
+                            dataType: 'json',
+                            cache: false,
+                            success: function (result) {
+                                if (result.flg) {
+                                    $("#saveSetting").dialog("close");
+                                } else {
+                                    alert("<=SaveError>");
+                                }
+                            }
+                        });
+                    } else {
+                        alert("<=pipelineMsg5>");
+                    }
+                }
+            });
+
+
+        }
+        //取得字符长度（可以区分全角半角）
+        function getByteLen(val) {
+            var len = 0;
+            for (var i = 0; i < val.length; i++) {
+                if (val[i].match(/[^\x00-\xff]/ig) != null) //全角 
+                    len += 2;
+                else
+                    len += 1;
+            }
+            return len;
+        }
+    </script>
+}
+<div class="column_search">
+    <form id="frmSearch" name="frmSearch">
+    <h3 class="column_title">
+        <=Search></h3>
+        <table class="table">
+            <tr>
+                <td class="title">
+                    <=KickedOffDate>
+                </td>
+                <td>
+                    
+                        <input id="kickedOffDate" name="KickedOffDate" class="textbox-text Wdate dateControlYM" tabindex="1" autocomplete="off" onclick='showDate()' style=" width: 140px;"/>
+                    
+                </td>
+                <td class="title">
+                     <=To>
+                </td>
+                <td>
+                    
+                        <input id="kickedOffDateTo" name="KickedOffDateTo" class="textbox-text Wdate dateControlYM" tabindex="2"  autocomplete="off" onclick='showDate()' style=" width: 140px;" />
+                    
+                </td>
+                <td class="title">
+                    <=TargetCompletionDate>
+                </td>
+                <td>
+                   
+                        <input id="targetCompletionDate"  name="TargetCompletionDate" class="textbox-text Wdate dateControlYM" tabindex="3"  autocomplete="off" onclick='showDate()' style=" width: 140px;" />
+                    
+                </td>
+                <td class="title">
+                    <=To>
+                </td>
+                <td>
+                    
+                        <input id="targetCompletionDateTo"  name="TargetCompletionDateTo" class="textbox-text Wdate dateControlYM" tabindex="4"  autocomplete="off" onclick='showDate()' style=" width: 140px;" />
+                    
+                </td>
+            </tr>
+            <tr>
+                <td class="title">
+                    <=ActualCompletionDate>
+                </td>
+                <td>
+                    
+                        <input id="actualCompletionDate"  name="ActualCompletionDate" class="textbox-text Wdate dateControlYM" tabindex="5" onclick='showDate()'  autocomplete="off"  style="width: 140px" />
+                    
+                </td>
+                <td class="title">
+                    <=To>
+                </td>
+                <td>
+                        <input id="actualCompletionDateTo"  name="ActualCompletionDateTo" class="textbox-text Wdate dateControlYM" tabindex="6" onclick='showDate()' autocomplete="off" style="width: 140px" />
+                </td>
+                <td class="title">
+                    <=ActualStartDate>
+                </td>
+                <td>
+                    
+                        <input id="actualstartDate"  name="ActualstartDate" class="textbox-text Wdate dateControlYM" tabindex="7" onclick='showDate()' autocomplete="off"  style="width: 140px" />
+                   
+                </td>
+                <td class="title">
+                    <=To>
+                </td>
+                <td>
+                    
+                        <input id="actualstartDateTo"   name="ActualstartDateTo" class="textbox-text Wdate dateControlYM" tabindex="8" onclick='showDate()' autocomplete="off"  style="width: 140px" />
+                   
+                </td>
+            </tr>
+            <tr>
+                <td class="title">
+                   <=Mode>
+                </td>
+                <td>
+                    <input class="easyui-combobox" id="Model" style="width:140px;" editable="false"/>
+                </td>
+                <td class="title">
+                    Y
+                </td>
+                <td>
+                    <input class="easyui-combobox" id="YLine" style="width:140px;" editable="false"/>
+                </td>
+                <td class="title">
+                    
+                </td>
+                <td>
+                    
+                </td>
+                <td class="title">
+                    
+                </td>
+                <td>
+                    
+                </td>
+            </tr>
+            <tr>
+                <td class="title">
+                   X(X1)
+                </td>
+                <td  colspan="3">
+                    <input class="easyui-combobox" id="xline" style="width:360px;" editable="false"/>
+                
+                </td>
+                <td class="title">
+                    X(X2)
+                </td>
+                <td colspan="3">
+                    <input class="easyui-combobox" id="xline2" style="width:360px;" disabled="disabled" editable="false"/>
+                </td>  
+            </tr> 
+        </table>
+        <div class="btn_bar">
+            <input type="button" class="button" id="btnSearch" value="<=Search>" onclick="search();"/>
+            <input type="button" class="button" id="btnReset" value="<=Reset>" onclick="ResetVal();"/>
+            <input type="button" class="button" id="btnSaveSetting" value="<=SaveSetting>" onclick="SaveSetting();"/>
+        </div>
+    </form>
+</div>
+<div id="formDiv">
+</div>
+<div id="saveSetting" class="column_edit" closed="true">
+    <div class="column_search">
+        <form id="frmDetail" name="frmDetail">
+            <table class="table">
+                <tr>
+                    <td class="title">
+                        <=Name>
+                    </td>
+                    <td colspan="3">
+                        <input id="SaveName" class="easyui-textbox" style="width: 300px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=Desc>
+                    </td>
+                    <td colspan="3">
+                        <input id="SaveDesc" class="easyui-textbox" style="width: 300px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=KickedOffDate>
+                    </td>
+                    <td>
+                        <input id="SaveKickedOffDateType" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveKickedOffDate" class="easyui-numberbox" data-options="min:0,precision:0" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveKickedOffDateScales" style="width: 80px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=TargetCompletionDate>
+                    </td>
+                    <td>
+                        <input id="SaveTargetCompletionDateType" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveTargetCompletionDate" class="easyui-numberbox" data-options="min:0,precision:0" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveTargetCompletionDateScales" style="width: 80px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=ActualCompletionDate>
+                    </td>
+                    <td>
+                        <input id="SaveActualCompletionDateType" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveActualCompletionDate" class="easyui-numberbox" data-options="min:0,precision:0" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveActualCompletionDateScales" style="width: 80px"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="title">
+                        <=ActualStartDate>
+                    </td>
+                    <td>
+                        <input id="SaveActualStartDateType" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveActualStartDate" class="easyui-numberbox" data-options="min:0,precision:0" style="width: 80px"/>
+                    </td>
+                    <td>
+                        <input id="SaveActualStartDateScales" style="width: 80px"/>
+                    </td>
+                </tr>
+            </table>
+            <div class="btn_bar">
+                <input type="button" class="button" id="btnSave" value="<=Save>" onclick="Save();"/>
+                <input type="button" class="button" id="btnResetSave" value="<=Reset>" onclick="ResetSave();"/>
+            </div>
+        </form>
+    </div>
+</div>

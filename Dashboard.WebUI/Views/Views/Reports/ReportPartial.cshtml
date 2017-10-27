@@ -1,0 +1,817 @@
+﻿<script type="text/javascript">
+    var searchData = function () {
+        var url = '@Url.Action("GetBasAdjustmentTable", "BasicData")';
+        url += "/?AdjustmentType=" + adjustmentType;
+        $('#tblBasAdjustmentTable').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+    }
+
+    function PageLock() {
+        $("#divLock").dialog('open');
+    }
+
+    function PageUnLock() {
+        $("#divLock").dialog('close');
+    }
+
+    var validDate = function (OpenDateFrom, OpenDateTo) {
+        var vFlag = true;
+        if (OpenDateFrom && OpenDateTo) {
+            if (OpenDateFrom > OpenDateTo) {
+                alert("<=FromDateGreaterThanToDate>");
+                vFlag = false;
+            }
+        }
+        return vFlag;
+    };
+</script>
+<script type="text/javascript">
+    $(function () {
+        $("#tblLeftShipper").jqGrid({
+            datatype: "json",
+            mtype: 'POST',
+            height: 250,
+            colNames: ['<=ShipperCode>', '<=Shipper>'],
+            colModel: [
+               { name: 'CustCode', index: 'CustCode', width: 160, sortable: true },
+               { name: 'CustAlias', index: 'CustAlias', sortable: false }
+              ],
+            rownumbers: true,
+            multiselect: true,
+            sortable: false,
+            pager: 1,
+            rowNum: 0,
+            pager: $('#divLeftShipper'),
+            rowNum: 15,
+            rowList: [15, 20],
+            sortname: 'CustCode',
+            sortorder: "asc",
+            width: 360,
+            imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images'
+        });
+
+        $("#tblRightShipper").jqGrid({
+            datatype: "json",
+            mtype: 'POST',
+            height: 280,
+            colNames: ['<=ShipperCode>', '<=Shipper>'],
+            colModel: [
+               { name: 'CustCode', index: 'CustCode', width: 160, sortable: true },
+               { name: 'CustAlias', index: 'CustAlias', sortable: false }
+              ],
+            rownumbers: true,
+            multiselect: true,
+            sortable: false,
+            pager: 1,
+            rowNum: 0,
+            sortorder: "asc",
+            width: 360,
+            imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images'
+        });
+
+        $("#tblLeftConsignee").jqGrid({
+            datatype: "json",
+            mtype: 'POST',
+            height: 250,
+            colNames: ['<=ConsigneeCode>', '<=Consignee>'],
+            colModel: [
+               { name: 'CustCode', index: 'CustCode', width: 160, sortable: true },
+               { name: 'CustAlias', index: 'CustAlias', sortable: false }
+               ],
+            rownumbers: true,
+            multiselect: true,
+            sortable: false,
+            pager: 1,
+            rowNum: 0,
+            pager: $('#divLeftConsignee'),
+            rowNum: 15,
+            rowList: [15, 20],
+            sortname: 'CustCode',
+            sortorder: "asc",
+            width: 360,
+            imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images'
+        });
+
+        $("#tblRightConsignee").jqGrid({
+            datatype: "json",
+            mtype: 'POST',
+            height: 280,
+            colNames: ['<=ConsigneeCode>', '<=Consignee>'],
+            colModel: [
+               { name: 'CustCode', index: 'CustCode', width: 160, sortable: true },
+               { name: 'CustAlias', index: 'CustAlias', sortable: false }
+              ],
+            rownumbers: true,
+            multiselect: true,
+            sortable: false,
+            pager: 1,
+            rowNum: 0,
+            sortorder: "asc",
+            width: 360,
+            imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images'
+        });
+
+        $("#tblForwarder").jqGrid({
+            datatype: "json",
+            mtype: 'POST',
+            height: 200,
+            colNames: ['<=Forwarder>', '<=ForwarderName>'],
+            colModel: [
+               { name: 'CustCode', index: 'CustCode', width: 120, sortable: false },
+               { name: 'CustName', index: 'CustName', sortable: false }
+            ],
+            pager: 1,
+            rowNum: 0,
+            sortname: "",
+            sortorder: "",
+            multiselect: true,
+            rownumbers: true,
+            shrinkToFit: false,
+            viewrecords: true,
+            sortable: true,
+            width: 360,
+            imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images'
+        });
+
+        $("#tblTransportMode").jqGrid({
+            datatype: "json",
+            mtype: 'POST',
+            height: 200,
+            colNames: ['<=TransportMode>'],
+            colModel: [
+                 { name: 'TransportModeCode', index: 'TransportModeCode', width: 120, sortable: false }
+                 ],
+            pager: 1,
+            rowNum: 0,
+            sortname: "",
+            sortorder: "",
+            multiselect: true,
+            rownumbers: true,
+            shrinkToFit: false,
+            viewrecords: true,
+            sortable: true,
+            width: 190,
+            imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images'
+        });
+
+        $("#tblTransportType").jqGrid({
+            datatype: "json",
+            mtype: 'POST',
+            height: 200,
+            colNames: ['<=TransportType>'],
+            colModel: [
+                 { name: 'TransportTypeCode', index: 'TransportTypeCode', width: 120, sortable: false }
+                 ],
+            pager: 1,
+            rowNum: 0,
+            sortname: "",
+            sortorder: "",
+            multiselect: true,
+            rownumbers: true,
+            shrinkToFit: false,
+            viewrecords: true,
+            sortable: true,
+            width: 190,
+            imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images'
+        });
+
+        $("#tblDealerType").jqGrid({
+            datatype: "json",
+            mtype: 'POST',
+            height: 200,
+            colNames: ['<=DealerType>'],
+            colModel: [
+                 { name: 'DealerTypeCode', index: 'DealerTypeCode', width: 120, sortable: false }
+                 ],
+            pager: 1,
+            rowNum: 0,
+            sortname: "",
+            sortorder: "",
+            multiselect: true,
+            rownumbers: true,
+            shrinkToFit: false,
+            viewrecords: true,
+            sortable: true,
+            width: 190,
+            imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images'
+        });
+    })
+</script>
+<script type="text/javascript">
+    $(function () {
+        $("#divLock").dialog({
+            autoOpen: false,
+            resizable: false,
+            width: 200,
+            height: 110,
+            modal: true,
+            open: function (event, ui) {
+                $('body').css('overflow', 'hidden');
+                $('.ui-widget-overlay').css('width', '100%');
+            },
+            close: function (event, ui) {
+                $('body').css('overflow', 'auto');
+            }
+        });
+
+        $("#dlgImport").dialog({
+            height: 110,
+            width: 500,
+            modal: true,
+            title: "<=Import>",
+            autoOpen: false,
+            open: function (event, ui) {
+                $('body').css('overflow', 'hidden');
+                $('.ui-widget-overlay').css('width', '100%');
+            },
+            close: function (event, ui) {
+                $('body').css('overflow', 'auto');
+            }
+        });
+
+        $("#dlgForwarder").dialog({
+            height: 290,
+            width: 390,
+            modal: true,
+            title: "<=Forwarder>",
+            autoOpen: false,
+            open: function (event, ui) {
+                $('body').css('overflow', 'hidden');
+                $('.ui-widget-overlay').css('width', '100%');
+            },
+            close: function (event, ui) {
+                $('body').css('overflow', 'auto');
+            }
+        });
+
+
+        $("#dlgShipper").dialog({
+            height: 430,
+            width: 850,
+            modal: true,
+            title: "<=Shipper>",
+            autoOpen: false,
+            open: function (event, ui) {
+                $('body').css('overflow', 'hidden');
+                $('.ui-widget-overlay').css('width', '100%');
+            },
+            close: function (event, ui) {
+                $('body').css('overflow', 'auto');
+            }
+        });
+
+        $("#dlgConsignee").dialog({
+            height: 430,
+            width: 850,
+            modal: true,
+            title: "<=Consignee>",
+            autoOpen: false,
+            open: function (event, ui) {
+                $('body').css('overflow', 'hidden');
+                $('.ui-widget-overlay').css('width', '100%');
+            },
+            close: function (event, ui) {
+                $('body').css('overflow', 'auto');
+            }
+        });
+
+        $("#dlgTransportMode").dialog({
+            height: 290,
+            width: 220,
+            modal: true,
+            title: "<=TransportMode>",
+            autoOpen: false,
+            open: function (event, ui) {
+                $('body').css('overflow', 'hidden');
+                $('.ui-widget-overlay').css('width', '100%');
+            },
+            close: function (event, ui) {
+                $('body').css('overflow', 'auto');
+            }
+        });
+
+        $("#dlgTransportType").dialog({
+            height: 290,
+            width: 220,
+            modal: true,
+            title: "<=TransportType>",
+            autoOpen: false,
+            open: function (event, ui) {
+                $('body').css('overflow', 'hidden');
+                $('.ui-widget-overlay').css('width', '100%');
+            },
+            close: function (event, ui) {
+                $('body').css('overflow', 'auto');
+            }
+        });
+
+        $("#dlgDealerType").dialog({
+            height: 290,
+            width: 220,
+            modal: true,
+            title: "<=DealerType>",
+            autoOpen: false,
+            open: function (event, ui) {
+                $('body').css('overflow', 'hidden');
+                $('.ui-widget-overlay').css('width', '100%');
+            },
+            close: function (event, ui) {
+                $('body').css('overflow', 'auto');
+            }
+        });
+    })
+</script>
+<script type="text/javascript">
+    $(function () {
+        $("#txtShipper").focus(function () {
+            $("#dlgShipper").dialog("open");
+            var url = '@Url.Action("GetCustInfo", "MasterData")';
+            url += "/?CustAttribute=0";
+            $('#tblLeftShipper').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+            $("#tblRightShipper").clearGridData();
+        });
+
+        $("#btnLeftShipper").click(function () {
+            var gridLeftShipper = $("#tblLeftShipper");
+            var gridRightShipper = $("#tblRightShipper");
+            var id = gridRightShipper.jqGrid('getGridParam', 'selarrrow');
+            if (id.length < 1) {
+                return;
+            }
+            var arr = new Array();
+            for (var i = 0; i < id.length; i++) {
+                arr.push(id[i]);
+            }
+            $.each(arr, function (i, v) {
+                gridRightShipper.delRowData(v);
+            });
+        });
+
+        $("#btnRightShipper").click(function () {
+            var gridLeftShipper = $("#tblLeftShipper");
+            var gridRightShipper = $("#tblRightShipper");
+            var id = gridLeftShipper.jqGrid('getGridParam', 'selarrrow');
+            if (id.length < 1) {
+                return;
+            }
+            var arr = new Array();
+            for (var i = 0; i < id.length; i++) {
+                arr.push(id[i]);
+            }
+            $.each(arr, function (i, v) {
+                var leftCustCode = gridLeftShipper.getCell(v, 'CustCode');
+                arrIds = gridRightShipper.getDataIDs();
+                var exist = false;
+                if (arrIds.length > 0) {
+                    $.each(arrIds, function (b, s) {
+                        var rightCustCode = gridRightShipper.getCell(s, 'CustCode');
+                        if (rightCustCode == leftCustCode) {
+                            exist = true;
+                            return;
+                        }
+                    });
+                }
+                if (!exist) {
+                    var rows = gridRightShipper.find('tr').length;
+                    var newRowData = gridLeftShipper.getRowData(v);
+                    gridRightShipper.addRowData(rows, newRowData);
+                }
+            });
+        });
+
+        $("#btnShipperOk").click(function () {
+            var strShipper = "";
+            var gridRightShipper = $("#tblRightShipper");
+            var arrIds = gridRightShipper.getDataIDs();
+            $.each(arrIds, function (b, s) {
+                var shipper = $('#tblRightShipper').getCell(s, 'CustCode');
+                strShipper = strShipper + shipper + ",";
+            });
+            $("#txtShipper").val(strShipper);
+            $("#dlgShipper").dialog("close");
+        });
+
+        $("#btnShipperCancel").click(function () {
+            $("#dlgShipper").dialog("close");
+        });
+
+        $("#btnShipperSearch").click(function () {
+            var url = '@Url.Action("GetCustInfo", "MasterData")';
+            url += "/?CustAttribute=0";
+            url += "&Shipper=" + escape($("#txShipperSearch").val());
+            $('#tblLeftShipper').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        });
+    })
+</script>
+<script type="text/javascript">
+    $(function () {
+        $("#txtConsignee").focus(function () {
+            $("#dlgConsignee").dialog("open");
+            var url = '@Url.Action("GetCustInfo", "MasterData")';
+            $('#tblLeftConsignee').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+            $("#tblRightConsignee").clearGridData();
+        });
+
+        $("#btnLeftConsignee").click(function () {
+            var gridLeftConsignee = $("#tblLeftConsignee");
+            var gridRightConsignee = $("#tblRightConsignee");
+            var id = gridRightConsignee.jqGrid('getGridParam', 'selarrrow');
+            if (id.length < 1) {
+                return;
+            }
+            var arr = new Array();
+            for (var i = 0; i < id.length; i++) {
+                arr.push(id[i]);
+            }
+            $.each(arr, function (i, v) {
+                gridRightConsignee.delRowData(v);
+            });
+        });
+
+        $("#btnRightConsignee").click(function () {
+            var gridLeftConsignee = $("#tblLeftConsignee");
+            var gridRightConsignee = $("#tblRightConsignee");
+            var id = gridLeftConsignee.jqGrid('getGridParam', 'selarrrow');
+            if (id.length < 1) {
+                return;
+            }
+            var arr = new Array();
+            for (var i = 0; i < id.length; i++) {
+                arr.push(id[i]);
+            }
+            $.each(arr, function (i, v) {
+                var leftCustCode = gridLeftConsignee.getCell(v, 'CustCode');
+                arrIds = gridRightConsignee.getDataIDs();
+                var exist = false;
+                if (arrIds.length > 0) {
+                    $.each(arrIds, function (b, s) {
+                        var rightCustCode = gridRightConsignee.getCell(s, 'CustCode');
+                        if (rightCustCode == leftCustCode) {
+                            exist = true;
+                            return;
+                        }
+                    });
+                }
+                if (!exist) {
+                    var rows = gridRightConsignee.find('tr').length;
+                    var newRowData = gridLeftConsignee.getRowData(v);
+                    gridRightConsignee.addRowData(rows, newRowData);
+                }
+            });
+        });
+
+        $("#btnConsigneeOk").click(function () {
+            var strConsignee = "";
+            var gridRightConsignee = $("#tblRightConsignee");
+            var arrIds = $('#tblRightConsignee').getDataIDs();
+            $.each(arrIds, function (b, s) {
+                var consignee = $('#tblRightConsignee').getCell(s, 'CustCode');
+                strConsignee = strConsignee + consignee + ",";
+            });
+            $("#txtConsignee").val(strConsignee);
+
+            $("#dlgConsignee").dialog("close");
+        });
+
+        $("#btnConsigneeCancel").click(function () {
+            $("#dlgConsignee").dialog("close");
+        });
+
+        $("#btnConsigneeSearch").click(function () {
+            var url = '@Url.Action("GetCustInfo", "MasterData")';
+            url += "/?Consignee=" + escape($("#txConsigneeSearch").val());
+            $('#tblLeftConsignee').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        });
+    })
+</script>
+<script type="text/javascript">
+    $(function () {
+        $("#txtTransportMode").focus(function () {
+            $("#dlgTransportMode").dialog("open");
+            var url = '@Url.Action("GetTransportMode", "MasterData")';
+            $('#tblTransportMode').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        });
+
+        $("#btnTransportModeOk").click(function () {
+            var id = $("#tblTransportMode").jqGrid('getGridParam', 'selarrrow');
+            var strCode = "";
+            var strName = "";
+            $.each(id, function (i, v) {
+                var code = $('#tblTransportMode').getCell(v, 'TransportModeCode');
+                strCode = strCode + code + ",";
+            });
+            $("#txtTransportMode").val(strCode);
+            $("#dlgTransportMode").dialog("close");
+        });
+
+        $("#btnTransportModeCancel").click(function () {
+            $("#dlgTransportMode").dialog("close");
+        });
+
+        $("#txtTransportType").focus(function () {
+            $("#dlgTransportType").dialog("open");
+            var url = '@Url.Action("GetTransportType", "MasterData")';
+            $('#tblTransportType').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        });
+
+        $("#btnTransportTypeOk").click(function () {
+            var id = $("#tblTransportType").jqGrid('getGridParam', 'selarrrow');
+            var strCode = "";
+            $.each(id, function (i, v) {
+                var code = $('#tblTransportType').getCell(v, 'TransportTypeCode');
+                strCode = strCode + code + ",";
+            });
+            $("#txtTransportType").val(strCode);
+            $("#dlgTransportType").dialog("close");
+        });
+
+        $("#btnTransportTypeCancel").click(function () {
+            $("#dlgTransportType").dialog("close");
+        });
+    })
+</script>
+<script type="text/javascript">
+    $(function () {
+        $("#txtDealerType").focus(function () {
+            $("#dlgDealerType").dialog("open");
+            var url = '@Url.Action("GetDealerType", "MasterData")';
+            $('#tblDealerType').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        });
+
+        $("#btnDealerTypeOk").click(function () {
+            var id = $("#tblDealerType").jqGrid('getGridParam', 'selarrrow');
+            var strCode = "";
+            $.each(id, function (i, v) {
+                var code = $('#tblDealerType').getCell(v, 'DealerTypeCode');
+                strCode = strCode + code + ",";
+            });
+            $("#txtDealerType").val(strCode);
+            $("#dlgDealerType").dialog("close");
+        });
+
+        $("#btnDealerTypeCancel").click(function () {
+            $("#dlgDealerType").dialog("close");
+        });
+    })
+</script>
+<script type="text/javascript">
+    $(function () {
+        $("#btnAdjustmentTableImport").click(function () {
+            $("#dlgImport").dialog("open");
+            var cloneFile = $("#fileAdjustmentTableImport").clone();
+            $("#fileAdjustmentTableImport").replaceWith(cloneFile);
+            $("#fileAdjustmentTableImport").focus();
+        });
+
+        $("#btnAdjustmentTableTemplate").click(function () {
+            var url = '../../Upload/AdjustmentTable Template.xlsx';
+            window.location.href = url;
+        });
+
+        $("#btnImportCancel").click(function () {
+            $("#dlgImport").dialog("close");
+        });
+
+        $("#btnImportOK").click(function () {
+            if ($("#fileAdjustmentTableImport").val() == "") {
+                alert("<=FirstSelectUpload>");
+                return;
+            }
+            var url = '@Url.Action("AdjustmentTableImport", "BasicData")';
+            url += "/?AdjustmentType=" + adjustmentType;
+            $('#frmImport').attr('action', url);
+            PageLock();
+            $('#frmImport').ajaxSubmit({
+                success: function (result) {
+                    PageUnLock();
+                    alert(result);
+                    searchData();
+                    $("#btnImportCancel").click();
+                },
+                error: function () {
+                    PageUnLock();
+                }
+            })
+        });
+    });
+</script>
+<script type="text/javascript">
+    $(function () {
+        $("#txtForwarder").focus(function () {
+            $("#dlgForwarder").dialog("open");
+            var url = '@Url.Action("GetForwarder", "MasterData")';
+            $('#tblForwarder').setGridParam({ url: url, page: 1 }).trigger("reloadGrid");
+        });
+
+        $("#btnForwarderOk").click(function () {
+            var id = $("#tblForwarder").jqGrid('getGridParam', 'selarrrow');
+            var forwarder = "";
+            $.each(id, function (i, v) {
+                var code = $('#tblForwarder').getCell(v, 'CustCode');
+                forwarder = forwarder + code + ",";
+            });
+            $("#txtForwarder").val(forwarder);
+            $("#dlgForwarder").dialog("close");
+        });
+
+        $("#btnForwarderCancel").click(function () {
+            $("#dlgForwarder").dialog("close");
+        });
+    })
+</script>
+<div id="dlgShipper" style="display: none">
+    <table>
+        <tr>
+            <div id="ShipperSearch">
+                <input type="text" class="text" id="txShipperSearch" name="<=Shipper>" />
+                <input type="button" class="button" id="btnShipperSearch" value="<=Search>" />
+            </div>
+        </tr>
+        <tr>
+            <td style="width: 450">
+                <fieldset>
+                    <legend style="font-weight: bold"><=Shipper></legend>
+                    <div class="column_grid">
+                        <table id="tblLeftShipper">
+                        </table>
+                        <div id="divLeftShipper">
+                        </div>
+                    </div>
+                </fieldset>
+            </td>
+            <td style="width: 40">
+                <div class="column_edit" style="vertical-align: middle; width: 40;">
+                    <div class="btn_bar" style="width: 40;">
+                        <input type="button" class="button" id="btnRightShipper" value=">>" />
+                        <p>
+                        </p>
+                        <input type="button" class="button" id="btnLeftShipper" value="<<" />
+                    </div>
+                </div>
+            </td>
+            <td style="width: 450">
+                <fieldset>
+                    <legend style="font-weight: bold"><=Shipper></legend>
+                    <div class="column_grid">
+                        <table id="tblRightShipper">
+                        </table>
+                    </div>
+                </fieldset>
+            </td>
+        </tr>
+    </table>
+    <div class="column_edit">
+        <div class="btn_bar" style="float: right">
+            <input type="button" class="button" id="btnShipperOk" value="<=Confirm>" />
+            <input type="button" class="button" id="btnShipperCancel" value="<=Cancel>" />
+        </div>
+    </div>
+</div>
+<div id="dlgConsignee" style="display: none">
+    <table>
+        <tr>
+            <div id="ConsigneeSearch">
+                <input type="text" class="text" id="txConsigneeSearch" name="<=Consignee>" />
+                <input type="button" class="button" id="btnConsigneeSearch" value="<=Search>" />
+            </div>
+        </tr>
+        <tr>
+            <td style="width: 450">
+                <fieldset>
+                    <legend style="font-weight: bold"><=Consignee></legend>
+                    <div class="column_grid">
+                        <table id="tblLeftConsignee">
+                        </table>
+                        <div id="divLeftConsignee">
+                        </div>
+                    </div>
+                </fieldset>
+            </td>
+            <td style="width: 40">
+                <div class="column_edit" style="vertical-align: middle; width: 40;">
+                    <div class="btn_bar" style="width: 40;">
+                        <input type="button" class="button" id="btnRightConsignee" value=">>" />
+                        <p>
+                        </p>
+                        <input type="button" class="button" id="btnLeftConsignee" value="<<" />
+                    </div>
+                </div>
+            </td>
+            <td style="width: 450">
+                <fieldset>
+                    <legend style="font-weight: bold"><=Consignee></legend>
+                    <div class="column_grid">
+                        <table id="tblRightConsignee">
+                        </table>
+                    </div>
+                </fieldset>
+            </td>
+        </tr>
+    </table>
+    <div class="column_edit">
+        <div class="btn_bar" style="float: right">
+            <input type="button" class="button" id="btnConsigneeOk" value="<=Confirm>" />
+            <input type="button" class="button" id="btnConsigneeCancel" value="<=Cancel>" />
+        </div>
+    </div>
+</div>
+<div id="dlgForwarder" style="display: none">
+    <div class="column_grid">
+        <table id="tblForwarder">
+        </table>
+    </div>
+    <div class="column_edit">
+        <div class="btn_bar" style="float: right">
+            <input type="button" class="button" id="btnForwarderOk" value="<=Confirm>" />
+            <input type="button" class="button" id="btnForwarderCancel" value="<=Cancel>" />
+        </div>
+    </div>
+</div>
+<div id="dlgTransportMode" style="display: none">
+    <div class="column_grid">
+        <table id="tblTransportMode">
+        </table>
+    </div>
+    <div class="column_edit">
+        <div class="btn_bar" style="float: right">
+            <input type="button" class="button" id="btnTransportModeOk" value="<=Confirm>" />
+            <input type="button" class="button" id="btnTransportModeCancel" value="<=Cancel>" />
+        </div>
+    </div>
+</div>
+<div id="dlgTransportType" style="display: none">
+    <div class="column_grid">
+        <table id="tblTransportType">
+        </table>
+    </div>
+    <div class="column_edit">
+        <div class="btn_bar" style="float: right">
+            <input type="button" class="button" id="btnTransportTypeOk" value="<=Confirm>" />
+            <input type="button" class="button" id="btnTransportTypeCancel" value="<=Cancel>" />
+        </div>
+    </div>
+</div>
+<div id="dlgDealerType" style="display: none">
+    <div class="column_grid">
+        <table id="tblDealerType">
+        </table>
+    </div>
+    <div class="column_edit">
+        <div class="btn_bar" style="float: right">
+            <input type="button" class="button" id="btnDealerTypeOk" value="<=Confirm>" />
+            <input type="button" class="button" id="btnDealerTypeCancel" value="<=Cancel>" />
+        </div>
+    </div>
+</div>
+<div id="dlgImport" style="display: none">
+    <div class="column_edit">
+        <form id="frmImport" name="frmImport" method="post" enctype="multipart/form-data"
+        action='@Url.Action("AdjustmentTableImport", "BasicData")'>
+        <table>
+            <tr>
+                <td class="title">
+                </td>
+                <td>
+                    <input type="file" name="FileAdjustmentTableImport" size="60" id="fileAdjustmentTableImport" />
+                </td>
+            </tr>
+        </table>
+        <div class="btn_bar" style="float: right">
+            <input type="button" class="button" id="btnImportOK" value="<=OK>" />
+            <input type="button" class="button" id="btnImportCancel" value="<=Cancel>" />
+        </div>
+        </form>
+    </div>
+</div>
+<div id="divLock" align="center" style="display: none" class="transparent">
+    <=DataProcess><br />
+    <img src="../../Content/Images/Load1.gif" />
+</div>
+<script type="text/javascript" language="javascript">
+    $(function () {
+        $("#tblBasAdjustmentTable").jqGrid({
+            url: '@Url.Action("GetBasAdjustmentTable", "BasicData")' + "/?AdjustmentType=" + adjustmentType,
+            datatype: "json",
+            mtype: 'POST',
+            height: 320,
+            colNames: ['<=PrintDate>', '<=TnNo>', '<=TnProperty>'],
+            colModel: [
+				{ width: 250, name: 'PrintDate', index: 'PrintDate' },
+				{ width: 250, name: 'TnNo', index: 'TnNo' },
+				{ width: 250, name: 'TnProperty', index: 'TnProperty' }
+                 ],
+            pager: 1,
+            rowNum: 15,
+            sortname: 'Serial',
+            sortorder: "asc",
+            rownumbers: true,
+            shrinkToFit: false,
+            autowidth: true,
+            viewrecords: true,
+            sortable: true,
+            width: "100%",
+            pager: $('#divPager'),
+            rowList: [15, 20, 50, 100],
+            imgpath: '../../Content/JS/jquery.jqGrid-3.6.4/ui/images'
+        });
+    });
+</script>

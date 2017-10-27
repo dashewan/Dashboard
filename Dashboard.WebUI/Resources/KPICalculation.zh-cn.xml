@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Localization>
+  <Module name="Pubic">
+    <item name="Search">查询</item>
+    <item name="Save">保存</item>
+    <item name="Delete">删除</item>
+    <item name="New">新增</item>
+    <item name="Edit">编辑</item>
+    <item name="View">查看</item>
+    <item name="Reset">计算条件重置</item>
+    <item name="SaveSuccess">保存成功</item>
+    <item name="SaveError">保存出错，请联系管理员</item>
+    <item name="DeleteSuccess">删除成功</item>
+    <item name="DeleteFail">删除失败</item>
+    <item name="SelectOneDate">请选定一条数据</item>
+    <item name="Remark">备注</item>
+    <item name="Active">有效</item>
+    <item name="IsDisabled">是否可用</item>
+    <item name="SureDelete">确定要删除么?</item>
+    <item name="Cancel">取消</item>
+    <item name="CreatedUser">创建人</item>
+    <item name="CreatedDate">创建时间</item>
+    <item name="DataProcess">处理中...</item>
+    <item name="OK">确认</item>
+    <item name="FirstSave">请先保存</item>
+    <item name="StartTimeGreaterThanEndTime">结束时间必须大于开始时间</item>
+    <item name="EndTimeGreaterThanStartTime">时间跨度不能大于6个月</item>
+    <item name="Template">模板</item>
+    <item name="CalculationSuccess">计算成功</item>
+    <item name="CalculationError">计算失败</item>
+    <item name="CalculationConfirm">确定要计算吗?</item>
+  </Module>
+  <Module name="KPICalculation">
+    <item name="KPICalculation">KPI计算</item>
+    <item name="Calculation">KPI计算</item>
+    <item name="TimePeriod">时间周期类型</item>
+    <item name="FromDate">开始时间</item>
+    <item name="ToDate">结束时间</item>
+    <item name="TimePeriodIsRequired">时间周期类型为必选项</item>
+    <item name="FromDateIsRequired">开始时间为必选项</item>
+    <item name="ToDateIsRequired">结束时间为必选项</item>
+    <item name="FromDateGreaterThanToDate">结束时间必须大于开始时间</item>
+    <item name="CalProcessWorking">正在进行计算,请稍后重试</item>
+  </Module>
+</Localization>
